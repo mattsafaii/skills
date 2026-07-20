@@ -1,0 +1,247 @@
+{
+  "skill_name": "safaii-html",
+  "notes": "Behavioral evals for the safaii-html markup conventions. Each targets a place a generic agent would default the wrong way: a div+role instead of a native element, a button-vs-link mixup, a zoom-blocking viewport, an unlabeled input, literal all-caps text, an unconditional opacity:0 reveal, or sloppy formatting. Run a fresh agent that reads SKILL.md (not the evals) per prompt, then grade the output against the expectations.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need a 'Sign up' button that opens a sign-up modal dialog. Give me the HTML, plus minimal JS if it's needed.",
+      "expected_output": "Native <dialog> opened with .showModal(); trigger and close are <button>s. No <div role=\"dialog\">, no focus-trap library, no role=\"button\", no re-added ARIA the native elements already provide.",
+      "files": [],
+      "expectations": [
+        "Uses a native <dialog> element, not <div role=\"dialog\">",
+        "Opens the dialog declaratively via command=\"show-modal\"/commandfor (preferred) or via element.showModal() — either way it's the native dialog, getting focus trap / Escape / backdrop / inert free",
+        "Trigger and close controls are <button> elements, not <div>/<a> with role or onclick hacks",
+        "No focus-trap library or manual focus-management JS",
+        "Does not re-add ARIA roles the native <dialog>/<button> already provide"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "On this page I need a 'Delete account' control and a 'Back to home' control. Mark them up.",
+      "expected_output": "Navigation ('Back to home') is an <a href=\"/\">; the action ('Delete account') is a <button>. No <a href=\"#\"> wired to JS, no <div>/<span> onclick.",
+      "files": [],
+      "expectations": [
+        "The navigation control (Back to home) is an <a href>, not a button or a JS click handler",
+        "The action control (Delete account) is a <button>, not <a href=\"#\"> + JS or a div/span onclick",
+        "No <a href=\"#\"> used as a fake button",
+        "No <div>/<span> with onclick used as a control"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Give me the starting HTML shell for a new page titled 'About'.",
+      "expected_output": "<!doctype html>, <html lang>, <meta charset> first in head, a viewport that does NOT disable zoom, a descriptive page-specific <title>, and a <meta name=\"description\">.",
+      "files": [],
+      "expectations": [
+        "Includes <!doctype html> and lang on <html>",
+        "<meta charset=\"utf-8\"> is present and first in <head>",
+        "viewport meta is present and does NOT disable zoom (no maximum-scale, no user-scalable=no)",
+        "A descriptive, page-specific <title> (e.g. mentions About)",
+        "Includes a <meta name=\"description\">"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Build a newsletter signup form: an email field and a subscribe button.",
+      "expected_output": "<form action> with a labeled <input type=\"email\" required autocomplete=\"email\"> and a <button type=\"submit\">. Native validation, real submission (not fetch), label not placeholder.",
+      "files": [],
+      "expectations": [
+        "The email input has an associated <label> (for/id or wrapping the input)",
+        "Uses <input type=\"email\"> with native validation (required), not a bare text input validated by JS",
+        "Submits via <button type=\"submit\"> inside a <form action>, not a JS fetch handler",
+        "Includes a relevant autocomplete attribute (e.g. autocomplete=\"email\")",
+        "Does not use a placeholder as a substitute for a label"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Reformat this markup to our house style — fix the formatting and syntax only; don't add or remove elements:\n\n<DIV CLASS='card'><IMG SRC='a.jpg'></IMG><INPUT TYPE='text' REQUIRED='required' /><BR/></DIV>",
+      "expected_output": "Formatting-only: lowercase element/attribute names; double-quoted values; bare boolean (required); the invalid </img> removed; void elements unclosed (<img …>, <br>) with no XHTML self-closing slash. The <br> is kept (not deleted) and no <label>/alt or other elements are added — this is a syntax fix, not a rewrite.",
+      "files": [],
+      "expectations": [
+        "Element and attribute names are lowercased",
+        "Attribute values are double-quoted",
+        "Boolean attribute is bare (required, not required=\"required\")",
+        "The invalid </img> closing tag is removed (img is a void element)",
+        "Void elements are not XHTML self-closed (<br>, not <br/>)",
+        "No elements are added or removed — the <br> is kept (as <br>), and no new <label>/wrapper elements are invented (formatting-only edit)"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "I want a submit button that displays in all caps: SUBMIT.",
+      "expected_output": "Markup text is 'Submit' (normal case); the all-caps look comes from CSS text-transform: uppercase. A <button> element. Literal all-caps text is avoided so screen readers don't spell it out.",
+      "files": [],
+      "expectations": [
+        "The button's HTML text content is NOT literal all-caps — written as 'Submit', not 'SUBMIT'",
+        "All-caps appearance is achieved with CSS text-transform: uppercase",
+        "Uses a <button> element"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Fade my page sections in as they scroll into view.",
+      "expected_output": "js-ready (or similar) gate so the hidden state only applies when JS is present; IntersectionObserver triggers the reveal; opacity:0 hidden state sits inside @media (prefers-reduced-motion: no-preference). Content stays visible without JS and isn't announced early.",
+      "files": [],
+      "expectations": [
+        "The pre-reveal hidden state is gated so content stays visible without JS (e.g. only under a .js-ready / js-added root class)",
+        "Uses IntersectionObserver to trigger the reveal on scroll (not a scroll listener that reveals/announces early)",
+        "The hidden opacity:0 state is inside @media (prefers-reduced-motion: no-preference)",
+        "Does not set opacity:0 unconditionally (which hides content for no-JS users and still announces it to screen readers)"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Mark up a site header: a logo and a primary navigation menu of links.",
+      "expected_output": "<header> containing the logo and a <nav> whose links are in a <ul>. No role=\"banner\"/role=\"navigation\" repetition, no <div class=\"header\">/<div class=\"nav\">, no role=\"menu\"/menuitem (those are for app menus, not site links).",
+      "files": [],
+      "expectations": [
+        "Uses <header> and <nav> landmarks, not <div class=\"header\"> / <div class=\"nav\">",
+        "Does NOT add redundant role=\"navigation\" or role=\"banner\"",
+        "Navigation links are in a list (<ul><li><a>)",
+        "Does not use role=\"menu\"/menuitem/aria-haspopup for plain site-navigation links"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Wire up a 'Sign up' button that opens a sign-up dialog, plus a button inside the dialog that closes it. Use the modern declarative approach, and make sure it still works in browsers that don't support it yet.",
+      "expected_output": "Open button: command=\"show-modal\" commandfor=\"<dialog id>\". Close button (inside the dialog): command=\"close\" commandfor=\"<dialog id>\". Native <dialog>, no onclick / addEventListener as the primary wiring. Plus a removable feature-detect fallback (e.g. checks 'commandForElement' in HTMLButtonElement.prototype) that calls .showModal()/.close() for pre-2025 browsers, marked as deletable later.",
+      "files": [],
+      "expectations": [
+        "Open button uses command=\"show-modal\" with commandfor pointing at the dialog's id",
+        "Close button (inside the dialog) uses command=\"close\" with commandfor",
+        "Uses a native <dialog> element (no <div role=\"dialog\">, no focus-trap library)",
+        "The declarative command/commandfor attributes are the PRIMARY wiring — not onclick / addEventListener",
+        "Includes a feature-detection fallback that wires .showModal()/.close() for browsers without invoker-command support",
+        "The fallback is marked as removable/temporary (a comment), not presented as a permanent solution"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "I have an ordered list of steps, and I want them numbered with a custom style — and where a step has sub-steps, number those too (like 1, 1.1, 1.2, 2).",
+      "expected_output": "Native <ol> (nested <ol> for sub-steps) so the ordering is real and announced. Custom marker styling via @counter-style / list-style-type / ::marker keeps it accessible. If it uses counters()/counter() for the nested 1.1 display, it notes the generated-content screen-reader caveat and keeps the meaningful numbering in the native <ol> structure — NOT list-style:none + counters as the sole carrier of order.",
+      "files": [],
+      "expectations": [
+        "Uses a native <ol> (with nested <ol> for sub-steps) — order is real markup, not faked with <div>/<ul>+counters",
+        "Custom numbering style is applied via list-style-type / @counter-style / ::marker, or counters() — not by abandoning the <ol> semantics",
+        "If counter()/counters() generated content is used for the 1.1 display, flags that generated content isn't reliably read by screen readers",
+        "Does NOT strip the list to list-style:none + CSS counters as the only source of the (meaningful) numbering",
+        "Keeps the meaningful order/number conveyed semantically (native <ol>), with CSS counters as presentation only"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "I have a comment textarea that should grow to fit what the user types instead of staying a fixed height.",
+      "expected_output": "CSS field-sizing: content on the native <textarea> (with a <label>), bounded by min/max — NOT a JS auto-grow script. Light ask-first heads-up (Baseline 2026 June, degrades to fixed sizing).",
+      "files": [],
+      "expectations": [
+        "Uses CSS field-sizing: content on the textarea — not a JS input-event auto-grow script",
+        "Bounds growth with min/max (e.g. max-height) rather than a fixed height",
+        "Native <textarea> with an associated <label>",
+        "Gives a light ask-first heads-up (Baseline 2026, graceful — degrades to normal fixed sizing)",
+        "Does not set a fixed height/width that would override field-sizing"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Make my <details> accordion smoothly expand and fade in when opened, instead of snapping open.",
+      "expected_output": "Animate the native <details> with the ::details-content pseudo-element: opacity + content-visibility ... allow-discrete for the fade, and interpolate-size: allow-keywords + height to auto for the expand (flagged Chromium-only enhancement). Whole thing gated under prefers-reduced-motion. No JS toggle / no height-measuring script.",
+      "files": [],
+      "expectations": [
+        "Animates via the ::details-content pseudo-element (targets the open panel), not a JS height/measure script",
+        "Transitions content-visibility with allow-discrete so the fade survives collapse",
+        "For the height expand, uses interpolate-size: allow-keywords (animating to auto) and flags it as Chromium-only / progressive enhancement",
+        "Gates the whole animation under @media (prefers-reduced-motion: no-preference)",
+        "Keeps the native <details>/<summary> (no JS toggle) and treats the motion as functional/subtle",
+        "Does not reach for a JS animation library or manual height measurement"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "I want my sections to fade in as the user scrolls down to them.",
+      "expected_output": "The house safe-fade-in: js-ready gate + IntersectionObserver, hidden state under .js-ready and prefers-reduced-motion. NOT scroll-driven CSS animations (animation-timeline). If animation-timeline is mentioned, note it's not Baseline (no Safari) / decorative and prefer the safe-fade-in.",
+      "files": [],
+      "expectations": [
+        "Reaches for the safe-fade-in pattern (js-ready gate + IntersectionObserver) — the house reveal pattern",
+        "Does NOT reach for scroll-driven CSS animations (animation-timeline: scroll()/view()) as the answer",
+        "If it mentions animation-timeline at all, flags it's not Baseline (no Safari) / decorative and prefers the safe-fade-in",
+        "Pre-reveal hidden state is gated (.js-ready + prefers-reduced-motion) so content stays visible without JS",
+        "Does not set opacity:0 unconditionally"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Style my form so invalid required fields show a red border — but I don't want fields flagged red before the user has even typed anything.",
+      "expected_output": "Use :user-invalid (and :user-valid for the success state) — NOT :invalid/:valid, which flag on load before interaction. Native validation (required), no JS. The :user-* selectors only match after the user interacts or tries to submit.",
+      "files": [],
+      "expectations": [
+        "Uses :user-invalid (and/or :user-valid) for the validation styling",
+        "Does NOT use :invalid/:valid as the primary styling hook (they flag untouched fields on load)",
+        "Relies on native constraint validation (required, type=...), not a JS validation script",
+        "Notes or relies on :user-* matching only after interaction, so untouched required fields aren't flagged"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "I have an off-canvas mobile nav that slides in. When it's closed/off-screen, make sure keyboard and screen-reader users can't tab into it.",
+      "expected_output": "Put the inert attribute on the off-canvas nav while it's closed (remove it when open) — that takes the subtree out of tab order, the a11y tree, and find-in-page in one attribute. NOT hand-rolled tabindex=-1 on every child or aria-hidden juggling.",
+      "files": [],
+      "expectations": [
+        "Uses the inert attribute on the off-canvas nav while closed (toggled off when open)",
+        "Does NOT hand-roll tabindex=\"-1\" on each focusable child or aria-hidden as the mechanism",
+        "Relies on inert removing the subtree from tab order + accessibility tree + find-in-page",
+        "Keeps it a real nav (native elements), toggling inert rather than rebuilding focus management in JS"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "Mark up the site search box in my header — a search input and a button.",
+      "expected_output": "A <search> landmark wrapping a <form action> with a <label>, <input type=\"search\">, and <button type=\"submit\">. No role=\"search\" on a div/form — the native <search> element provides the landmark.",
+      "files": [],
+      "expectations": [
+        "Wraps the search form in a native <search> element (the search landmark)",
+        "Does NOT use role=\"search\" on a <div>/<form> — uses the native element instead",
+        "Uses <input type=\"search\"> with an associated <label>, inside a <form action>",
+        "Submit is a <button type=\"submit\"> (real form submission)"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "I have a long FAQ. Each answer is collapsed by default with a custom show/hide (not a <details>), but I still want answers to be found by the browser's Find-in-page.",
+      "expected_output": "Hide the collapsed answers with hidden=\"until-found\" (not display:none) so find-in-page can discover and auto-reveal them. Ideally note that a native <details> is already findable, so it's the simpler choice if the design allows — hidden=until-found is for the custom case described.",
+      "files": [],
+      "expectations": [
+        "Hides the collapsed answers with hidden=\"until-found\" rather than display:none / the plain hidden attribute",
+        "Relies on find-in-page discovering + auto-revealing the content (beforematch), not a JS search index",
+        "Notes that native <details> is already find-in-page-friendly and is the simpler option when the design permits",
+        "Does not put hidden=\"until-found\" on a display:none/contents/inline element (it needs a box to reveal)"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "I have a close button that's just an X icon (an inline SVG, no text). Make it accessible.",
+      "expected_output": "Give the button an accessible name via aria-label (\"Close\") OR a visually-hidden .sr-only text span — NOT the title attribute, and never nameless. Hide the decorative SVG from assistive tech (aria-hidden=\"true\"). If using .sr-only, use the canonical clip-path:inset(50%) recipe, not display:none.",
+      "files": [],
+      "expectations": [
+        "Gives the icon-only <button> an accessible name via aria-label OR a visually-hidden .sr-only text span",
+        "Does NOT use the title attribute as the accessible name",
+        "Does NOT leave the button without an accessible name",
+        "Marks the decorative SVG aria-hidden=\"true\" (or focusable=\"false\") since the button carries the name",
+        "If it uses .sr-only, uses the canonical visually-hidden recipe (clip-path: inset(50%), 1px, overflow hidden) — not display:none/visibility:hidden"
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "I have a 'Role' text field where I want to suggest common roles (Designer, Developer, Manager) but still let people type their own.",
+      "expected_output": "A native <input list=\"...\"> wired to a <datalist> of <option>s (with a <label>) — suggestions that don't restrict free text. No custom JS autocomplete/dropdown. (A <select> would be wrong since it restricts to the listed values.)",
+      "files": [],
+      "expectations": [
+        "Uses <input list=\"...\"> wired to a <datalist> with <option> suggestions",
+        "Does NOT build a custom JS autocomplete / dropdown widget",
+        "Keeps the input free-text (datalist suggests, doesn't restrict) — matches 'type their own'",
+        "Has an associated <label>; native form control",
+        "Does not use a <select> (which would restrict to the listed roles)"
+      ]
+    }
+  ]
+}

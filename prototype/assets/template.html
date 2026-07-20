@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype — {{FEATURE_NAME}}</title>
+<style>
+  /* Neutral chrome — keep this plain so the variations are what stands out. */
+  :root {
+    --bg: #f6f6f7;
+    --panel: #ffffff;
+    --ink: #1a1a1a;
+    --muted: #8a8a8f;
+    --line: #e6e6e8;
+    --accent: #1a1a1a;
+    --radius: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 32px 24px 80px; }
+  header { margin-bottom: 20px; }
+  header h1 { font-size: 15px; font-weight: 600; margin: 0; }
+  header p { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+
+  /* Tab bar — numbered pills, like the demo */
+  .tabs {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 6px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 999px;
+    position: sticky; top: 16px; z-index: 10;
+  }
+  .tab {
+    display: inline-flex; align-items: center; gap: 7px;
+    border: 0; background: transparent; cursor: pointer;
+    font: inherit; font-size: 13px; color: var(--muted);
+    padding: 7px 14px; border-radius: 999px; white-space: nowrap;
+  }
+  .tab .num {
+    display: grid; place-items: center;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--line); color: var(--muted);
+    font-size: 11px; font-weight: 600;
+  }
+  .tab[aria-selected="true"] { background: var(--accent); color: #fff; }
+  .tab[aria-selected="true"] .num { background: rgba(255,255,255,.25); color: #fff; }
+
+  /* Variation panels */
+  .panel { display: none; margin-top: 22px; }
+  .panel[data-active] { display: block; }
+  .panel .note {
+    font-size: 13px; color: var(--muted);
+    margin: 0 0 16px; line-height: 1.5;
+  }
+  .stage {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 28px;
+    min-height: 220px;
+  }
+  .hint { margin-top: 28px; font-size: 12px; color: var(--muted); text-align: center; }
+  kbd {
+    font: inherit; font-size: 11px; background: var(--panel);
+    border: 1px solid var(--line); border-bottom-width: 2px;
+    border-radius: 5px; padding: 1px 6px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>{{FEATURE_NAME}}</h1>
+    <p>{{FEATURE_DESCRIPTION}} — 5 takes. Pick one.</p>
+  </header>
+
+  <!-- Tab bar. One button per variation; label = the short variation name. -->
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true"  data-target="v1"><span class="num">1</span>{{NAME_1}}</button>
+    <button class="tab" role="tab" aria-selected="false" data-target="v2"><span class="num">2</span>{{NAME_2}}</button>
+    <button class="tab" role="tab" aria-selected="false" data-target="v3"><span class="num">3</span>{{NAME_3}}</button>
+    <button class="tab" role="tab" aria-selected="false" data-target="v4"><span class="num">4</span>{{NAME_4}}</button>
+    <button class="tab" role="tab" aria-selected="false" data-target="v5"><span class="num">5</span>{{NAME_5}}</button>
+  </div>
+
+  <!-- One panel per variation. Replace .note with the tradeoff line and .stage with the live component. -->
+  <section class="panel" id="v1" data-active>
+    <p class="note">{{NOTE_1}}</p>
+    <div class="stage"><!-- VARIATION 1 markup + scoped styles/JS --></div>
+  </section>
+  <section class="panel" id="v2">
+    <p class="note">{{NOTE_2}}</p>
+    <div class="stage"><!-- VARIATION 2 --></div>
+  </section>
+  <section class="panel" id="v3">
+    <p class="note">{{NOTE_3}}</p>
+    <div class="stage"><!-- VARIATION 3 --></div>
+  </section>
+  <section class="panel" id="v4">
+    <p class="note">{{NOTE_4}}</p>
+    <div class="stage"><!-- VARIATION 4 --></div>
+  </section>
+  <section class="panel" id="v5">
+    <p class="note">{{NOTE_5}}</p>
+    <div class="stage"><!-- VARIATION 5 --></div>
+  </section>
+
+  <p class="hint">Switch with the tabs or press <kbd>1</kbd>–<kbd>5</kbd></p>
+</div>
+
+<script>
+  const tabs = [...document.querySelectorAll('.tab')];
+  const panels = [...document.querySelectorAll('.panel')];
+  function show(id) {
+    tabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.target === id)));
+    panels.forEach(p => p.toggleAttribute('data-active', p.id === id));
+  }
+  tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.target)));
+  addEventListener('keydown', e => {
+    const n = parseInt(e.key, 10);
+    if (n >= 1 && n <= tabs.length) show('v' + n);
+  });
+</script>
+</body>
+</html>
