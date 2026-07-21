@@ -250,6 +250,17 @@ One line: Documentation folder created in Basecamp with [N] docs and [M] diagram
 - **Teach.** Explain *why* and *how it relates*, in plain language — say what concretely happens. No methodology jargon ("Examples," not "Exemplars").
 - **Cite the code.** Real paths, functions, types (`internal/scan/runner.go`, `Runner.Execute`) so the reader can jump to source. **Always repo-relative paths — never absolute local paths** (`internal/adapter/`, not `/Users/matt/Code/personal/.../internal/adapter/`). Absolute paths leak your home-dir layout into public/handoff docs and break for any other reader.
 
+**Sentence-level style** (borrows Simplified Technical English's best habits, not its full controlled-vocabulary standard):
+
+- **Short sentences, one idea each.** Roughly 20-25 words max. Split compound sentences instead of stacking clauses with "and"/"which"/"while."
+- **Active voice.** "The router dispatches the request," not "The request is dispatched by the router."
+- **One word, one meaning.** Pick a term per concept and reuse it verbatim throughout — don't rotate synonyms ("endpoint" / "route" / "handler") for the same thing.
+- **No noun-stacking.** Unpack chains like "the auth token refresh config" into "the config that refreshes the auth token."
+- **Concrete verbs over nominalizations.** "Validates input," not "performs input validation."
+- **Steps as numbered lists**, not dense prose, when describing a sequence.
+
+This is a style pass, not a vocabulary restriction — domain and code terms (`Runner.Execute`, `sql_table`) stay exactly as-is; nothing gets simplified or substituted.
+
 ---
 
 ## D2 reference
@@ -328,6 +339,7 @@ cli -> user: print results
 | 10 | Diagram docs are HTML | Any doc with a `<bc-attachment>` is fully HTML | Convert that doc's Markdown to HTML |
 | 11 | Repo untouched | `git status` clean — all working files in scratch, nothing committed to the repo | Remove anything written into the project |
 | 12 | Index covers both | Start Here has learning path + reference command | Write it |
+| 13 | Sentence-level style | Short active sentences; consistent terms; no noun-stacking | Rewrite the offending passage |
 
 ---
 
