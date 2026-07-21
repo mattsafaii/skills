@@ -2,7 +2,7 @@
 
 Start a build cycle. This is the moment the bet is placed — everything needed to go from "card in Up Next" to "build session running in Solo" happens here, in one command.
 
-**Matt runs `/build` from anywhere with the Solo MCP connected** — cwd doesn't matter. The skill looks the project up explicitly and spawns the build agent into the correct Solo project, so it doesn't care where it was launched. It creates the Basecamp project, writes the PRD doc, posts the kickoff, creates the todolist, scaffolds the repo in a new workspace folder, registers it in Solo, spawns a Claude agent inside it with its first prompt, and moves the card to In Progress. Matt then switches to the project in Solo where the build session is already working.
+**Matt runs `/build` from anywhere with the Solo MCP connected** — cwd doesn't matter. The skill looks the project up explicitly and spawns the build agent into the correct Solo project, so it doesn't care where it was launched. It creates the Basecamp project, writes the PRD doc, posts the kickoff, creates the todolist, scaffolds the repo in a new workspace folder, registers it in Solo, spawns an OpenCode agent inside it with its first prompt, and moves the card to In Progress. Matt then switches to the project in Solo where the build session is already working.
 
 Never start coding the build from this session — the build session must live in the project directory so its transcript, memory, and resume stay with the project. (Footnote: avoid launching `/build` from the target repo's *actively-building* agent — it works, but it's a session spawning a sibling into its own project. Anywhere else is fine.)
 
@@ -51,9 +51,9 @@ A card can be a brand-new project or a follow-up cycle on an existing one (exist
 
 **Existing project path** — confirm the Basecamp project id and repo path with Matt, then:
 
-- **Skip:** step 4 (project creation), step 8's scaffold/solo.yml/CLAUDE.md creation/repo config init, and step 9's registration (still look up the existing Solo project id there)
+- **Skip:** step 4 (project creation), step 8's scaffold/solo.yml/AGENTS.md creation/repo config init, and step 9's registration (still look up the existing Solo project id there)
 - **Keep:** steps 3, 5, 6, 7, 10, 11, 12 — run them against the existing project
-- **Adjust:** name things for the cycle, update the existing CLAUDE.md, and repoint the Basecamp config — details flagged per step below
+- **Adjust:** name things for the cycle, update the existing AGENTS.md, and repoint the Basecamp config — details flagged per step below
 
 ### 3. Derive the todolist
 
@@ -201,7 +201,7 @@ basecamp todo "<task>" --list <todolist_id> --in <project_id> -a 6191443 --json
 
 **Existing project:** the repo already exists — no scaffold, no solo.yml, no `basecamp config init`. Instead:
 
-1. Update the existing `CLAUDE.md` with the new cycle's context (summary, surfaces, no-gos) — append or revise, don't blow away what's there. Keep the Basecamp section CLI-based; don't add IDs or URLs.
+1. Update the existing `AGENTS.md` with the new cycle's context (summary, surfaces, no-gos) — append or revise, don't blow away what's there. Keep the Basecamp section CLI-based; don't add IDs or URLs.
 2. Repoint the Basecamp config at the new list: `cd <repo> && basecamp config set todolist_id <new_todolist_id>`
 3. Commit those changes, then skip to step 9
 
@@ -241,19 +241,19 @@ mkdir -p ~/Code/personal/<name> && cd ~/Code/personal/<name> && git init && go m
 mkdir -p ~/Code/personal/<name> && cd ~/Code/personal/<name> && git init
 ```
 
-Then write two files into the workspace:
+Then write these files into the workspace:
 
 **`solo.yml`** — local Solo tooling config; gitignored in the Basecamp repo config step below (stays on disk, not committed). Watch the YAML: `processes` is top-level, NOT nested under `name`:
 
 ```yaml
 name: <name>
 processes:
-  Claude:
-    command: claude
+  OpenCode:
+    command: opencode
     auto_start: true
 ```
 
-**`CLAUDE.md`** — the briefing the build session wakes up to. It must stand alone; the build session has none of this conversation's context. Include:
+**`AGENTS.md`** — the briefing the build session wakes up to (OpenCode reads `AGENTS.md`). Also symlink `CLAUDE.md` → `AGENTS.md` so the briefing works for any tool, per the repo convention. It must stand alone; the build session has none of this conversation's context. Include:
 
 - One-paragraph summary of what's being built and why
 - Stack, naming the deploy target (Rails → Kamal on VPS, SQLite-only; 11ty → Cloudflare Pages, pnpm). For 11ty/Rails, add a line pointing the build session at the `safaii-css` and `safaii-html` skills for CSS/markup conventions — they auto-trigger, but naming them removes the dependency on that.
@@ -288,7 +288,7 @@ Keep the stub short — real usage, install, and examples come at the finalize-R
 @scripts/init-basecamp-config.sh ~/Code/personal/<name> <project_id> <todolist_id>
 ```
 
-It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `set todolist_id` / `trust`, then appends `.basecamp/` and `solo.yml` to `.gitignore`. (`trust` is only needed for authority keys, but it's harmless and future-proofs the config.) Both `.basecamp/` and `solo.yml` stay out of git — they're local session/tooling config, not project code (`solo.yml` just tells Solo to run `claude` as a process; it stays on disk so Solo keeps working, it's only untracked). Gitignoring them before the commit keeps the `git add -A` scaffold commit clean — important since these repos are often open-core-ready or public. The build session pulls the PRD/pitch via `basecamp` commands (config above), so no IDs or URLs need to be written into the committed repo.
+It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `set todolist_id` / `trust`, then appends `.basecamp/` and `solo.yml` to `.gitignore`. (`trust` is only needed for authority keys, but it's harmless and future-proofs the config.) Both `.basecamp/` and `solo.yml` stay out of git — they're local session/tooling config, not project code (`solo.yml` just tells Solo to run `opencode` as a process; it stays on disk so Solo keeps working, it's only untracked). Gitignoring them before the commit keeps the `git add -A` scaffold commit clean — important since these repos are often open-core-ready or public. The build session pulls the PRD/pitch via `basecamp` commands (config above), so no IDs or URLs need to be written into the committed repo.
 
 Commit the scaffold and offer to push to GitHub:
 
@@ -309,18 +309,18 @@ mcp__solo__create_project(path: "/Users/matt/Code/personal/<name>", name: "<name
 
 Note the returned project `id`. (The public Solo docs omit `create_project` — it exists and works; verified on Solo 0.7.1.)
 
-Don't append Solo's MCP docs to CLAUDE.md — the build session runs inside Solo, which auto-injects its own getting-started and exposes its tools live, so a static dump just duplicates that, bloats every repo, and rots as Solo changes. The two-line Solo pointer written in step 8 is all that's needed.
+Don't append Solo's MCP docs to AGENTS.md — the build session runs inside Solo, which auto-injects its own getting-started and exposes its tools live, so a static dump just duplicates that, bloats every repo, and rots as Solo changes. The two-line Solo pointer written in step 8 is all that's needed.
 
 If the Solo MCP isn't connected, tell Matt to add the folder in Solo with Cmd+Shift+O, and skip step 10. Note that no build agent was spawned (see step 12 handoff).
 
 ### 10. Spawn the build agent
 
-Start the Claude session inside the new project and brief it:
+Start the OpenCode session inside the new project and brief it:
 
-1. `mcp__solo__list_agent_tools` — find the Claude agent tool id
+1. `mcp__solo__list_agent_tools` — find the OpenCode agent tool id (match `tool_type: "opencode"`; don't hardcode the numeric id, it can change)
 2. `mcp__solo__spawn_agent(agent_tool_id: <id>, project_id: <solo_project_id>, name: "Build")`
 3. If the response includes `agent_instructions`, prepend them to the first prompt
-4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read CLAUDE.md, then start on the first todo in the Basecamp Build list. Work through the todos in order, checking each off in Basecamp as you complete it.")`
+4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read AGENTS.md, then start on the first todo in the Basecamp Build list. Work through the todos in order, checking each off in Basecamp as you complete it.")`
 
 **Existing project:** always spawn a fresh agent for the cycle (named e.g. "Build: [Cycle Name]", prompt referencing the cycle's todolist) — never send the kickoff to an existing session; its context is full of the previous cycle and the prompt may interrupt it mid-task. Leave existing sessions alone — Matt often runs multiple agents in the same repo, and an idle session may just mean he stepped away. Never close one.
 
@@ -336,9 +336,9 @@ If the move returns `ok: false`, retry once — transient failures happen.
 
 One line: Basecamp project created, PRD doc written, [N] todos created, repo scaffolded, card moved to In Progress. Share the Basecamp project URL. Then the handoff: "Open **<name>** in Solo — the build session is already running on the first todo."
 
-**If no agent was spawned** (Solo MCP wasn't connected, step 10 skipped): don't claim a session is running. Handoff instead: "Add **<name>** to Solo (Cmd+Shift+O), then start a Claude session and tell it: *Read CLAUDE.md, then start on the first todo in the Basecamp Build list.*"
+**If no agent was spawned** (Solo MCP wasn't connected, step 10 skipped): don't claim a session is running. Handoff instead: "Add **<name>** to Solo (Cmd+Shift+O), then start an OpenCode session and tell it: *Read AGENTS.md, then start on the first todo in the Basecamp Build list.*"
 
-**Existing project:** the one-liner is instead: PRD doc written, kickoff posted, [N] todos created on "Build: [Cycle Name]", CLAUDE.md updated, cycle agent spawned (or manual-start note if Solo wasn't connected), card moved to In Progress.
+**Existing project:** the one-liner is instead: PRD doc written, kickoff posted, [N] todos created on "Build: [Cycle Name]", AGENTS.md updated, cycle agent spawned (or manual-start note if Solo wasn't connected), card moved to In Progress.
 
 ---
 
@@ -364,8 +364,9 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 4b | Project has a description | Created with `-d`, not title-only | `basecamp projects update --description` |
 | 5 | Scaffold matches stack | Command matches PRD stack | Fix scaffold command |
 | 6 | Name resolved before scaffold | No TBD or "may collide" name used | Ask Matt before running |
-| 7 | CLAUDE.md stands alone | Build session can start without this conversation | Add missing context |
-| 7b | CLAUDE.md is ID-free | No Basecamp IDs/URLs committed — Basecamp section points at the CLI/config | Replace IDs/URLs with the CLI-based section |
+| 7 | AGENTS.md stands alone | Build session can start without this conversation | Add missing context |
+| 7b | AGENTS.md is ID-free | No Basecamp IDs/URLs committed — Basecamp section points at the CLI/config | Replace IDs/URLs with the CLI-based section |
+| 7c | CLAUDE.md symlinks to AGENTS.md | `ln -s AGENTS.md CLAUDE.md` present so any tool finds the briefing | Create the symlink |
 | 8 | solo.yml valid | `processes:` top-level, agent auto-starts | Fix YAML nesting |
 | 8b | Basecamp config set | `.basecamp/config.json` has account, project, todolist ids and is trusted | Run config init/set/trust |
 | 8c | README stub committed + finalize task exists | `README.md` written in scaffold; a "Finalize README" task is in the list | Write the stub; add the task |
@@ -389,7 +390,7 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Build coded in the session that ran `/build` | Forgot this is an outside-in command | Hand off to the spawned agent; never code here |
 | `create_project` YAML parse error | Malformed solo.yml (`processes` nested under `name`) | Fix indentation, retry |
 | Gem scaffolded with placeholder name | Skipped name resolution check | Always check for TBD names in pitch/PRD before scaffolding |
-| Build session asks basic questions | CLAUDE.md too thin | Include stack, data contract, no-gos, and the CLI-based Basecamp section |
+| Build session asks basic questions | AGENTS.md too thin | Include stack, data contract, no-gos, and the CLI-based Basecamp section |
 | Card stays in Up Next | Forgot move command, or transient `ok: false` | Always run move after todos created; retry once on failure |
 | Wrong account on project commands | Missing `-a 6191443` | Always pass account flag |
 | Duplicate Basecamp project or repo created | Skipped the new-vs-existing check (step 2b) | Check before step 4; trash the duplicate, rerun against the existing project |
