@@ -38,6 +38,8 @@ If Matt named a specific project, match it. If multiple are in Up Next, show the
 basecamp cards list --card-table 9768185094 --column 9861998294 --in 46824335 -a 6191443 --jq '.data[] | {id: .id, title: .title}'
 ```
 
+Same handling here as Up Next: if Matt named a project, match it; if multiple unnamed cards are in PRD, show the list and ask which to start.
+
 ### 2. Read the card
 
 ```bash
