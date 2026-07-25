@@ -20,6 +20,7 @@ Do not ask Matt for these:
 - Account: `6191443` (Safaii Studio)
 - Lab project: `46824335`
 - Card table: `9768185094` (Ideas)
+- Shaped column: `9768185098`
 - PRD column: `9861998294`
 
 ---
@@ -28,10 +29,10 @@ Do not ask Matt for these:
 
 ### 1. Identify the idea
 
-If Matt named a specific idea, find the card in the Shaped column:
+If Matt named a specific idea, find the card — scoped to the Shaped column so a title match can't accidentally hit a card from another column (Ideas, PRD, Shipped, Graveyard, etc.):
 
 ```bash
-basecamp cards list --card-table 9768185094 --in 46824335 -a 6191443 --jq '.data[] | {id: .id, title: .title}'
+basecamp cards list --card-table 9768185094 --column 9768185098 --in 46824335 -a 6191443 --jq '.data[] | {id: .id, title: .title}'
 ```
 
 Match by title. Then fetch the full card:

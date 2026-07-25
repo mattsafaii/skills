@@ -66,13 +66,13 @@ Do not ask Matt for these:
 
 ### 1. Identify the idea
 
-If Matt named a specific idea, find the card:
+If Matt named a specific idea, find the card — scoped to the 💡 Ideas column so a title match can't accidentally hit a card from another column (Shaped, Shipped, Graveyard, etc.):
 
 ```bash
-basecamp cards list --card-table 9768185094 --in 46824335 -a 6191443 --json
+basecamp cards list --card-table 9768185094 --column 9768185095 --in 46824335 -a 6191443 --json
 ```
 
-Match by title. If Matt didn't name one, show the list from the 💡 Ideas column and ask which to shape.
+Match by title. If Matt didn't name one, show this same list and ask which to shape.
 
 Then fetch the card:
 
@@ -176,7 +176,17 @@ Wait for explicit approval before touching Basecamp.
 
 ### 5. Update the card
 
-Format the pitch as HTML and update the card body:
+The card update replaces the body entirely — before doing that, preserve the original add-idea capture (inspiration/source, details, open questions) as a comment, not in the body. It has to stay out of the body: `/build` reads the card assuming exactly one `<hr>` splitting pitch from PRD ("everything below the `<hr>`" — see `build`'s guide, step 2), and a second `<hr>` from carrying the raw capture forward would make that split ambiguous. A comment keeps the provenance visible to Matt without ever touching what an agent parses.
+
+Comments take Markdown, not HTML — use the Markdown version of the card already fetched in step 1 (`cards show --md`), not the raw HTML body:
+
+```bash
+basecamp comment <card_id> "Original capture, before shaping:
+
+<paste the Markdown from step 1's card fetch>" --in 46824335 -a 6191443 --json
+```
+
+Then format the pitch as HTML and replace the card body — body stays exactly the 5-section pitch, nothing else:
 
 ```bash
 basecamp cards update <card_id> --body "<HTML>" --in 46824335 -a 6191443 --json
@@ -272,6 +282,7 @@ One line: card updated and moved to Shaped (and note any `[🔬 Research]` cards
 | 5 | Rabbit holes are concrete and resolved | Specific risk + a decision made | Resolve or cut to no-go |
 | 6 | No-gos are named features | Not "we'll keep it simple" | Name them explicitly |
 | 7 | Pitch stands alone | Readable as a build brief without the conversation | Rewrite until it does |
+| 8 | Original capture preserved as a comment, body stays single-section | Add-idea's original content is a comment, not appended to the body; body has zero `<hr>`s (prd adds the first one later) | Post the comment before overwriting the body |
 
 ---
 
@@ -290,6 +301,8 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Card stays in Ideas column | Forgot to run move command | Always run move after update |
 | Re-asking things already answered | Not reading existing card content | Always fetch and read the card before starting |
 | Shaped column accumulates unpicked ideas | Treating Shaped as a shelf | Unselected shaped ideas go to Graveyard, not left in Shaped |
+| Original add-idea capture (source, details, questions) is gone after shaping | Body was overwritten without posting the comment first | Always comment the original body before the update call |
+| `/build` misreads the pitch/PRD split | Raw capture appended into the body added a second `<hr>` | Raw capture belongs in a comment, never in the body |
 
 ---
 
