@@ -19,6 +19,7 @@ Do not ask Matt for these:
 - Up Next column: `9768190777`
 - PRD column: `9861998294`
 - In Progress column: `9768185099`
+- Shipped column: `9768185101`
 
 ---
 
@@ -383,7 +384,7 @@ Start the Claude session inside the new project and brief it:
 1. `mcp__solo__list_agent_tools` — find the Claude agent tool id
 2. `mcp__solo__spawn_agent(agent_tool_id: <id>, project_id: <solo_project_id>, name: "Build")`
 3. If the response includes `agent_instructions`, prepend them to the first prompt
-4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read CLAUDE.md, then start on the first todo in the Basecamp Build list. Work through the todos in order, checking each off in Basecamp as you complete it.")`
+4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read CLAUDE.md, then start on the first todo in the Basecamp Build list. Work through the todos in order, checking each off in Basecamp as you complete it. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101).")`
 
 **Existing project:** always spawn a fresh agent for the cycle (named e.g. "Build: [Cycle Name]", prompt referencing the cycle's todolist) — never send the kickoff to an existing session; its context is full of the previous cycle and the prompt may interrupt it mid-task. Leave existing sessions alone — Matt often runs multiple agents in the same repo, and an idle session may just mean he stepped away. Never close one.
 
@@ -437,6 +438,7 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 8d | solo.yml committed | `solo.yml` present in `git ls-files`, absent from `.gitignore` | Remove from `.gitignore`, stage before the scaffold commit |
 | 8e | Scaffold repo todo closed before spawn | "Scaffold repo" commented with the scaffold SHA and completed, not left open | Complete it before step 10 |
 | 9 | Agent spawned and briefed | Build session running in Solo on first todo — or, if Solo wasn't connected, Matt was told to start it manually | Run step 10 |
+| 9b | Spawn prompt includes the Shipped-confirmation instruction | Agent is told to ask before moving the Lab card to Shipped once all todos are done | Add it to the spawn prompt |
 | 10 | Card moved to In Progress | No longer in Up Next | Run move command |
 
 ---
@@ -461,6 +463,7 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Duplicate Basecamp project or repo created | Skipped the new-vs-existing check (step 2b) | Check before step 4; trash the duplicate, rerun against the existing project |
 | Build agent works the wrong todolist | Basecamp config still points at the old list | `basecamp config set todolist_id <new_todolist_id>` in the repo |
 | Build agent re-runs the scaffold command on its first todo | "Scaffold repo" todo left open after step 8 | Complete it (with SHA comment) before spawning — see step 8 |
+| Finished project's Lab card sits in In Progress indefinitely | Spawn prompt didn't include the Shipped-confirmation instruction | Always include it — see step 10 |
 
 ---
 
