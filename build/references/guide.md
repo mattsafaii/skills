@@ -243,15 +243,16 @@ mkdir -p ~/Code/personal/<name> && cd ~/Code/personal/<name> && git init
 
 Then write two files into the workspace:
 
-**`solo.yml`** — local Solo tooling config; gitignored in the Basecamp repo config step below (stays on disk, not committed). Watch the YAML: `processes` is top-level, NOT nested under `name`:
+**`solo.yml`** — how to run this project, committed with the repo so a fresh clone gets the same commands. Watch the YAML: `processes` is top-level, NOT nested under `name`:
 
 ```yaml
 name: <name>
-processes:
-  Claude:
-    command: claude
-    auto_start: true
+processes: {}
 ```
+
+Fill `processes` with the project's real commands once the stack is known — dev server, build, worker — each with its port set through `env` rather than a hardcoded flag (`PORT: "3002"` for Rails, `ZONEBRITE_API_ADDR: ":8083"` style for Go). Assign each project a distinct port; don't leave two apps on the same framework default.
+
+Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent entry lands in the Commands section and forfeits idle detection, auto-summaries, and Claude recaps. Launch agents with `Cmd+T` — the row persists across restarts with **Resume last session**, so nothing is lost by not auto-starting one.
 
 **`CLAUDE.md`** — the briefing the build session wakes up to. It must stand alone; the build session has none of this conversation's context. Include:
 
@@ -268,7 +269,7 @@ processes:
   This project runs inside Solo, which manages its processes. For coordination and follow-up work, call `help(topic="coordination")` and `help(topic="timers")`.
   ```
 
-**`README.md`** — a stub, committed (unlike `solo.yml`). This guarantees every repo has a README from the first commit; the build session fleshes it out at the end (see the README task in step 3). Generate it from the PRD — don't leave the repo bare:
+**`README.md`** — a stub, committed. This guarantees every repo has a README from the first commit; the build session fleshes it out at the end (see the README task in step 3). Generate it from the PRD — don't leave the repo bare:
 
 ```markdown
 # <name>
@@ -288,7 +289,7 @@ Keep the stub short — real usage, install, and examples come at the finalize-R
 @scripts/init-basecamp-config.sh ~/Code/personal/<name> <project_id> <todolist_id>
 ```
 
-It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `set todolist_id` / `trust`, then appends `.basecamp/` and `solo.yml` to `.gitignore`. (`trust` is only needed for authority keys, but it's harmless and future-proofs the config.) Both `.basecamp/` and `solo.yml` stay out of git — they're local session/tooling config, not project code (`solo.yml` just tells Solo to run `claude` as a process; it stays on disk so Solo keeps working, it's only untracked). Gitignoring them before the commit keeps the `git add -A` scaffold commit clean — important since these repos are often open-core-ready or public. The build session pulls the PRD/pitch via `basecamp` commands (config above), so no IDs or URLs need to be written into the committed repo.
+It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `set todolist_id` / `trust`, then appends `.basecamp/` to `.gitignore`. (`trust` is only needed for authority keys, but it's harmless and future-proofs the config.) `.basecamp/` stays out of git — it's local session config holding account and project IDs, not project code. `solo.yml` IS committed: it describes how to run the project, which is worth sharing and worth having in a fresh clone. Gitignoring `.basecamp/` before the commit keeps the `git add -A` scaffold commit clean — important since these repos are often open-core-ready or public. The build session pulls the PRD/pitch via `basecamp` commands (config above), so no IDs or URLs need to be written into the committed repo.
 
 Commit the scaffold and offer to push to GitHub:
 
@@ -366,10 +367,10 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 6 | Name resolved before scaffold | No TBD or "may collide" name used | Ask Matt before running |
 | 7 | CLAUDE.md stands alone | Build session can start without this conversation | Add missing context |
 | 7b | CLAUDE.md is ID-free | No Basecamp IDs/URLs committed — Basecamp section points at the CLI/config | Replace IDs/URLs with the CLI-based section |
-| 8 | solo.yml valid | `processes:` top-level, agent auto-starts | Fix YAML nesting |
+| 8 | solo.yml valid | `processes:` top-level, no agent entries | Fix YAML nesting; move any agent row out |
 | 8b | Basecamp config set | `.basecamp/config.json` has account, project, todolist ids and is trusted | Run config init/set/trust |
 | 8c | README stub committed + finalize task exists | `README.md` written in scaffold; a "Finalize README" task is in the list | Write the stub; add the task |
-| 8d | solo.yml gitignored, not committed | `solo.yml` in `.gitignore`, absent from `git ls-files` | Add to `.gitignore` before the scaffold commit |
+| 8d | solo.yml committed | `solo.yml` present in `git ls-files`, absent from `.gitignore` | Remove from `.gitignore`, stage before the scaffold commit |
 | 9 | Agent spawned and briefed | Build session running in Solo on first todo — or, if Solo wasn't connected, Matt was told to start it manually | Run step 10 |
 | 10 | Card moved to In Progress | No longer in Up Next | Run move command |
 

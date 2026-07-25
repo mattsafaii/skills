@@ -19,4 +19,4 @@ basecamp config set account_id 6191443
 basecamp config set project_id "$project_id"
 basecamp config set todolist_id "$todolist_id"
 basecamp config trust
-printf '.basecamp/\nsolo.yml\n' >> .gitignore
+printf '.basecamp/\n' >> .gitignore
