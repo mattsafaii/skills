@@ -13,6 +13,7 @@ Never start coding the build from this session — the build session must live i
 Do not ask Matt for these:
 
 - Account: `6191443` (Safaii Studio)
+- Lab Build template: `48254447`
 - Lab project: `46824335`
 - Card table: `9768185094` (Ideas)
 - Up Next column: `9768190777`
@@ -49,7 +50,13 @@ The card body contains the shaped pitch and the PRD (separated by `<hr>`). Read 
 
 A card can be a brand-new project or a follow-up cycle on an existing one (existing Basecamp project, existing repo, already in Solo). Check whether the card/PRD names an existing project or repo; if unclear, ask Matt: "New project, or a cycle on an existing one?"
 
-**Existing project path** — confirm the Basecamp project id and repo path with Matt, then:
+**Existing project path** — identify the repo (from the card/PRD, or ask Matt which project this cycle is for), then read its Basecamp ids straight from the repo instead of asking Matt to recite them:
+
+```bash
+cd <repo_path> && basecamp config show --json
+```
+
+This gives `project_id` (and the prior `todolist_id`, which gets repointed in step 8). Then:
 
 - **Skip:** step 4 (project creation), step 8's scaffold/solo.yml/CLAUDE.md creation/repo config init, and step 9's registration (still look up the existing Solo project id there)
 - **Keep:** steps 3, 5, 6, 7, 10, 11, 12 — run them against the existing project
@@ -63,13 +70,15 @@ From the PRD, propose a build breakdown to Matt. Present it before creating anyt
 
 - One task per surface (each view/page/command gets a task)
 - One task for the core flow wiring (connecting surfaces end to end)
+- One task for the data model (schema, migrations) when the PRD has a Data Model section — skip it entirely if the PRD doesn't (see heuristics below)
 - Setup tasks first: scaffold, deploy config
 - Acceptance criteria → verification tasks at the end ("Verify: [criterion]")
+- **Build-section todos (surfaces, core flow, data model) get a description**, passed via `basecamp todo`'s `--description` flag — pulled straight from the PRD, not newly authored: the surface's "what it is, what the user can do" line for surface tasks, the numbered Core Flow steps for the wiring task, the "[Model]: [key fields]" lines for the data model task. Setup and Verify todos stay title-only — the title already says everything ("Scaffold repo", "Verify: [criterion]"); a description there would just restate it.
 - Always include a near-the-end **"Finalize README"** task (real usage, install, examples — the scaffold only writes a stub). For open-core-ready or publishable repos, also add a **"Add LICENSE + NOTICE"** task (permissive license; NOTICE for any bundled third-party tools).
 - For apps, CLIs, and libraries (anything with real application logic — **not** static/marketing/landing sites), add a final **"Document the codebase (run /document)"** task. The build agent invokes the `document` skill from inside the repo to generate the architecture doc set with inline diagrams into this project's Basecamp Docs. Skip it for static sites.
 - Each task should be completable in a focused session (a few hours max)
 
-**Task order:** Setup → Data model (if applicable) → Surfaces (simplest first) → Core flow → Verification
+**Task order:** Setup → Data model (if applicable) → Surfaces (simplest first) → Core flow → Verification → close-out (Finalize README, LICENSE+NOTICE, Document the codebase — whichever apply)
 
 **Proposed format:**
 
@@ -80,6 +89,9 @@ Setup
 - Scaffold repo
 - Deploy config
 
+Data model
+- [Schema / migrations]
+
 Build
 - [Surface 1]
 - [Surface 2]
@@ -88,6 +100,9 @@ Build
 Verify
 - Verify: [acceptance criterion 1]
 - Verify: [acceptance criterion 2]
+
+Close-out
+- Finalize README
 ```
 
 Also confirm the project name is resolved. If the PRD or pitch flags a name as TBD (e.g., "name may collide, decide before publishing"), ask Matt to pick one now — the name determines the folder, repo, and Solo project.
@@ -98,20 +113,49 @@ Wait for explicit approval or adjustments before touching Basecamp or the filesy
 
 ### 4. Create the Basecamp project
 
+Construct from the **Lab Build** template (id `48254447`):
+
 ```bash
-basecamp projects create "<Project Name>" -d "<one-sentence description>" -a 6191443 --json
+basecamp templates construct 48254447 --name "<Project Name>" --description "<one-sentence description>" -a 6191443 --json
 ```
 
-Always include the description — one sentence describing what the project is, drawn from the pitch problem/solution (e.g. "Menu bar app that shows time since your last commit"). Extract the project ID from the response (`data.id`). Use this for all subsequent commands.
+Always include the description — one sentence describing what the project is, drawn from the pitch problem/solution (e.g. "Menu bar app that shows time since your last commit").
+
+Construction is asynchronous — poll until `status` is `"completed"`:
+
+```bash
+basecamp templates construction 48254447 <construction_id> -a 6191443 --json
+```
+
+When completed, the response includes the new project (`data.project`). Extract the project ID (`data.project.id`) and use it for all subsequent commands.
+
+**Known CLI issue (basecamp CLI 0.7.2, confirmed on this template 2026-07-25):** `templates construct` returns Bad Request regardless of arguments. Root cause confirmed upstream: the SDK's `CreateProjectFromTemplate` request body was missing the `project` envelope Basecamp's API requires (sent flat `{"name":...}` instead of `{"project":{"name":...}}`) — [basecamp-sdk#354](https://github.com/basecamp/basecamp-sdk/issues/354), [basecamp-cli#454](https://github.com/basecamp/basecamp-cli/issues/454). Fixed via SDK PR #396 + CLI PR #554, merged to `main` 2026-07-25 — not yet in a tagged release (latest is still v0.7.2, the one installed here via `brew`). Once a release newer than 0.7.2 ships, retest `templates construct` directly and drop this curl fallback if it works. Until then, use the curl fallback:
+
+```bash
+TOKEN=$(basecamp auth token)
+curl -s -X POST "https://3.basecampapi.com/6191443/templates/48254447/project_constructions.json" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"project":{"name":"<Project Name>","description":"<one-sentence description>"}}'
+```
+
+A `201` response contains the construction `id` — poll it the same way as above.
+
+The template has a placeholder "PRD" doc and an empty "Build" todolist built in (set up by hand in the Basecamp UI, since the API doesn't expose template content). Steps 5 and 7 find and fill those in rather than creating new ones.
 
 **Existing project:** skip — use the existing project id for all subsequent commands.
 
 ### 5. Write the PRD doc
 
-Create a doc in the new project with the PRD content:
+The template's placeholder "PRD" doc is already in the new project — find it and fill in the real content instead of creating a new doc:
 
 ```bash
-basecamp docs documents create "PRD" "$(cat <<'EOF'
+basecamp docs list --in <project_id> -a 6191443 --json
+```
+
+Match the doc whose `name` field is "PRD" (docs list returns `name`, not `title` — todolists use `title`, see step 7), then update it:
+
+```bash
+basecamp docs update <doc_id> --title "PRD" --content "$(cat <<'EOF'
 # [Project Name] — PRD
 
 ## Overview
@@ -145,9 +189,9 @@ EOF
 )" --in <project_id> -a 6191443 --json
 ```
 
-Omit Data Model for non-database projects.
+Omit Data Model for non-database projects. If no doc named "PRD" is found (e.g. a project constructed before the template had one), fall back to `basecamp docs documents create "PRD" "<content>" --in <project_id> -a 6191443 --json`.
 
-**Existing project:** title the doc for the cycle — `"PRD: [Cycle Name]"` — so it doesn't collide with the original PRD doc.
+**Existing project:** create a new doc titled for the cycle — `"PRD: [Cycle Name]"` — so it doesn't collide with the original PRD doc. The template's placeholder doesn't apply here; this path never touches the template.
 
 ### 6. Post the kickoff message
 
@@ -183,19 +227,26 @@ Keep it short. This is a record of what the cycle is and why, not a spec.
 
 ### 7. Create the todolist and todos
 
-Create the todolist:
+The template's placeholder "Build" todolist is already in the new project — find it instead of creating a new one:
 
 ```bash
-basecamp todolists create "Build" --in <project_id> -a 6191443 --json
+basecamp todolists list --in <project_id> -a 6191443 --json
 ```
 
-**Existing project:** name the list for the cycle — `"Build: [Cycle Name]"` — instead of plain "Build".
+Match the list titled "Build". If it's missing (e.g. a project constructed before the template had one), create it: `basecamp todolists create "Build" --in <project_id> -a 6191443 --json`.
 
-Extract the todolist ID. Create todos in the approved order:
+**Existing project:** always create a fresh list named for the cycle — `"Build: [Cycle Name]"` — instead of plain "Build". This path never touches the template's placeholder list.
+
+Extract the todolist ID. Create todos in the approved order. Setup and Verify todos are title-only; Build-section todos (surfaces, core flow, data model) carry a `--description` pulled from the PRD:
 
 ```bash
-basecamp todo "<task>" --list <todolist_id> --in <project_id> -a 6191443 --json
+basecamp todo "<setup or verify task>" --list <todolist_id> --in <project_id> -a 6191443 --json
+basecamp todo "<surface task>" --description "<PRD surface's 'what it is, what the user can do' line>" --list <todolist_id> --in <project_id> -a 6191443 --json
+basecamp todo "Wire core flow" --description "<PRD Core Flow steps>" --list <todolist_id> --in <project_id> -a 6191443 --json
+basecamp todo "Data model" --description "<PRD Data Model '[Model]: [key fields]' lines>" --list <todolist_id> --in <project_id> -a 6191443 --json
 ```
+
+Keep the returned id for the "Scaffold repo" todo — step 8 needs it. **Existing project:** don't create a "Scaffold repo" todo at all; the repo already exists, so there's nothing for step 3 to have derived it from in the first place.
 
 ### 8. Create the workspace and scaffold the repo
 
@@ -209,7 +260,7 @@ Workspace path: `~/Code/personal/<kebab-name>`. Confirm with Matt if anything ot
 
 Don't pre-create the directory — `rails new`, `hugo new site`, and `bundle gem` create it themselves, and a pre-existing dir makes `bundle gem` prompt or fail. Only the stacks that `cd` into the dir below (11ty, Go, static) need the `mkdir` first; each command includes it.
 
-Scaffold for the stack, using the absolute path:
+Scaffold for the stack, using the absolute path. If the stack isn't one of the recipes below, don't improvise a command — ask Matt for the exact scaffold command to run.
 
 **Rails:** (creates the dir)
 ```bash
@@ -300,6 +351,15 @@ gh repo create <name> --private --source . --push   # creates under the gh-authe
 
 Ask before the `gh repo create` — private by default.
 
+`/build` just did the scaffold work itself — close the loop on the "Scaffold repo" todo now, the same way the build agent will later comment a SHA before checking off its own todos:
+
+```bash
+basecamp comment <scaffold_todo_id> "Scaffolded in <commit_sha>" --in <project_id> -a 6191443 --json
+basecamp todos complete <scaffold_todo_id> -p <project_id> -a 6191443 --json
+```
+
+Otherwise the build agent hits "Scaffold repo" as its first todo already done and either redoes it (re-running `rails new`/`git init` into a non-empty dir) or stalls figuring out what's left to do.
+
 ### 9. Register the project in Solo
 
 **Existing project:** already registered — find its project id with `mcp__solo__list_projects` and skip to step 10.
@@ -360,7 +420,9 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 0 | New vs existing resolved before creating anything | Existing project/repo reused, not duplicated | Ask Matt; delete accidental duplicates |
 | 1 | PRD read before deriving tasks | Tasks match PRD content | Re-read PRD section of card |
 | 2 | One task per surface | Each PRD surface has a task | Add missing tasks |
+| 2b | Data model task matches the PRD | Present when the PRD has a Data Model section, absent when it doesn't | Add or remove the task to match |
 | 3 | Verification tasks present | Each acceptance criterion has a "Verify:" task | Add them |
+| 3b | Build todos carry a description | Surface, core-flow, and data-model todos have `--description` from the PRD; Setup/Verify todos are title-only | Add missing descriptions |
 | 4 | Task count reasonable | 8–25 tasks | Merge too-granular or split too-large |
 | 4b | Project has a description | Created with `-d`, not title-only | `basecamp projects update --description` |
 | 5 | Scaffold matches stack | Command matches PRD stack | Fix scaffold command |
@@ -371,6 +433,7 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 8b | Basecamp config set | `.basecamp/config.json` has account, project, todolist ids and is trusted | Run config init/set/trust |
 | 8c | README stub committed + finalize task exists | `README.md` written in scaffold; a "Finalize README" task is in the list | Write the stub; add the task |
 | 8d | solo.yml committed | `solo.yml` present in `git ls-files`, absent from `.gitignore` | Remove from `.gitignore`, stage before the scaffold commit |
+| 8e | Scaffold repo todo closed before spawn | "Scaffold repo" commented with the scaffold SHA and completed, not left open | Complete it before step 10 |
 | 9 | Agent spawned and briefed | Build session running in Solo on first todo — or, if Solo wasn't connected, Matt was told to start it manually | Run step 10 |
 | 10 | Card moved to In Progress | No longer in Up Next | Run move command |
 
@@ -395,6 +458,7 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Wrong account on project commands | Missing `-a 6191443` | Always pass account flag |
 | Duplicate Basecamp project or repo created | Skipped the new-vs-existing check (step 2b) | Check before step 4; trash the duplicate, rerun against the existing project |
 | Build agent works the wrong todolist | Basecamp config still points at the old list | `basecamp config set todolist_id <new_todolist_id>` in the repo |
+| Build agent re-runs the scaffold command on its first todo | "Scaffold repo" todo left open after step 8 | Complete it (with SHA comment) before spawning — see step 8 |
 
 ---
 

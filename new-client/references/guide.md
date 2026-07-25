@@ -51,7 +51,7 @@ basecamp templates construct <template_id> --name "<Client Name>" \
   --description "<one-line description of the engagement>" -a 6191443 --json
 ```
 
-**Known bug (basecamp CLI 0.7.2, found 2026-07-15):** `templates construct` returns `Bad Request` no matter the arguments — the API itself works. Until the CLI is fixed, hit the endpoint directly:
+**Known bug (basecamp CLI 0.7.2, found 2026-07-15):** `templates construct` returns `Bad Request` no matter the arguments. Root cause confirmed upstream: the SDK's `CreateProjectFromTemplate` request body was missing the `project` envelope Basecamp's API requires (sent flat `{"name":...}` instead of `{"project":{"name":...}}`) — [basecamp-sdk#354](https://github.com/basecamp/basecamp-sdk/issues/354), [basecamp-cli#454](https://github.com/basecamp/basecamp-cli/issues/454). Fixed via SDK PR #396 + CLI PR #554, merged to `main` 2026-07-25 — not yet in a tagged release (latest is still v0.7.2, the one installed here via `brew`). Once a release newer than 0.7.2 ships, retest `templates construct` directly and drop this curl fallback if it works. Until then, hit the endpoint directly:
 
 ```bash
 TOKEN=$(basecamp auth token)
