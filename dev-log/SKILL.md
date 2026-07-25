@@ -13,6 +13,8 @@ Post a narrative dev log entry to the Basecamp project's message board. The entr
 
 Run `git log --oneline -20` to see recent commits. Combine this with your memory of what was worked on in the current session — the problems discussed, decisions made, and reasoning behind changes. The git log is raw material, not the final product; your session context is equally important.
 
+Also read the project's Solo `state` scratchpad if it has one — `scratchpad_list(tags: ["state"])`, then `scratchpad_read`. Git shows what changed; the scratchpad holds why, including reasoning from earlier sessions this one never saw. It's the best source for the narrative bullets in step 3 and for anything worth capturing in step 6. Skip it if the project has no scratchpad — most of the log still comes from git and this session. See the `solo` skill for the convention.
+
 ### 2. Determine categories
 
 Look at the changes and group them into natural categories. Don't force a fixed taxonomy — let the work dictate the grouping. Common categories include things like **Features**, **Bug Fixes**, **Refactoring**, **Infrastructure**, **Tests**, **Docs**, but use whatever labels actually describe the work. If everything falls under one category, that's fine — don't invent categories just to have more than one.
@@ -89,3 +91,4 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Client specifics leak into the public tweet queue | An insight card captured a client-identifiable detail | For client work, only capture insights that are generic and non-confidential — skip anything that names or fingerprints the client |
 | Insight card lands under the wrong account/project | Coordinates improvised instead of using the fixed ones | Insight cards always use Safaii Studio account `6191443`, Content project `46824770`, Distribution table `10010006453`, Triage column `10010006454` — regardless of which repo (including Zonebrite work) the dev log itself is for |
 | Dev log content ends up in AGENTS.md/CLAUDE.md | Confused with the daily/repo-level logging habit | Dev logs are Basecamp-only; AGENTS.md/CLAUDE.md is a separate, repo-local log this skill never touches |
+| Entry lists what changed but not why | Only git history was read; the reasoning was in the scratchpad | Read the `state` scratchpad in step 1 before writing bullets |

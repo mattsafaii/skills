@@ -316,11 +316,11 @@ Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent 
 - Data model / data contract if applicable
 - No-gos
 - Basecamp section (no IDs or URLs — keeps them out of the committed file): a short paragraph telling the build session that the project config (account/project/todolist IDs) is already set in `.basecamp/config.json` (gitignored), so `basecamp` commands work without flags from this directory. To find the PRD doc, run `basecamp docs list` and match by title (`PRD: [Cycle Name]` for cycles); the pitch lives on the project's card.
-- Solo pointer (two lines — the build session runs inside Solo, which auto-injects its own getting-started; this just nudges toward the coordination tools it might not discover):
+- Solo pointer (three lines — the build session runs inside Solo, which auto-injects its own getting-started; this just nudges toward the coordination tools it might not discover):
 
   ```markdown
   ## Solo
-  This project runs inside Solo, which manages its processes. For coordination and follow-up work, call `help(topic="coordination")` and `help(topic="timers")`.
+  This project runs inside Solo, which manages its processes. Keep the `state` scratchpad current — read it at session start, update it at session end and before context compacts. Follow the `solo` skill for scratchpads, spawned workers, timers, and locks.
   ```
 
 **`README.md`** — a stub, committed. This guarantees every repo has a README from the first commit; the build session fleshes it out at the end (see the README task in step 3). Generate it from the PRD — don't leave the repo bare:
@@ -377,6 +377,21 @@ Don't append Solo's MCP docs to CLAUDE.md — the build session runs inside Solo
 
 If the Solo MCP isn't connected, tell Matt to add the folder in Solo with Cmd+Shift+O, and skip step 10. Note that no build agent was spawned (see step 12 handoff).
 
+### 9b. Seed the state scratchpad
+
+The build agent wakes up with CLAUDE.md and the Basecamp todos, but nothing that tracks where the work stands between sessions. Create that now so it exists from the first turn:
+
+```
+mcp__solo__scratchpad_write(
+  project_id: <solo_project_id>,
+  name: "<Name> — state",
+  tags: ["state"],
+  content: "# <Name> — state\n\n## Where things stand\nScaffolded, cycle 1 not started.\n\n## Decisions\n- <the 2–3 shaping calls from the pitch/PRD that the code won't explain>\n\n## Next\nFirst todo on the Basecamp Build list.\n\n## Open questions\n- <anything the PRD left unresolved, or 'none'>"
+)
+```
+
+Seed it from the PRD — the shaping decisions and no-gos, not a copy of the todos. **Existing project:** it already has one; append a cycle heading instead of overwriting. See the `solo` skill for the convention.
+
 ### 10. Spawn the build agent
 
 Start the Claude session inside the new project and brief it:
@@ -384,7 +399,7 @@ Start the Claude session inside the new project and brief it:
 1. `mcp__solo__list_agent_tools` — find the Claude agent tool id
 2. `mcp__solo__spawn_agent(agent_tool_id: <id>, project_id: <solo_project_id>, name: "Build")`
 3. If the response includes `agent_instructions`, prepend them to the first prompt
-4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read CLAUDE.md, then start on the first todo in the Basecamp Build list. Work through the todos in order, checking each off in Basecamp as you complete it. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101).")`
+4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read CLAUDE.md and this project's Solo state scratchpad (scratchpad_list with tag 'state'), then start on the first todo in the Basecamp Build list. Work through the todos in order, checking each off in Basecamp as you complete it. Keep the state scratchpad current — update it when a decision gets made and before your context compacts. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101).")`
 
 **Existing project:** always spawn a fresh agent for the cycle (named e.g. "Build: [Cycle Name]", prompt referencing the cycle's todolist) — never send the kickoff to an existing session; its context is full of the previous cycle and the prompt may interrupt it mid-task. Leave existing sessions alone — Matt often runs multiple agents in the same repo, and an idle session may just mean he stepped away. Never close one.
 
@@ -437,6 +452,7 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 8c | README stub committed + finalize task exists | `README.md` written in scaffold; a "Finalize README" task is in the list | Write the stub; add the task |
 | 8d | solo.yml committed | `solo.yml` present in `git ls-files`, absent from `.gitignore` | Remove from `.gitignore`, stage before the scaffold commit |
 | 8e | Scaffold repo todo closed before spawn | "Scaffold repo" commented with the scaffold SHA and completed, not left open | Complete it before step 10 |
+| 8f | State scratchpad seeded | `<Name> — state` exists in the Solo project, tagged `state`, holding the shaping decisions | Create it (step 9b) |
 | 9 | Agent spawned and briefed | Build session running in Solo on first todo — or, if Solo wasn't connected, Matt was told to start it manually | Run step 10 |
 | 9b | Spawn prompt includes the Shipped-confirmation instruction | Agent is told to ask before moving the Lab card to Shipped once all todos are done | Add it to the spawn prompt |
 | 10 | Card moved to In Progress | No longer in Up Next | Run move command |
