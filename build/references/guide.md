@@ -67,7 +67,15 @@ This gives `project_id` (and the prior `todolist_id`, which gets repointed in st
 
 ### 3. Derive the todolist
 
-From the PRD, propose a build breakdown to Matt. Present it before creating anything in Basecamp.
+**First, check the PRD's vintage.** PRDs written before 2026-07-25 have no `check:` on their acceptance criteria, no "What Can Go Wrong", and no "Gated Decision" — the three things this step reads. Deriving from one anyway produces a build that looks fine and quietly loses the tests, the failure handling, and the spike ordering.
+
+Look for `check:` in the card's acceptance criteria. If it's missing, stop and tell Matt:
+
+> This PRD predates the checks-and-failures format. I can backfill it here — which criteria are provable by command and what proves them, three to five things that can go wrong, and any decision gated on a spike — or you can rerun `/prd`. Backfilling takes a few minutes and I'll write it back to the card.
+
+Default to backfilling: the information is a short conversation, and a full `/prd` rerun redoes work that's already good. Whichever way it goes, **the card gets updated before todos are derived** — the card stays the record, and a build deriving from sections that only ever existed in a chat is exactly the drift this pipeline avoids. Follow the `prd` skill's rules for those three sections; append to the existing PRD rather than rewriting it.
+
+Then, from the PRD, propose a build breakdown to Matt. Present it before creating anything in Basecamp.
 
 **Task derivation rules:**
 
@@ -512,6 +520,7 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 |---|-------|------|---------|
 | 0 | New vs existing resolved before creating anything | Existing project/repo reused, not duplicated | Ask Matt; delete accidental duplicates |
 | 1 | PRD read before deriving tasks | Tasks match PRD content | Re-read PRD section of card |
+| 1b | PRD carries checks, failures, and any gate | `check:` present on the acceptance criteria | Backfill with Matt and write it back to the card before deriving |
 | 2 | One task per surface | Each PRD surface has a task | Add missing tasks |
 | 2b | Data model task matches the PRD | Present when the PRD has a Data Model section, absent when it doesn't | Add or remove the task to match |
 | 3 | Every acceptance criterion is accounted for | Visual ones as "Verify:" tasks, mechanical ones as `Test:` lines inside build todos — none dropped | Add the missing ones |
@@ -562,6 +571,8 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Build agent re-runs the scaffold command on its first todo | "Scaffold repo" todo left open after step 8 | Complete it (with SHA comment) before spawning — see step 8 |
 | Finished project's Lab card sits in In Progress indefinitely | Spawn prompt didn't include the Shipped-confirmation instruction | Always include it — see step 10 |
 | Rails project has no `test/` directory but todos promised tests | Scaffolded without `--no-skip-test`, so `~/.railsrc`'s `--skip-test` won | Rerun the scaffold with the flag before any code is written |
+| Build has no tests and no failure handling, and nobody noticed | Derived from a pre-2026-07-25 PRD without backfilling it | Check for `check:` before deriving — see step 3 |
+| Backfilled sections live only in the chat | Card never updated after the backfill conversation | Write them to the card first; the card is the record |
 | Half the build gets redone after the spike | Spike ordered late, or dropped because the PRD "seemed clear enough" | It runs first, right after the scaffold — nothing built on an unanswered gate is trustworthy |
 | Spike turns into the implementation | No time-box, or its code was kept | One session, throwaway code; it answers a question and stops |
 | Nobody can tell which path the build took | Spike outcome never recorded | Comment the answer on the todo and write it into the state scratchpad |
