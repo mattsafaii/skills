@@ -107,7 +107,7 @@ Keys name the area, not the file: `repo.migrations`, `repo.css`, `repo.solo-yml`
 
 **Basecamp is the record. Solo todos are the lane board for one run** — blockers so nothing starts too early, locks so it's clear who owns what, comments for handoffs. A Solo todo never stands in for a Basecamp todo.
 
-Most work needs no Solo todos at all. Import them when a run has several lanes and real ordering:
+`/build` imports the todolist as part of setting a project up, so every build has the mirror: progress visible in the sidebar next to the agent, and one command that closes a unit properly in both places. Outside a build — a one-off fix, a spike, a piece of client work — import only when there's real ordering to track.
 
 ```bash
 python3 ~/.claude/skills/solo/scripts/basecamp-bridge.py import     # open Basecamp todos -> Solo

@@ -370,6 +370,11 @@ Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent 
   Each build todo's description ends with a `Done when:` line — that's the finish
   line, not your own judgment of done. Where a description carries a `Test:` line,
   write that test alongside the code rather than afterwards.
+
+  The Basecamp list is mirrored into Solo. Close a unit with
+  `python3 ~/.claude/skills/solo/scripts/basecamp-bridge.py ship <solo_todo_id> <sha>`,
+  which comments the SHA on Basecamp and completes it in both places. Find the
+  Solo id with `... bridge.py status`.
   ```
 - Basecamp section (no IDs or URLs — keeps them out of the committed file): a short paragraph telling the build session that the project config (account/project/todolist IDs) is already set in `.basecamp/config.json` (gitignored), so `basecamp` commands work without flags from this directory. To find the PRD doc, run `basecamp docs list` and match by title (`PRD: [Cycle Name]` for cycles); the pitch lives on the project's card.
 - Solo pointer (short — the build session runs inside Solo, which auto-injects its own getting-started; this just nudges toward the coordination tools it might not discover):
@@ -448,6 +453,18 @@ mcp__solo__scratchpad_write(
 
 Seed it from the PRD — the shaping decisions and no-gos, not a copy of the todos. **Existing project:** it already has one; append a cycle heading instead of overwriting. See the `solo` skill for the convention.
 
+### 9c. Import the todolist into Solo
+
+The Basecamp list is the record; the Solo copy is what shows in the sidebar beside the running agent, and what `ship` closes both halves of. Needs `.basecamp/config.json` (step 8) and the Solo project (step 9), so it runs here:
+
+```bash
+cd ~/Code/personal/<name> && python3 ~/.claude/skills/solo/scripts/basecamp-bridge.py import
+```
+
+Idempotent — safe on a cycle, where it picks up the new list's open todos and skips anything already there. If it reports the repo isn't a Solo project, step 9 didn't take; fix that rather than skipping this.
+
+This does **not** make Solo a second tracker: nothing is closed in Solo alone, and `ship` writes the SHA comment to Basecamp every time.
+
 ### 10. Spawn the build agent
 
 Start the Claude session inside the new project and brief it:
@@ -455,7 +472,7 @@ Start the Claude session inside the new project and brief it:
 1. `mcp__solo__list_agent_tools` — find the Claude agent tool id
 2. `mcp__solo__spawn_agent(agent_tool_id: <id>, project_id: <solo_project_id>, name: "Build")`
 3. If the response includes `agent_instructions`, prepend them to the first prompt
-4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read CLAUDE.md and this project's Solo state scratchpad (scratchpad_list with tag 'state'), then start on the first todo in the Basecamp Build list. Work through the todos in order, checking each off in Basecamp as you complete it. Each build todo's description ends with a 'Done when:' line — that's the finish line, not your own judgment of done; where a description carries a 'Test:' line, write that test with the code rather than afterwards. Keep the state scratchpad current — update it when a decision gets made and before your context compacts. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101).")`
+4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read CLAUDE.md and this project's Solo state scratchpad (scratchpad_list with tag 'state'), then start on the first todo in the Basecamp Build list. Work through the todos in order, closing each with the Solo bridge's ship command as you complete it — it writes the SHA comment to Basecamp and completes the todo in both places. Each build todo's description ends with a 'Done when:' line — that's the finish line, not your own judgment of done; where a description carries a 'Test:' line, write that test with the code rather than afterwards. Keep the state scratchpad current — update it when a decision gets made and before your context compacts. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101).")`
 
 **Existing project:** always spawn a fresh agent for the cycle (named e.g. "Build: [Cycle Name]", prompt referencing the cycle's todolist) — never send the kickoff to an existing session; its context is full of the previous cycle and the prompt may interrupt it mid-task. Leave existing sessions alone — Matt often runs multiple agents in the same repo, and an idle session may just mean he stepped away. Never close one.
 
@@ -515,6 +532,7 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 8c | README stub committed + finalize task exists | `README.md` written in scaffold; a "Finalize README" task is in the list | Write the stub; add the task |
 | 8d | solo.yml committed | `solo.yml` present in `git ls-files`, absent from `.gitignore` | Remove from `.gitignore`, stage before the scaffold commit |
 | 8e | Scaffold repo todo closed before spawn | "Scaffold repo" commented with the scaffold SHA and completed, not left open | Complete it before step 10 |
+| 8g | Todolist mirrored into Solo | `bridge.py status` in the repo lists every open Basecamp todo | Run step 9c |
 | 8f | State scratchpad seeded | `<Name> — state` exists in the Solo project, tagged `state`, holding the shaping decisions | Create it (step 9b) |
 | 9 | Agent spawned and briefed | Build session running in Solo on first todo — or, if Solo wasn't connected, Matt was told to start it manually | Run step 10 |
 | 9b | Spawn prompt includes the Shipped-confirmation instruction | Agent is told to ask before moving the Lab card to Shipped once all todos are done | Add it to the spawn prompt |
@@ -547,6 +565,8 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Half the build gets redone after the spike | Spike ordered late, or dropped because the PRD "seemed clear enough" | It runs first, right after the scaffold — nothing built on an unanswered gate is trustworthy |
 | Spike turns into the implementation | No time-box, or its code was kept | One session, throwaway code; it answers a question and stops |
 | Nobody can tell which path the build took | Spike outcome never recorded | Comment the answer on the todo and write it into the state scratchpad |
+| Solo todos drift from Basecamp during a build | Agent completed a todo by hand instead of through `ship` | Close through the bridge; `bridge.py status` shows the drift |
+| Basecamp todo completed with no SHA comment | Same cause — `ship` writes the comment, raw `basecamp todos complete` doesn't | Comment the SHA now, use `ship` from here on |
 | Todolist doubles in size | Tests and failure cases were made into their own todos | They ride inside existing todos as `Test:` and `Done when:` lines |
 | Build agent stops early or gilds a todo | No `Done when:` line, so "finished" was its own judgment call | Add the line — it's the whole point of the description |
 | Reviewer rewrites the code | Reviewer brief omitted read-only scope | Brief says report gaps, don't fix them; the build agent applies the fixes |
