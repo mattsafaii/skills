@@ -363,8 +363,16 @@ Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent 
 - Surfaces and core flow (condensed from the PRD)
 - Data model / data contract if applicable
 - No-gos
+- How to read a todo — two sentences, because the spawn prompt only reaches the first session and a build runs across several:
+
+  ```markdown
+  ## Todos
+  Each build todo's description ends with a `Done when:` line — that's the finish
+  line, not your own judgment of done. Where a description carries a `Test:` line,
+  write that test alongside the code rather than afterwards.
+  ```
 - Basecamp section (no IDs or URLs — keeps them out of the committed file): a short paragraph telling the build session that the project config (account/project/todolist IDs) is already set in `.basecamp/config.json` (gitignored), so `basecamp` commands work without flags from this directory. To find the PRD doc, run `basecamp docs list` and match by title (`PRD: [Cycle Name]` for cycles); the pitch lives on the project's card.
-- Solo pointer (three lines — the build session runs inside Solo, which auto-injects its own getting-started; this just nudges toward the coordination tools it might not discover):
+- Solo pointer (short — the build session runs inside Solo, which auto-injects its own getting-started; this just nudges toward the coordination tools it might not discover):
 
   ```markdown
   ## Solo
@@ -549,3 +557,7 @@ If a step fails partway through the build, stop and report exactly which resourc
 ## Examples
 
 - **Since (2026-06-03):** menu bar Go app; 15 todos (1 setup, 6 build, 8 verify) derived from an 8-criterion PRD. Built before the outside-in rework, so the workspace/Solo/spawn steps weren't exercised — task derivation and Basecamp steps are the exemplar part.
+
+  **Don't copy its shape wholesale.** Since predates the 2026-07-25 changes: every acceptance criterion became its own verify todo, where mechanical ones now fold into build todos as `Test:` lines. A list like Since's — eight verify todos out of fifteen — would be wrong today.
+
+- *(no build has run under the 2026-07-25 rules yet — the first one becomes the example for spikes, `Done when:` lines, and the reviewer step)*

@@ -247,6 +247,8 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 
 ---
 
-## Exemplars
+## Examples
 
-- *(none yet — first PRD written becomes Exemplar 1)*
+- **Fretboard — Guitar Practice Analyzer (2026-07-25):** [card 9818685688](https://app.basecamp.com/6191443/buckets/46824335/card_tables/cards/9818685688). First PRD written in this format, and a good one to copy from: seven acceptance criteria split four mechanical / three visual, four failure cases, and a Gated Decision covering the Ruby-vs-Python DSP path the pitch had left open.
+
+  Two things it demonstrates. Writing the checks forced fixtures into existence — "resolves as C" is only a criterion once a committed C-major clip and a clean-vs-muted pair exist, which the old format let slide until mid-build. And the gate stayed a gate: the PRD names Python as the fallback without pretending to know the answer, so `/build` can order the spike first instead of building on a guess.
