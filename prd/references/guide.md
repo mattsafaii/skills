@@ -81,6 +81,26 @@ Binary tests for done. Either this works or it doesn't.
 
 - 5–8 things that must be true when the project ships
 - Each testable by running the app, not by reading the code
+- **Each one names how it gets checked** — either a command that proves it, or the manual step someone takes. This is what lets `/build` turn the mechanical ones into real tests instead of inventing tests later against finished code.
+
+Two kinds, and the difference matters downstream:
+
+| Kind | Check looks like | Becomes |
+|---|---|---|
+| Mechanical — parsing, calculations, data flow, CLI output, API shape | a command: `go test ./...`, `bin/rails test`, `zeni "tacos 12 cash"` prints the right entry | an automated test, written with the code |
+| Visual or interactive — layout, a browser flow, something you look at | a manual step: "open /jobs, submit the form, see the result" | a manual `Verify:` todo |
+
+Don't force the mechanical kind. A static site's criteria are nearly all visual, and that's correct.
+
+**What can go wrong**
+
+3–5 things, no more. Empty states, bad input, and the one failure path that actually matters for v1.
+
+Code written from a spec that only describes the happy path is happy-path code. Naming the failures here is the cheapest quality fix in the whole pipeline — two questions during this conversation, and the build agent handles them by default instead of being told about them in review.
+
+Ask: what does the user see with no data yet? What happens when the input is junk? What breaks that we can't just let crash?
+
+Carry no-gos over rather than repeating them here — anything deliberately out of scope isn't a failure.
 
 ### 3. Check: is this build-ready?
 
@@ -89,6 +109,8 @@ Before presenting:
 - **Specific enough?** Could Claude build this without asking "what models exist?" or "what does the main flow do?"
 - **Rough enough?** Does it specify button labels, exact field names, or pixel layout? Strip back if so.
 - **Complete?** Does every surface have a purpose? Does the core flow work end to end? Are acceptance criteria testable?
+- **Checkable?** Does every acceptance criterion name its check — a command or a manual step?
+- **Honest about failure?** Does "What can go wrong" name real failures, not restated no-gos?
 
 ### 4. Present the full PRD
 
@@ -126,7 +148,12 @@ basecamp cards update <card_id> --body "$(cat <<'EOF'
 
 <h3>Acceptance Criteria</h3>
 <ul>
-<li>[Binary test]</li>
+<li>[Binary test] — <em>check:</em> [command that proves it, or the manual step]</li>
+</ul>
+
+<h3>What Can Go Wrong</h3>
+<ul>
+<li><strong>[Situation]:</strong> [what the code should do instead of breaking]</li>
 </ul>
 
 <h3>No-gos</h3>
@@ -157,6 +184,8 @@ One line: PRD added to card, moved to PRD column. Done — the card is ready for
 - **Surfaces ≠ pages.** A CLI has commands. A static site has sections. Match the terminology to the project type.
 - **Data model is optional.** Skip for CLI tools, static sites, scripts.
 - **Acceptance criteria are user-facing.** "User can submit a URL and see a result" not "job processes correctly."
+- **Every criterion names its check.** A command or a manual step. Without it, `/build` has to guess which criteria deserve tests.
+- **Failures are specific.** "Empty library shows a first-run message" beats "handles errors gracefully" — the second one builds nothing.
 - **No-gos travel from the pitch.** Always carry them forward.
 - **The PRD stands alone.** `/build` reads it without the conversation context. It must be self-contained.
 - **No file paths or code snippets.** The PRD outlives them — they go stale fast. Mostly a cycle-PRD risk.
@@ -171,6 +200,8 @@ One line: PRD added to card, moved to PRD column. Done — the card is ready for
 | 2 | All surfaces named | Each has a purpose | Add missing surfaces |
 | 3 | Core flow is step-by-step | Numbered sequence | Rewrite as steps |
 | 4 | Acceptance criteria are binary | Each is a yes/no test | Rewrite as pass/fail |
+| 4b | Each criterion names its check | A command or a manual step per criterion | Add the check |
+| 4c | What Can Go Wrong present | 3–5 real failures, not restated no-gos | Ask the three questions in step 2 |
 | 5 | No-gos carried from pitch | All pitch no-gos present | Add missing ones |
 | 6 | PRD stands alone | Readable without the conversation | Add missing context |
 | 7 | Not a spec | No field-level detail, no UI layout | Strip back |
@@ -186,6 +217,9 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | PRD reads like the pitch | Didn't add implementation detail | Work through surfaces, flows, data model |
 | PRD reads like a spec | Too much detail | Strip field names, UI descriptions |
 | Acceptance criteria are vague | Written as features not tests | Rewrite: "User can X" not "X is implemented" |
+| Every criterion gets a command, including the visual ones | Forced the mechanical kind everywhere | Visual and interactive criteria take a manual step — that's the correct answer, not a gap |
+| What Can Go Wrong repeats the no-gos | Confused out-of-scope with failure | No-gos are what we chose not to build; failures are what the built thing must survive |
+| Build ships happy-path only | PRD never named the failures | Both are the same miss — fix it here, not in review |
 | Card body wipes the pitch | Didn't include existing HTML in update | Always fetch card first, include existing body |
 | Forgot Data Model section | Skipped for a project that needs it | Check if it's a database-backed project |
 

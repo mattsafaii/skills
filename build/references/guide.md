@@ -75,13 +75,36 @@ From the PRD, propose a build breakdown to Matt. Present it before creating anyt
 - One task for the core flow wiring (connecting surfaces end to end)
 - One task for the data model (schema, migrations) when the PRD has a Data Model section — skip it entirely if the PRD doesn't (see heuristics below)
 - Setup tasks first: scaffold, deploy config
-- Acceptance criteria → verification tasks at the end ("Verify: [criterion]")
+- Acceptance criteria → split by the kind the PRD assigned them. **Mechanical** criteria (a command proves them) fold into the build todo that implements them, as a `Test:` line — the test gets written with the code. **Visual or interactive** criteria become verification tasks at the end ("Verify: [criterion]"), as before. A PRD whose criteria are all visual — a static site, say — produces no test lines at all, and that's right.
 - **Build-section todos (surfaces, core flow, data model) get a description**, passed via `basecamp todo`'s `--description` flag — pulled straight from the PRD, not newly authored: the surface's "what it is, what the user can do" line for surface tasks, the numbered Core Flow steps for the wiring task, the "[Model]: [key fields]" lines for the data model task. Setup and Verify todos stay title-only — the title already says everything ("Scaffold repo", "Verify: [criterion]"); a description there would just restate it.
+- **Every build-section description ends with a `Done when:` line** — one sentence naming the observable result, taken from the PRD rather than invented. It tells the build agent when to stop and gives Matt a fixed thing to review against. Then, where a mechanical criterion belongs to that todo, a `Test:` line naming the criterion and the command that proves it:
+
+  ```
+  Job board. Lists open jobs, each linking to its detail page.
+
+  Done when: /jobs lists every open job newest first, each row links to its detail page, and an empty board shows the first-run message.
+  Test: closed jobs never appear on the board — bin/rails test test/models/job_test.rb
+  ```
+
+  The `Done when:` line absorbed the empty-state failure; the `Test:` line covers the one thing you can't confirm by looking at the page.
+
+- Anything in the PRD's **What Can Go Wrong** section attaches to the todo that owns it, as part of `Done when:` — the empty state belongs to the surface that shows it, the bad-input path to the flow that takes the input. Don't make failure handling its own todo; it's part of the work, not a follow-up.
+- Add a close-out **"Review against the PRD"** task, placed before Finalize README, with this description:
+
+  ```
+  Spawn one reviewer (Claude (unattended)) over the Solo MCP. Give it the PRD's
+  acceptance criteria and What Can Go Wrong list, the full diff for this cycle, and
+  read-only scope: report gaps, don't fix them. Run the test suite first if there is
+  one and hand it the result. Set a wake-on-idle timer with max_wait_ms rather than
+  polling, then harvest and fix what it finds. Follow the solo skill.
+  ```
+
+  One reviewer reading, not a fleet writing — the build stays single-agent. Skip it for static sites with no application logic.
 - Always include a near-the-end **"Finalize README"** task (real usage, install, examples — the scaffold only writes a stub). For open-core-ready or publishable repos, also add a **"Add LICENSE + NOTICE"** task (permissive license; NOTICE for any bundled third-party tools).
 - For apps, CLIs, and libraries (anything with real application logic — **not** static/marketing/landing sites), add a final **"Document the codebase (run /document)"** task. The build agent invokes the `document` skill from inside the repo to generate the architecture doc set with inline diagrams into this project's Basecamp Docs. Skip it for static sites.
 - Each task should be completable in a focused session (a few hours max)
 
-**Task order:** Setup → Data model (if applicable) → Surfaces (simplest first) → Core flow → Verification → close-out (Finalize README, LICENSE+NOTICE, Document the codebase — whichever apply)
+**Task order:** Setup → Data model (if applicable) → Surfaces (simplest first) → Core flow → Verification → close-out (Review against the PRD, Finalize README, LICENSE+NOTICE, Document the codebase — whichever apply)
 
 **Proposed format:**
 
@@ -101,12 +124,15 @@ Build
 - Wire core flow
 
 Verify
-- Verify: [acceptance criterion 1]
-- Verify: [acceptance criterion 2]
+- Verify: [visual/interactive criterion 1]
+- Verify: [visual/interactive criterion 2]
 
 Close-out
+- Review against the PRD
 - Finalize README
 ```
+
+Mechanical criteria don't appear as their own line — they ride on the build todo that implements them. Say so when presenting, so the breakdown doesn't look like it dropped half the acceptance criteria: "the other three criteria are tested inside the surface todos."
 
 Also confirm the project name is resolved. If the PRD or pitch flags a name as TBD (e.g., "name may collide, decide before publishing"), ask Matt to pick one now — the name determines the folder, repo, and Solo project.
 
@@ -267,8 +293,12 @@ Scaffold for the stack, using the absolute path. If the stack isn't one of the r
 
 **Rails:** (creates the dir)
 ```bash
-rails new ~/Code/personal/<name> --database=sqlite3 --skip-test
+rails new ~/Code/personal/<name> --database=sqlite3 --no-skip-test
 ```
+
+`--no-skip-test` is load-bearing, not noise. `~/.railsrc` carries `--skip-test` and Rails merges it into every `rails new`, so leaving the flag off silently scaffolds a project with no test directory — nowhere for the `Test:` lines from step 3 to go. Verified on Rails 8.1.3: with `--no-skip-test` the `test/` tree is created despite the rc file.
+
+Drop it (and let `--skip-test` win) only for a Rails project that's essentially a static site. Matt's `~/.railsrc` stays as it is for hand-rolled `rails new`.
 
 **11ty:** (deploys to Cloudflare Pages)
 ```bash
@@ -304,7 +334,7 @@ name: <name>
 processes: {}
 ```
 
-Fill `processes` with the project's real commands once the stack is known — dev server, build, worker — each with its port set through `env` rather than a hardcoded flag (`PORT: "3002"` for Rails, `ZONEBRITE_API_ADDR: ":8083"` style for Go). Assign each project a distinct port; don't leave two apps on the same framework default.
+Fill `processes` with the project's real commands once the stack is known — dev server, build, worker, and a **Test** process wherever the project has a test suite (`bin/rails test`, `go test ./...`) so the build agent and the reviewer can run it as a managed command — each with its port set through `env` rather than a hardcoded flag (`PORT: "3002"` for Rails, `ZONEBRITE_API_ADDR: ":8083"` style for Go). Assign each project a distinct port; don't leave two apps on the same framework default.
 
 Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent entry lands in the Commands section and forfeits idle detection, auto-summaries, and Claude recaps. Launch agents with `Cmd+T` — the row persists across restarts with **Resume last session**, so nothing is lost by not auto-starting one.
 
@@ -399,7 +429,7 @@ Start the Claude session inside the new project and brief it:
 1. `mcp__solo__list_agent_tools` — find the Claude agent tool id
 2. `mcp__solo__spawn_agent(agent_tool_id: <id>, project_id: <solo_project_id>, name: "Build")`
 3. If the response includes `agent_instructions`, prepend them to the first prompt
-4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read CLAUDE.md and this project's Solo state scratchpad (scratchpad_list with tag 'state'), then start on the first todo in the Basecamp Build list. Work through the todos in order, checking each off in Basecamp as you complete it. Keep the state scratchpad current — update it when a decision gets made and before your context compacts. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101).")`
+4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read CLAUDE.md and this project's Solo state scratchpad (scratchpad_list with tag 'state'), then start on the first todo in the Basecamp Build list. Work through the todos in order, checking each off in Basecamp as you complete it. Each build todo's description ends with a 'Done when:' line — that's the finish line, not your own judgment of done; where a description carries a 'Test:' line, write that test with the code rather than afterwards. Keep the state scratchpad current — update it when a decision gets made and before your context compacts. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101).")`
 
 **Existing project:** always spawn a fresh agent for the cycle (named e.g. "Build: [Cycle Name]", prompt referencing the cycle's todolist) — never send the kickoff to an existing session; its context is full of the previous cycle and the prompt may interrupt it mid-task. Leave existing sessions alone — Matt often runs multiple agents in the same repo, and an idle session may just mean he stepped away. Never close one.
 
@@ -426,8 +456,10 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 - **Surfaces first, plumbing second.** Build what the user touches before the internals.
 - **Verification tasks are user-facing.** "Verify: user can submit a URL and see a result" — testable by using the app.
 - **Setup tasks are real tasks.** Scaffold, deploy config, and env setup take real time.
-- **Keep the list short.** 8–15 tasks for small batch. 15–25 for big batch. More means tasks are too granular.
+- **Keep the list short.** 8–15 tasks for small batch. 15–25 for big batch. More means tasks are too granular. Test lines and `Done when:` lines ride inside existing todos, so they don't push the count up.
 - **If no data model in PRD, skip data model task.** Don't invent a schema for a CLI tool.
+- **Tests follow the PRD, not the code.** Every `Test:` line traces back to a mechanical acceptance criterion. If a test has no criterion behind it, either the PRD missed something — go add it — or the test isn't worth writing.
+- **Don't manufacture tests for surfaces.** A page that renders a list is checked by looking at it. Forcing a test there costs a session and proves nothing.
 
 ---
 
@@ -439,8 +471,12 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 1 | PRD read before deriving tasks | Tasks match PRD content | Re-read PRD section of card |
 | 2 | One task per surface | Each PRD surface has a task | Add missing tasks |
 | 2b | Data model task matches the PRD | Present when the PRD has a Data Model section, absent when it doesn't | Add or remove the task to match |
-| 3 | Verification tasks present | Each acceptance criterion has a "Verify:" task | Add them |
+| 3 | Every acceptance criterion is accounted for | Visual ones as "Verify:" tasks, mechanical ones as `Test:` lines inside build todos — none dropped | Add the missing ones |
 | 3b | Build todos carry a description | Surface, core-flow, and data-model todos have `--description` from the PRD; Setup/Verify todos are title-only | Add missing descriptions |
+| 3c | Every build todo has a `Done when:` line | One observable result per todo, from the PRD | Add it |
+| 3d | Failure cases assigned | Each What Can Go Wrong item sits in the `Done when:` of the todo that owns it | Attach the orphans |
+| 3e | Review task present | "Review against the PRD" in close-out, with the reviewer brief as its description | Add it (skip only for static sites) |
+| 3f | Test framework exists where tests were promised | A todo carrying a `Test:` line is in a project scaffolded with a test setup | Fix the scaffold flags before spawning |
 | 4 | Task count reasonable | 8–25 tasks | Merge too-granular or split too-large |
 | 4b | Project has a description | Created with `-d`, not title-only | `basecamp projects update --description` |
 | 5 | Scaffold matches stack | Command matches PRD stack | Fix scaffold command |
@@ -480,6 +516,11 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Build agent works the wrong todolist | Basecamp config still points at the old list | `basecamp config set todolist_id <new_todolist_id>` in the repo |
 | Build agent re-runs the scaffold command on its first todo | "Scaffold repo" todo left open after step 8 | Complete it (with SHA comment) before spawning — see step 8 |
 | Finished project's Lab card sits in In Progress indefinitely | Spawn prompt didn't include the Shipped-confirmation instruction | Always include it — see step 10 |
+| Rails project has no `test/` directory but todos promised tests | Scaffolded without `--no-skip-test`, so `~/.railsrc`'s `--skip-test` won | Rerun the scaffold with the flag before any code is written |
+| Todolist doubles in size | Tests and failure cases were made into their own todos | They ride inside existing todos as `Test:` and `Done when:` lines |
+| Build agent stops early or gilds a todo | No `Done when:` line, so "finished" was its own judgment call | Add the line — it's the whole point of the description |
+| Reviewer rewrites the code | Reviewer brief omitted read-only scope | Brief says report gaps, don't fix them; the build agent applies the fixes |
+| Build agent waits on the reviewer forever | Reviewer spawned with the normal Claude tool and hit a permission prompt, so it never went idle | Spawn reviewers with Claude (unattended) — see the solo skill |
 
 ---
 
