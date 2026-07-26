@@ -117,7 +117,7 @@ python3 ~/.claude/skills/solo/scripts/basecamp-bridge.py ship 42 a1b2c3d
 
 `import` is one-way and safe to rerun — it skips what's already there. It reads `.basecamp/config.json` in the repo and matches the Solo project by path. Blockers are yours to wire afterwards with `todo_set_blockers`.
 
-`ship` closes one unit properly: comments the SHA on the Basecamp todo, completes it there, completes the Solo copy. It finds the Basecamp id from the Solo todo's `bc-<id>` tag.
+`ship` closes one unit properly: comments the SHA on the Basecamp todo, completes it there, completes the Solo copy. **It takes either id** — the Solo one from the sidebar, or the Basecamp one you already have in hand — so finishing a Basecamp todo doesn't mean looking up its Solo twin first. Add `--kind solo` or `--kind basecamp` in the unlikely event one number matches both.
 
 Locking a Solo todo (`todo_lock`) before starting it is how a lead keeps two workers off the same lane.
 

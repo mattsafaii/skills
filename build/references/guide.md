@@ -372,9 +372,9 @@ Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent 
   write that test alongside the code rather than afterwards.
 
   The Basecamp list is mirrored into Solo. Close a unit with
-  `python3 ~/.claude/skills/solo/scripts/basecamp-bridge.py ship <solo_todo_id> <sha>`,
-  which comments the SHA on Basecamp and completes it in both places. Find the
-  Solo id with `... bridge.py status`.
+  `python3 ~/.claude/skills/solo/scripts/basecamp-bridge.py ship <todo_id> <sha>`,
+  which comments the SHA on Basecamp and completes it in both places. Either id
+  works — the Basecamp one you just finished, or the Solo one from the sidebar.
   ```
 - Basecamp section (no IDs or URLs — keeps them out of the committed file): a short paragraph telling the build session that the project config (account/project/todolist IDs) is already set in `.basecamp/config.json` (gitignored), so `basecamp` commands work without flags from this directory. To find the PRD doc, run `basecamp docs list` and match by title (`PRD: [Cycle Name]` for cycles); the pitch lives on the project's card.
 - Solo pointer (short — the build session runs inside Solo, which auto-injects its own getting-started; this just nudges toward the coordination tools it might not discover):

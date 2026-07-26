@@ -7,7 +7,7 @@ what. This script keeps the two in step without turning Solo into a second
 tracker.
 
   import   Basecamp todolist -> Solo todos (one way, run at the start of a run)
-  ship     one Solo todo -> SHA comment on Basecamp + both marked done
+  ship     one todo -> SHA comment on Basecamp + both marked done; takes either id
   status   show the mapping
 
 The Basecamp todo id rides along as a Solo tag (bc-<id>), so the mapping
@@ -46,7 +46,7 @@ def solo_bootstrap():
         die(f"{DISCOVERY} is unreadable — start Solo and retry.")
 
 
-def solo(method, path, body=None):
+def solo(method, path, body=None, allow_404=False):
     base, token = solo_bootstrap()
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(base + path, data=data, method=method)
@@ -57,6 +57,8 @@ def solo(method, path, body=None):
         with urllib.request.urlopen(req, timeout=15) as r:
             return json.load(r)["data"]
     except urllib.error.HTTPError as e:
+        if e.code == 404 and allow_404:
+            return None
         detail = e.read().decode(errors="replace")[:300]
         die(f"Solo API {method} {path} failed ({e.code}): {detail}")
     except urllib.error.URLError as e:
@@ -169,23 +171,41 @@ def cmd_import(args):
         print("Blockers are yours to wire: todo_set_blockers in the Solo MCP.")
 
 
+def resolve_todo(project_id, ident, kind=None):
+    """Find a todo from either id. Basecamp ids are 10 digits, Solo ids are small,
+    so they never really collide — but resolve by lookup rather than by shape."""
+    by_tag = solo_todos(project_id, tags=[f"bc-{ident}"]) if kind != "solo" else []
+    direct = None
+    if kind != "basecamp" and ident.isdigit():
+        found = solo("GET", f"/api/projects/{project_id}/todos/{ident}", allow_404=True)
+        direct = found["todo"] if found else None
+
+    if by_tag and direct and by_tag[0]["id"] != direct["id"]:
+        die(f"{ident} matches Solo todo #{direct['id']} and Basecamp todo on Solo "
+            f"#{by_tag[0]['id']} — rerun with --kind solo or --kind basecamp.")
+    todo = by_tag[0] if by_tag else direct
+    if not todo:
+        die(f"no todo matches {ident} in this project — check `bridge.py status`.")
+    return todo
+
+
 def cmd_ship(args):
     repo = repo_root(args.repo)
     cfg = bc_config(repo)
     project = solo_project_for(repo)
 
-    todo = solo("GET", f"/api/projects/{project['id']}/todos/{args.todo_id}")["todo"]
+    todo = resolve_todo(project["id"], str(args.todo_id), args.kind)
     bc_ids = [tag[3:] for tag in todo["tags"] if tag.startswith("bc-")]
     if not bc_ids:
-        die(f"solo todo #{args.todo_id} has no bc-<id> tag — it did not come from Basecamp.")
+        die(f"solo todo #{todo['id']} has no bc-<id> tag — it did not come from Basecamp.")
     bc_id = bc_ids[0]
 
     note = args.note or f"Shipped in {args.sha}"
     bc_json(["comment", bc_id, note, "--in", cfg["project_id"], "-a", cfg["account_id"]], repo)
     bc_json(["todos", "complete", bc_id, "-p", cfg["project_id"], "-a", cfg["account_id"]], repo)
-    solo("POST", f"/api/projects/{project['id']}/todos/{args.todo_id}/complete", {"completed": True})
+    solo("POST", f"/api/projects/{project['id']}/todos/{todo['id']}/complete", {"completed": True})
 
-    print(f"Basecamp #{bc_id} commented + completed; Solo #{args.todo_id} completed.")
+    print(f"Basecamp #{bc_id} commented + completed; Solo #{todo['id']} completed.")
     print(f"  {todo['title']}")
 
 
@@ -212,9 +232,11 @@ def main():
     sub.add_parser("import", help="copy open Basecamp todos into Solo").set_defaults(fn=cmd_import)
 
     ship = sub.add_parser("ship", help="close one todo in both places")
-    ship.add_argument("todo_id", type=int, help="Solo todo id")
+    ship.add_argument("todo_id", help="Solo todo id or Basecamp todo id — either works")
     ship.add_argument("sha", help="commit SHA that shipped it")
     ship.add_argument("--note", help="comment text (default: 'Shipped in <sha>')")
+    ship.add_argument("--kind", choices=["solo", "basecamp"],
+                      help="force how the id is read, for the rare ambiguous case")
     ship.set_defaults(fn=cmd_ship)
 
     sub.add_parser("status", help="show the Basecamp <-> Solo mapping").set_defaults(fn=cmd_status)
