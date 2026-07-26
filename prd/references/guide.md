@@ -92,6 +92,19 @@ Two kinds, and the difference matters downstream:
 
 Don't force the mechanical kind. A static site's criteria are nearly all visual, and that's correct.
 
+**Gated decisions** (only when the pitch has one)
+
+Some pitches resolve a rabbit hole by deferring it to a spike — "we'll try it in Ruby, and if accuracy is bad, switch to Python." The approach is genuinely unknown until someone runs the experiment.
+
+Don't paper over it by picking a side, and don't refuse to write the PRD. Name it:
+
+- **The question** — stated so it has a yes/no answer
+- **What answers it** — the fixture, measurement, or threshold that decides. "Accurate enough" is not a gate; "names a C-major fixture correctly" is.
+- **The fallback** — what gets built instead if the answer is no
+- **What holds either way** — the parts of the architecture that don't move, which is what keeps the rest of the PRD honest
+
+If the pitch gates something but never says what would settle it, that's the one thing worth asking Matt about — everything downstream inherits the ambiguity. `/build` makes this the first task after the scaffold, so it gets answered before anything is built on top of it.
+
 **What can go wrong**
 
 3–5 things, no more. Empty states, bad input, and the one failure path that actually matters for v1.
@@ -151,6 +164,12 @@ basecamp cards update <card_id> --body "$(cat <<'EOF'
 <li>[Binary test] — <em>check:</em> [command that proves it, or the manual step]</li>
 </ul>
 
+<h3>Gated Decision</h3>
+<p><strong>Question:</strong> [the yes/no question]<br>
+<strong>Settled by:</strong> [fixture, measurement, or threshold]<br>
+<strong>Fallback:</strong> [what gets built if the answer is no]<br>
+<strong>Unchanged either way:</strong> [the architecture that doesn't move]</p>
+
 <h3>What Can Go Wrong</h3>
 <ul>
 <li><strong>[Situation]:</strong> [what the code should do instead of breaking]</li>
@@ -164,7 +183,7 @@ EOF
 )" --in 46824335 -a 6191443 --json
 ```
 
-Omit the Data Model section for non-database projects.
+Omit the Data Model section for non-database projects, and the Gated Decision section for the usual case where the pitch settled everything.
 
 Move the card to the PRD column:
 
@@ -202,6 +221,7 @@ One line: PRD added to card, moved to PRD column. Done — the card is ready for
 | 4 | Acceptance criteria are binary | Each is a yes/no test | Rewrite as pass/fail |
 | 4b | Each criterion names its check | A command or a manual step per criterion | Add the check |
 | 4c | What Can Go Wrong present | 3–5 real failures, not restated no-gos | Ask the three questions in step 2 |
+| 4d | Gated decision named where the pitch has one | Question, what settles it, fallback, what holds either way | Add the section; ask Matt if the pitch never says what would settle it |
 | 5 | No-gos carried from pitch | All pitch no-gos present | Add missing ones |
 | 6 | PRD stands alone | Readable without the conversation | Add missing context |
 | 7 | Not a spec | No field-level detail, no UI layout | Strip back |
@@ -220,6 +240,8 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Every criterion gets a command, including the visual ones | Forced the mechanical kind everywhere | Visual and interactive criteria take a manual step — that's the correct answer, not a gap |
 | What Can Go Wrong repeats the no-gos | Confused out-of-scope with failure | No-gos are what we chose not to build; failures are what the built thing must survive |
 | Build ships happy-path only | PRD never named the failures | Both are the same miss — fix it here, not in review |
+| PRD silently picks a side on a gated rabbit hole | Treated the spike's likely outcome as settled | Write the Gated Decision section instead; the spike runs first at `/build` |
+| Gate can't be judged | "Settled by" is a feeling, not a measurement | Name the fixture or threshold; ask Matt if the pitch doesn't say |
 | Card body wipes the pitch | Didn't include existing HTML in update | Always fetch card first, include existing body |
 | Forgot Data Model section | Skipped for a project that needs it | Check if it's a database-backed project |
 

@@ -75,6 +75,23 @@ From the PRD, propose a build breakdown to Matt. Present it before creating anyt
 - One task for the core flow wiring (connecting surfaces end to end)
 - One task for the data model (schema, migrations) when the PRD has a Data Model section — skip it entirely if the PRD doesn't (see heuristics below)
 - Setup tasks first: scaffold, deploy config
+- **A PRD with a Gated Decision section gets a spike task, first in the list after "Scaffold repo"** — before deploy config, before the data model, before any surface. Nothing else in the build is trustworthy until the gate is answered, and a spike run late is just rework. Title it `Spike: [the question]`, with this description:
+
+  ```
+  Question: [from the PRD]
+  Settled by: [the fixture, measurement, or threshold]
+  Fallback: [what gets built if the answer is no]
+
+  Time-box: one session. Throw the spike code away — this answers a question, it
+  doesn't start the build.
+
+  Done when: the answer is recorded as a comment on this todo and in the state
+  scratchpad, naming which path the build takes. If the fallback wins, say so in the
+  scratchpad before moving on. If the time-box runs out with no clear answer, stop
+  and ask Matt rather than picking a side.
+  ```
+
+  The rest of the todolist is written path-independent — that's the point of the PRD naming what holds either way. If the spike's outcome would actually reshape the surfaces or the data model, the pitch wasn't shaped tightly enough; stop and tell Matt rather than deriving todos on top of an unknown.
 - Acceptance criteria → split by the kind the PRD assigned them. **Mechanical** criteria (a command proves them) fold into the build todo that implements them, as a `Test:` line — the test gets written with the code. **Visual or interactive** criteria become verification tasks at the end ("Verify: [criterion]"), as before. A PRD whose criteria are all visual — a static site, say — produces no test lines at all, and that's right.
 - **Build-section todos (surfaces, core flow, data model) get a description**, passed via `basecamp todo`'s `--description` flag — pulled straight from the PRD, not newly authored: the surface's "what it is, what the user can do" line for surface tasks, the numbered Core Flow steps for the wiring task, the "[Model]: [key fields]" lines for the data model task. Setup and Verify todos stay title-only — the title already says everything ("Scaffold repo", "Verify: [criterion]"); a description there would just restate it.
 - **Every build-section description ends with a `Done when:` line** — one sentence naming the observable result, taken from the PRD rather than invented. It tells the build agent when to stop and gives Matt a fixed thing to review against. Then, where a mechanical criterion belongs to that todo, a `Test:` line naming the criterion and the command that proves it:
@@ -104,7 +121,7 @@ From the PRD, propose a build breakdown to Matt. Present it before creating anyt
 - For apps, CLIs, and libraries (anything with real application logic — **not** static/marketing/landing sites), add a final **"Document the codebase (run /document)"** task. The build agent invokes the `document` skill from inside the repo to generate the architecture doc set with inline diagrams into this project's Basecamp Docs. Skip it for static sites.
 - Each task should be completable in a focused session (a few hours max)
 
-**Task order:** Setup → Data model (if applicable) → Surfaces (simplest first) → Core flow → Verification → close-out (Review against the PRD, Finalize README, LICENSE+NOTICE, Document the codebase — whichever apply)
+**Task order:** Scaffold → Spike (if the PRD gates one) → rest of Setup → Data model (if applicable) → Surfaces (simplest first) → Core flow → Verification → close-out (Review against the PRD, Finalize README, LICENSE+NOTICE, Document the codebase — whichever apply)
 
 **Proposed format:**
 
@@ -113,6 +130,7 @@ Proposed build breakdown for [Project Name]:
 
 Setup
 - Scaffold repo
+- Spike: [the gated question]          (only when the PRD gates one)
 - Deploy config
 
 Data model
@@ -477,6 +495,7 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 3d | Failure cases assigned | Each What Can Go Wrong item sits in the `Done when:` of the todo that owns it | Attach the orphans |
 | 3e | Review task present | "Review against the PRD" in close-out, with the reviewer brief as its description | Add it (skip only for static sites) |
 | 3f | Test framework exists where tests were promised | A todo carrying a `Test:` line is in a project scaffolded with a test setup | Fix the scaffold flags before spawning |
+| 3g | Spike task present and first | A PRD with a Gated Decision has `Spike: [question]` immediately after "Scaffold repo", carrying the question, what settles it, and the fallback | Add it; move it ahead of everything else |
 | 4 | Task count reasonable | 8–25 tasks | Merge too-granular or split too-large |
 | 4b | Project has a description | Created with `-d`, not title-only | `basecamp projects update --description` |
 | 5 | Scaffold matches stack | Command matches PRD stack | Fix scaffold command |
@@ -517,6 +536,9 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Build agent re-runs the scaffold command on its first todo | "Scaffold repo" todo left open after step 8 | Complete it (with SHA comment) before spawning — see step 8 |
 | Finished project's Lab card sits in In Progress indefinitely | Spawn prompt didn't include the Shipped-confirmation instruction | Always include it — see step 10 |
 | Rails project has no `test/` directory but todos promised tests | Scaffolded without `--no-skip-test`, so `~/.railsrc`'s `--skip-test` won | Rerun the scaffold with the flag before any code is written |
+| Half the build gets redone after the spike | Spike ordered late, or dropped because the PRD "seemed clear enough" | It runs first, right after the scaffold — nothing built on an unanswered gate is trustworthy |
+| Spike turns into the implementation | No time-box, or its code was kept | One session, throwaway code; it answers a question and stops |
+| Nobody can tell which path the build took | Spike outcome never recorded | Comment the answer on the todo and write it into the state scratchpad |
 | Todolist doubles in size | Tests and failure cases were made into their own todos | They ride inside existing todos as `Test:` and `Done when:` lines |
 | Build agent stops early or gilds a todo | No `Done when:` line, so "finished" was its own judgment call | Add the line — it's the whole point of the description |
 | Reviewer rewrites the code | Reviewer brief omitted read-only scope | Brief says report gaps, don't fix them; the build agent applies the fixes |
