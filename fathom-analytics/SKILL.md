@@ -35,11 +35,17 @@ Read the templates/views/components for genuine decision points, not every click
 
 Skip: pageviews (Fathom already tracks these automatically), generic nav clicks, anything with no decision behind it.
 
+**One event per distinct action, not per UI instance.** Three phone links in the header/footer/CTA are one `call now clicked` event with one delegated listener — not three. Fathom events carry **no custom properties**, only an optional monetary `_value` in cents — there's no way to tag one event with a location/source dimension, so the only way to distinguish "which phone link" would be forking the event name, which fragments the one number that actually answers a question. Only split by location if the locations genuinely answer *different* questions on their own (e.g. a sticky mobile CTA you specifically want to compare against the nav link) — say so explicitly when proposing that split, since it's the exception.
+
 Name events lowercase, human-readable, no special characters or emoji — `"quote request submitted"`, `"pricing cta clicked"`, `"booking link clicked"`. Consistent tense across the set (past-tense completions read best in a dashboard list).
+
+**If analysis turns up an unrelated bug** (a dead form handler, a broken CTA override, anything that undercuts what an event would actually measure) — surface it in the plan, don't silently fix it and don't silently ignore it. It's real signal for whoever reviews the plan, and fixing code that wasn't asked for is out of scope for this workflow.
 
 ### 3. Draft the plan and get approval
 
 Show Matt a table: event name | trigger (file:location) | value in cents if monetary | one-line why. Include any milestone worth backfilling — typically just a launch date (ask if unknown, don't guess a date from `git log` without checking, since a repo's first commit isn't necessarily the go-live date). Milestone names are capped at **30 characters** by the API — keep them short (`"Site launched"`, `"Redesign shipped"`).
+
+If the analysis surfaced an unrelated bug, list it separately from the tracking plan, clearly labeled as a finding rather than something included in scope.
 
 Wait for explicit approval. Revise in place if Matt wants changes — don't create or edit anything on an ambiguous response.
 

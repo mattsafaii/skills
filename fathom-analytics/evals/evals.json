@@ -59,6 +59,28 @@
         "Reads the token from ~/.config/client-report/fathom-token rather than asking Matt to paste one",
         "Uses date_from/date_to for the specific month"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "[analyzing a service-business site] There's a phone number in the header, the footer, and again on the contact page — all tel: links to the same number.",
+      "expected_output": "Proposes ONE 'call now clicked' (or similar) event covering all three locations via a single delegated listener, not three separate events. Explains that Fathom events carry no custom properties, so per-location tracking would mean forking the event name and fragmenting the one number that answers the real question, rather than adding a dimension. Only proposes a split if a specific location (e.g. a sticky mobile CTA) answers a genuinely different question, and calls that out explicitly as the exception.",
+      "files": [],
+      "expectations": [
+        "Collapses all three tel: links into a single event, not one event per location",
+        "Explains the no-custom-properties constraint as the reason for collapsing rather than splitting",
+        "Only proposes separate events per location when explicitly justified by a distinct question, and flags that reasoning"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "[analyzing a repo for tracking] While reading the contact form template, notice it has no action attribute and no submit handler anywhere in the codebase — submitting it does nothing.",
+      "expected_output": "Surfaces the dead form as a separate, clearly-labeled finding alongside the tracking plan — does not silently fix it, and does not silently omit it from the report. Still proposes the form-submission event (tracking intent is still valid), but notes the event will be measuring a form that currently doesn't work.",
+      "files": [],
+      "expectations": [
+        "Reports the dead form as a distinct finding, not folded silently into the tracking plan",
+        "Does not attempt to fix the form's backend unprompted",
+        "Does not drop the observation just because it's outside the tracking task's literal scope"
+      ]
     }
   ]
 }
