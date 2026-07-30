@@ -23,6 +23,20 @@ Usage:
 
 For a form submission, listen on `submit` instead of `click`, same `closest('[data-fathom-event]')` pattern, placed on the `<form>` element.
 
+## Page-load / pathname-based triggers
+
+Some conversions are better tracked as "did this page load" than "was this clicked" — a form that redirects to a success page on confirmed completion (not just on submit, which fires before you know if it actually succeeded) is the common case:
+
+```html
+<script>
+  if (window.fathom && location.pathname === '/thank-you') {
+    window.fathom.trackEvent('site survey requested')
+  }
+</script>
+```
+
+**Verify the exact pathname against the deployed site, not the source filename.** Static hosts routinely rewrite URLs: Cloudflare Pages strips `.html` (the template file is `thank-you.html`, the served path is `/thank-you`), some hosts add or remove trailing slashes, some serve `/thank-you/index.html` at `/thank-you/`. A check written against the template's literal filename can pass code review and still never fire in production — nothing errors, the event just silently reports zero forever. Confirm with a real request (`curl -sI <live-url>` or open it in a browser) before wiring the check, not just by reading the template.
+
 ## If the site already has a component/behavior layer
 
 Don't add the raw listener above alongside an existing one — read the same `data-fathom-event`/`data-fathom-value` attributes from whatever the site already uses to wire behavior (a Stimulus controller, an Alpine directive, a React handler, htmx). One source of truth for "what's tracked" (the data attribute), wired through whatever mechanism is already idiomatic for that codebase. Don't introduce a second framework just to fire an analytics event.

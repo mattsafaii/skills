@@ -51,11 +51,13 @@ Wait for explicit approval. Revise in place if Matt wants changes — don't crea
 
 ### 4. Execute
 
+**Check the token's scope before creating anything**: `GET /token`. The shared `~/.config/client-report/fathom-token` was set up for client-report's read-only aggregation pulls — it may not have write access, and a create call will fail if it doesn't. If it's read-only, ask Matt to generate a write-scoped token at `app.usefathom.com/api` and either paste it for this run or overwrite the shared file (safe — write access is a superset of what client-report needs, so the swap doesn't break it).
+
 On approval, in order:
 1. Create the site first if step 1 didn't find one (`POST /sites`).
 2. `GET /sites/{site_id}/events` and diff against the plan — **skip any event that already exists by name** rather than creating a duplicate. Create the rest with `POST /sites/{site_id}/events` (see [references/api-reference.md](references/api-reference.md) for the exact body).
 3. Create approved milestones with `POST /sites/{site_id}/milestones`.
-4. Wire the `trackEvent()` calls into the code — see [references/instrumentation.md](references/instrumentation.md) for the delegated-listener pattern. Prefer it over hand-writing a listener per event; it's less code to drift out of sync later, and it doesn't assume any particular framework.
+4. Wire the `trackEvent()` calls into the code — see [references/instrumentation.md](references/instrumentation.md) for the delegated-listener pattern. Prefer it over hand-writing a listener per event; it's less code to drift out of sync later, and it doesn't assume any particular framework. **Verify any trigger condition based on a URL or pathname against the actual deployed site, not just the source template** — static hosts routinely rewrite URLs (Cloudflare Pages strips `.html`, some hosts add/remove trailing slashes), so a check that matches the template's literal filename can silently never fire in production.
 
 ### 5. Report back
 

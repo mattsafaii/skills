@@ -81,6 +81,28 @@
         "Does not attempt to fix the form's backend unprompted",
         "Does not drop the observation just because it's outside the tracking task's literal scope"
       ]
+    },
+    {
+      "id": 8,
+      "prompt": "[approved plan, starting the execute phase] Go ahead and create the events in Fathom.",
+      "expected_output": "Checks GET /token first to confirm the token has write access before attempting any POST. If the token turns out to be read-only, stops and asks for a write-scoped token (offering to use it for this run or have it swapped into the shared ~/.config/client-report/fathom-token file) rather than attempting the create call and failing, or silently trying alternate auth.",
+      "files": [],
+      "expectations": [
+        "Calls GET /token before attempting to create anything",
+        "If read-only, stops and asks for a write-scoped token rather than proceeding to a failing POST",
+        "Notes that overwriting the shared token file is safe since write access covers client-report's read-only needs too"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "[wiring instrumentation] Track a 'signup completed' event by checking if location.pathname === '/signup/thank-you.html' on page load. This is a static site deployed to Cloudflare Pages.",
+      "expected_output": "Flags that Cloudflare Pages strips .html from served URLs, so the actual deployed pathname is likely '/signup/thank-you', not the template's literal filename — recommends verifying against the real deployed URL (curl -sI or a browser check) before finalizing the check, rather than trusting the source template's path as-is.",
+      "files": [],
+      "expectations": [
+        "Flags the .html-stripping behavior of Cloudflare Pages (or equivalent static-host URL rewriting) as a risk for this exact check",
+        "Recommends verifying the real deployed pathname rather than trusting the template's literal filename",
+        "Does not wire the check as written without raising this"
+      ]
     }
   ]
 }
