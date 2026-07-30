@@ -177,6 +177,13 @@ Pick the closest type, or name two if they straddle:
 
 Many businesses are two at once — a printer doing both walk-in cards and commercial contract work, or a SaaS with a self-serve tier and an enterprise motion. **That split is often the single most useful finding**, because the site usually serves one well and neglects the other, and the owner usually wants the neglected half.
 
+**Running a straddle.** Naming two types doesn't mean doubling the run — it means covering both evidence maps inside the same lanes and budgets, then making the gap between them the point.
+
+- **Lanes and browser pass** — pull from both types' evidence maps (step 3 below, and the browser-lane weighting in step 5), but don't split time evenly by default. Weight toward whichever side gets less attention on the prospect's own site or in Matt's notes — that's usually the neglected half, and it's where the finding lives.
+- **Word budgets don't grow.** Sections 4, 5, 8, and 9 (customer-finding, positioning, industry model, best-in-class) stay at their normal budget — cover both sides inside it, labeled by type, rather than writing two full sections.
+- **State the split up front.** The header (step 8) and the At a glance section name both types, e.g. "Local B2B (contract print) / Ecommerce (storefront)," not just the primary one.
+- **Opportunities and the fit read tag which side each item serves.** A recommendation that only makes sense for the neglected half should say so — Matt needs to know if he's pitching the whole business or just the half nobody's serving.
+
 #### Where the evidence lives, by type
 
 Do not go looking for Google reviews on a Series A company. Route the lanes to where this type of business actually leaves a trail:
@@ -452,3 +459,4 @@ If something fails in a way this table doesn't cover, show Matt the raw error an
 | Card description overwritten or card moved | Treated the board as skill-writable | Comment only |
 | Full pipeline ran on an obviously under-floor prospect | Floor check skipped at intake | Check BUDGET against the $3,000 floor before Recon — step 1 |
 | Draft has an uncited factual claim | Synthesis dropped a citation the lane had | Reread the compiled draft against the hard rule before showing Matt anything — step 7 |
+| Straddle prospect got a single-type brief, or a doubled-length one | Named two types but ran one playbook, or ran both at full budget | Cover both evidence maps inside normal budgets, weighted toward the neglected side — step 3 |
