@@ -1,0 +1,64 @@
+{
+  "skill_name": "fathom-analytics",
+  "notes": "Behavioral evals for the Fathom Analytics skill. Covers both the active instrument-a-site workflow (analyze -> propose -> approval gate -> create via API -> wire code) and the reference-only asks (embed snippet, self-exclude, API query). The workflow evals check that nothing gets created or committed before Matt approves, and that the skill doesn't invent duplicate events or over-propose vanity tracking.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Set up Fathom tracking for this site. [run inside a client repo with a contact form, a pricing page with a 'Book a call' CTA linking to Calendly, and no existing Fathom embed]",
+      "expected_output": "Greps for an existing data-site embed first, then checks client-report's clients.json, then asks for the site ID or offers to create one rather than guessing. Analyzes the repo and proposes a small set of decision-worthy events (contact form submitted, booking link clicked) rather than every clickable element. Presents the plan as a table and stops for approval before calling the API or editing any files.",
+      "files": [],
+      "expectations": [
+        "Follows the layered site-id resolution (grep embed -> client-report registry -> ask/offer to create) rather than assuming a site_id",
+        "Proposes events only for genuine decision points (contact form, booking CTA) — does not propose tracking for every button or nav link",
+        "Presents the full plan (events, any milestone, instrumentation points) before creating or editing anything",
+        "Does not call the Fathom API or write code until Matt approves"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Yes, that plan looks good, go ahead. [approving a previously-shown plan with 2 new events and 1 milestone]",
+      "expected_output": "Checks GET /sites/{site_id}/events first and skips creating any event that already exists by name. Creates the remaining events via POST, the milestone via POST with a name under 30 characters, then wires the trackEvent() calls using the delegated data-fathom-event listener pattern (or the site's existing behavior layer, if it has one) rather than a bespoke listener per event and without assuming a specific framework. Reports back what was created with Fathom's returned IDs and which files changed.",
+      "files": [],
+      "expectations": [
+        "Calls GET /sites/{site_id}/events before creating, and skips any pre-existing event by name instead of duplicating it",
+        "Keeps the milestone name at or under 30 characters",
+        "Uses the shared delegation pattern (data attribute + one listener) rather than one custom listener per tracked element",
+        "Reports created event/milestone IDs and the files it changed"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Add a Fathom event for our $49/mo signup so we can see revenue.",
+      "expected_output": "Uses fathom.trackEvent() with _value in cents (4900), notes currency has to be set in Site settings > Events since the API/JS call doesn't set it, and doesn't invent a cart/funnel model Fathom doesn't have.",
+      "files": [],
+      "expectations": [
+        "Passes _value: 4900 (cents), not 49",
+        "Mentions setting currency separately in the dashboard",
+        "Does not fabricate ecommerce funnel steps Fathom doesn't support"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "My own visits to the client's site are messing up their Fathom numbers. How do I stop that?",
+      "expected_output": "Recommends fathom.blockTrackingForMe() run once in the browser console, not IP-based firewall blocking, and explains why (IPs change, this doesn't).",
+      "files": [],
+      "expectations": [
+        "Recommends fathom.blockTrackingForMe() as the primary fix",
+        "Distinguishes this from firewall IP blocking",
+        "Mentions fathom.enableTrackingForMe() as the reverse"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Pull last month's total visits and top 10 pages for site ID ABCDE from the Fathom API.",
+      "expected_output": "Two curl calls against api.usefathom.com/v1/aggregations with a bearer token read from the shared client-report token file: one for totals (visits/uniques/pageviews), one with field_grouping=pathname, sort_by=pageviews:desc, limit=10.",
+      "files": [],
+      "expectations": [
+        "Uses /v1/aggregations with entity=pageview and entity_id=ABCDE",
+        "Includes a totals query and a separate top-pages query with field_grouping=pathname",
+        "Reads the token from ~/.config/client-report/fathom-token rather than asking Matt to paste one",
+        "Uses date_from/date_to for the specific month"
+      ]
+    }
+  ]
+}
