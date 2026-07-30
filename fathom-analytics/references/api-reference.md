@@ -63,7 +63,7 @@ Base URL: `https://api.usefathom.com/v1`. Headers: `Authorization: Bearer <token
 | `filters` | JSON array, e.g. `[{"property":"pathname","operator":"is","value":"/pricing"}]` | Narrow to a specific page/referrer/etc. |
 | `timezone` | IANA name, e.g. `America/Los_Angeles` | Defaults to the site's dashboard timezone if omitted — set explicitly when reconciling against a report generated elsewhere |
 
-Event aggregation swaps `entity=event`, `entity_id` still the site ID, and add `aggregates=conversions` (or `sum` for `_value` totals on events that carry a monetary value).
+Event aggregation swaps `entity=event`. **`entity_id` here is the event's own ID, not the site ID** — passing the site ID 404s (`No query results for model App\Model\Goal`). Add `aggregates=conversions` (or `sum` for `_value` totals on events that carry a monetary value). One call per event — there's no `field_grouping` that breaks a site-wide event query out by event name, and `filters` doesn't accept an `event_id`/`event_name` property either (both error with "Invalid property").
 
 ## Other endpoints
 
