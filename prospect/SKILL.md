@@ -106,6 +106,8 @@ basecamp -a 6191443 comments list <card-id> -p 46876803 --md
 
 The template's fields map onto intake: **COMPANY** and **Website** give the target; **CONTACT** names the decision-maker; **PROJECT** is what they said they want; **NOTES** is the conversation record; **SOURCE**, **BUDGET**, **TIMELINE** calibrate how committed a point of view to bring. Cards are frequently thin — a name and a domain is normal.
 
+**Floor check — stop here if BUDGET already fails it.** If the card states a real number under the **$3,000 project floor**, don't run Recon, the lanes, or the browser pass to find out what the card already told you. Tell Matt in one line — the number, that it's under floor, and that this is a pass unless he wants it run anyway. A vague or absent BUDGET isn't a fail; only gate on a stated number. Every other red flag (no decision maker, procurement, committee) needs research to confirm, so those stay in the fit read at step 6 — this check only fires on the one fact you already have before spending anything.
+
 Confirm four things:
 
 - **Company name** — required.
@@ -328,7 +330,11 @@ The lanes are input. This is the product. Matt's notes decide what matters; the 
   **Pick facts that show he understands the industry, not that he researched the person.** "Your category lives on repeat accounts, so I looked at how your competitors keep them" lands as prepared. Quoting their filing date or someone's work history lands as a background check. Same research, opposite effect.
 - **Walk-in card** — write this **last**, as a compression of everything above. It becomes section 1.
 
-### 7. Show Matt the draft
+### 7. Audit, then show Matt the draft
+
+**Before printing anything, reread the full compiled draft against the one hard rule.** Every declarative factual sentence needs an adjacent source URL or belongs in the Unknown list — this is the same rule stated at the top of this file and inside every lane prompt, checked one last time now that lane output has been folded into prose. A claim can lose its citation in synthesis even when the lane that found it cited it correctly.
+
+Fix anything that fails — add the source back from the lane's Unknown-adjacent bullet, or convert the claim to `Unknown` — before Matt sees a word of it. Don't publish silently on a failed check.
 
 Print the **walk-in card and the opportunities only**, and ask whether he wants the full text. Printing 3,000 words into the terminal isn't a review he can actually do. Revise in place if he wants changes.
 
@@ -444,3 +450,5 @@ If something fails in a way this table doesn't cover, show Matt the raw error an
 | Short run presented as full | Trimmed silently | Skipped lanes go in the doc header, not just chat |
 | Re-run created a second doc | Didn't check in step 1 | Step 1 lists the Deals vault before anything else |
 | Card description overwritten or card moved | Treated the board as skill-writable | Comment only |
+| Full pipeline ran on an obviously under-floor prospect | Floor check skipped at intake | Check BUDGET against the $3,000 floor before Recon — step 1 |
+| Draft has an uncited factual claim | Synthesis dropped a citation the lane had | Reread the compiled draft against the hard rule before showing Matt anything — step 7 |
