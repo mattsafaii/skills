@@ -9,6 +9,8 @@ Drafts every section of Matt's Full Teardown template — a full first pass, not
 
 This exists so Matt starts from a draft instead of a blank template on every qualified prospect.
 
+Section 5 (design/hierarchy) can include an annotated version of the homepage screenshot — circled callouts on specific elements (competing CTAs, weak contrast, buried headline), built in tldraw — alongside the written critique, not instead of it. See step 2b.
+
 Background, if you want it: "The Homepage Teardown — Offer" (Basecamp doc 9993402077) describes the whole two-tier system this fits into.
 
 ## Fixed IDs
@@ -24,6 +26,8 @@ Do not ask Matt for these — they are fixed for this skill:
 tribunal lives at `~/Code/personal/tribunal` (module `github.com/mattsafaii/tribunal`).
 
 This skill has its own bundled dependency: `scripts/capture-homepage.mjs` (Playwright, headless — no visible browser tab). If `node_modules` isn't present in this skill's directory, run `pnpm install` here once; if `~/Library/Caches/ms-playwright` has no chromium build, run `pnpm exec playwright install chromium` once.
+
+Step 2b (annotation) needs tldraw Desktop running and ImageMagick (`brew install imagemagick` if `magick` isn't on PATH) — both optional in the sense that step 2b degrades gracefully (skip it, note why) rather than blocking the rest of the teardown.
 
 ## Workflow
 
@@ -49,6 +53,39 @@ node scripts/capture-homepage.mjs <url> \
 This headlessly renders the page (so JS-only content shows up, unlike a plain fetch) and produces three things: a full-page desktop screenshot, a full-page mobile screenshot, and a JSON file with the rendered title, meta description, and visible text. Read the JSON for copy — headline, subhead, CTA text, section order. **Read both screenshots with the `Read` tool** before drafting Section 5 — that's what grounds the design/hierarchy read in what the page actually looks like instead of a guess from markup.
 
 Don't also run `WebFetch` on the same URL "just to check" — it's the same static page either way, so a second fetch won't reveal anything Playwright's rendered DOM didn't already capture; it'd just be redundant work. `WebFetch` only comes in if the script above actually fails (site blocks headless browsers, times out) — then fall back to `WebFetch` for text-only, draft Sections 1–4 from whatever you get, and flag Section 5 as needing Matt's own look since there's no screenshot to ground it.
+
+### 2b. Annotate Section 5's concrete visual findings in tldraw
+
+While reading the screenshot for Section 5 (design/hierarchy), pull out only the findings that point at a specific on-page element — competing CTAs, weak contrast on a button, a buried headline, broken visual hierarchy. A finding with nothing to circle stays prose-only in Section 5; don't force an annotation onto a vague impression ("feels cluttered"). Cap it at 2–4 annotations — this augments the written critique, it doesn't replace it.
+
+Requires tldraw Desktop running (the `tldraw-offline` skill's local API — see that skill for the full mechanics of `/exec`, asset creation, and the token/port setup this leans on).
+
+1. **Measure, don't eyeball.** For each finding, find the target element's real pixel bounding box by scanning the desktop screenshot with ImageMagick, not by guessing coordinates from looking at the image:
+   ```bash
+   magick <screenshot.png> -format "%[pixel:p{X,Y}]" info:
+   ```
+   Walk X (or Y) in from outside the element until the color changes at its edge. This is fast and reliable for buttons/solid-fill UI — anything with a real color boundary. A finding with no clean color edge (dense body text, subtle spacing) doesn't get a precise circle; either skip the annotation or accept a looser box.
+
+2. **Create a doc for the annotation work**, saved directly into this prospect's durable folder (not `~/Documents`):
+   ```
+   POST /api/docs/create  {"name": "<slug>-design-annotated", "directory": "~/.local/share/teardown/<slug>"}
+   ```
+
+3. **Import the desktop screenshot as an image shape** at 1:1 pixel scale (`w`/`h` matching the PNG's real dimensions) so the coordinates you measured in step 1 map directly onto the canvas — no scale-factor math. Default to the first 1440×900 of the full-page screenshot (the above-the-fold view, matching what Section 5 is actually critiquing) — crop with ImageMagick first if you need it (`magick <in> -crop 1440x900+0+0 +repage <out>`).
+
+4. **For each finding: a circle/ellipse around the measured bbox, plus a note placed in the open canvas margin beside the screenshot — never on top of page content.** This is an infinite canvas; there is no space constraint forcing a note to overlap anything. Connect note to circle with `helpers.createArrowBetweenShapes` (or a plain arrow) if the association isn't obvious from proximity alone.
+
+5. **Before exporting: `editor.selectNone()`.** A selected shape's style panel can bleed into the capture. If the exported image still shows app chrome (toolbar, page menu, minimap) despite `mode: 'canvas'`, crop it out afterward with ImageMagick against the known bounds of your shapes rather than fighting the capture mode — this happened during testing and a plain crop is the reliable fix.
+
+6. **Export and save the flattened result** into the same durable folder as a PNG (`~/.local/share/teardown/<slug>/<timestamp>-design-annotated.png`) via `api.getScreenshot(doc.id, { mode: 'canvas', bounds: <tight bounds around image + notes> })`, then copy the temp file there.
+
+7. **Attach it to the doc** — don't just link the local path, embed it:
+   ```bash
+   basecamp attach ~/.local/share/teardown/<slug>/<timestamp>-design-annotated.png
+   ```
+   Drop the returned `<bc-attachment>` tag into Section 5's HTML in step 6, right after the written critique.
+
+If the capture script failed (see the fallback above) or no finding in Section 5 has a concrete on-page target, skip this sub-step entirely and say so in the report-back — don't force an annotation pass onto a page you never actually screenshotted.
 
 ### 3. Run tribunal — via the Docker image, not the bare binary
 
@@ -112,6 +149,8 @@ Write it the way Matt actually writes it — read Basecamp doc `10032725076` ("M
 
 Remove that line yourself once you've rewritten a section; the skill always includes it fresh.
 
+**Section 5 specifically** — run step 2b now if you haven't yet, using the concrete findings you just identified for this section. Reference the annotated image inline (the `<bc-attachment>` tag from step 2b) rather than only describing findings in prose.
+
 ### 5. Show Matt the draft before publishing anything
 
 Print the full draft and wait for a go-ahead, same as any other skill that posts to Basecamp on Matt's behalf. Revise in place if he wants changes.
@@ -154,7 +193,7 @@ If no card exists yet, just tell Matt — don't create one. Whether a prospect i
 
 ### 8. Report back
 
-Give Matt the doc URL and a one-line summary (e.g. "3 corroborated findings surfaced, overall score 75 — mostly performance; sections 1-5/7/8 are a first-pass draft to rewrite"). If a diff ran, add one line of deltas (e.g. "vs the March run: 2 new, 1 resolved, overall −4") — this is the only place the diff surfaces; the doc doesn't mention prior runs. Mention where the durable artifacts landed (`~/.local/share/tribunal/history/<slug>/` for the scan, `~/.local/share/teardown/<slug>/` for the screenshots) in case Matt wants to look at them later. Nothing more beyond that.
+Give Matt the doc URL and a one-line summary (e.g. "3 corroborated findings surfaced, overall score 75 — mostly performance; sections 1-5/7/8 are a first-pass draft to rewrite"). If a diff ran, add one line of deltas (e.g. "vs the March run: 2 new, 1 resolved, overall −4") — this is the only place the diff surfaces; the doc doesn't mention prior runs. Note how many visual findings got annotated in step 2b (or that none did, and why — no concrete target, or the capture failed). Mention where the durable artifacts landed (`~/.local/share/tribunal/history/<slug>/` for the scan, `~/.local/share/teardown/<slug>/` for the screenshots and annotated `.tldraw`/PNG) in case Matt wants to look at them later. Nothing more beyond that.
 
 Never delete anything under either of those two directories — they're the durable record, not scratch space. `/tmp` files created along the way (redirected stdout, etc.) are fine to leave or clean up; they're not the source of truth for anything.
 
@@ -169,6 +208,9 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Sections 1-5/7/8 read generic, could be any company's homepage | Drafted from assumption instead of the actual captured copy/screenshot | Re-read the JSON text and screenshots before drafting — quote or reference specifics from the real page |
 | Draft published without the "AI first pass" flag on 1-5/7/8 | Skipped adding the flag line under each heading | Always add it fresh per section 4 — never rely on it carrying over from the template |
 | Section 5 (design/hierarchy) invents a visual read with no screenshot | Screenshots weren't actually opened with `Read`, or the capture script failed | Always `Read` both PNGs before drafting Section 5; if the script failed, say so rather than guessing at layout/color from markup alone |
+| Annotation circle lands on the wrong element or off to the side | Coordinates guessed from eyeballing the screenshot instead of measured | Always scan pixel colors with ImageMagick to find the real edge (step 2b) — don't estimate by eye |
+| Exported annotated image still shows toolbar/menu/minimap | `mode: 'canvas'` doesn't always exclude app chrome, especially with a shape still selected | Call `editor.selectNone()` before capturing; if chrome still appears, crop it out with ImageMagick against the known shape bounds |
+| tldraw annotation step fails outright (no server.json, connection refused) | tldraw Desktop isn't running | Skip step 2b, note it in the report-back, don't block the rest of the teardown on it |
 | `capture-homepage.mjs` fails with a missing module / browser error | `pnpm install` or the chromium download was never run in this skill's directory | `cd ~/.claude/skills/teardown && pnpm install && pnpm exec playwright install chromium` |
 | Most engines come back `unavailable`, only ~4 of 13 ran | Ran the bare `tribunal` binary instead of the Docker image | Always run via `docker run --rm tribunal audit ...` per step 3 — the bare binary only has the API-based engines |
 | Performance/accessibility score looks alarmingly low | Lighthouse/axe are lab (synthetic) data — can read much harsher than real-user field data | Frame it as lab vs. field (tribunal's own distinction), not a contradiction of anything Matt already knows about the site — see Section 6 guidance |

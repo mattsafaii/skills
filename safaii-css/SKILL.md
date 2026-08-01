@@ -279,6 +279,16 @@ These two come from [Every Layout](https://every-layout.dev/) (the Cluster and G
 
 **Trig functions for math-driven layout** (`sin()`, `cos()`, `tan()`, `atan2()`, …, Baseline 2023). For a layout that's genuinely circular/radial — dots around a dial, items fanned around a center point — native CSS math beats a JS positioning loop: `left: calc(50% + var(--radius) * cos(var(--angle))); top: calc(50% + var(--radius) * sin(var(--angle)));`, with `--angle` set per item (e.g. `calc(360deg / var(--count) * var(--i))`). No JS, no library. Reach for it only when the shape genuinely is circular/angular — for ordinary wrapping layouts the grid/cluster primitives above are still correct; this is a narrow-but-real tool for the specific case they don't cover.
 
+## Standing out from AI-sameness
+
+A build-order checklist for a page before calling it done — not new rules, a pass over ones already in this skill plus two new checks:
+
+1. **Spacing & padding.** Container/cluster/grid rhythm, the spacing-rhythm-of-three tokens. Makes content easy to scan.
+2. **Typography.** Font family, fluid `clamp()`/`cqi` sizing, weight, tracking, color. This is where the page starts to have a voice.
+3. **Layering.** Flat pages (bg color, text, done) read as generic. Stack elements — a gradient behind a hero, a card overlapping a z-indexed button/image, a background video/image bleeding behind content — before shipping a hero or feature section.
+4. **One deliberate specific detail.** Every design should have at least one element that reinforces what *this* brand/product specifically is, not a generic embellishment (a noise texture, an icon shape, a motif tied to the product's own meaning). Same ask-first bar as animation/SVG filters above — bring the specific idea to Matt, don't add it silently.
+5. **Animation.** Last, and still gated by the ask-first rule above — motion is what ties the rest together once it's earned its place, not a default.
+
 ## Browser support
 
 This skill uses recent CSS (`@scope`, `cqi`, `oklch`, relative color, `@view-transition`). Support policy and a per-feature support map live in `references/browser-support.md`. The short version:
