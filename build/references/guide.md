@@ -117,14 +117,24 @@ Then, from the PRD, propose a build breakdown to Matt. Present it before creatin
 - Add a close-out **"Review against the PRD"** task, placed before Finalize README, with this description:
 
   ```
-  Spawn one reviewer (Claude (unattended)) over the Solo MCP. Give it the PRD's
-  acceptance criteria and What Can Go Wrong list, the full diff for this cycle, and
-  read-only scope: report gaps, don't fix them. Run the test suite first if there is
-  one and hand it the result. Set a wake-on-idle timer with max_wait_ms rather than
-  polling, then harvest and fix what it finds. Follow the solo skill.
+  Spawn two reviewers (Claude (unattended)) over the Solo MCP, in parallel, each
+  reading the diff independently so neither's read pollutes the other:
+
+  - Spec reviewer: the PRD's acceptance criteria and What Can Go Wrong list, the
+    full diff for this cycle. Run the test suite first if there is one and hand
+    it the result. Report gaps against the PRD.
+  - Standards reviewer: the full diff, plus whatever conventions this repo
+    documents (CLAUDE.md/AGENTS.md, safaii-css/safaii-html/dhh-rails-style as the
+    stack dictates); fall back to a general code-smell pass (duplication, unclear
+    naming, dead code) if the repo documents no specific conventions. Report
+    deviations.
+
+  Both reviewers get read-only scope: report gaps, don't fix them. Set a
+  wake-on-idle timer with max_wait_ms rather than polling, then harvest both
+  reports side by side and fix what they find. Follow the solo skill.
   ```
 
-  One reviewer reading, not a fleet writing — the build stays single-agent. Skip it for static sites with no application logic.
+  Two reviewers reading, not a fleet writing — the build stays single-agent. Skip it for static sites with no application logic.
 - Always include a near-the-end **"Finalize README"** task (real usage, install, examples — the scaffold only writes a stub). For open-core-ready or publishable repos, also add a **"Add LICENSE + NOTICE"** task (permissive license; NOTICE for any bundled third-party tools).
 - For apps, CLIs, and libraries (anything with real application logic — **not** static/marketing/landing sites), add a final **"Document the codebase (run /document)"** task. The build agent invokes the `document` skill from inside the repo to generate the architecture doc set with inline diagrams into this project's Basecamp Docs. Skip it for static sites.
 - Each task should be completable in a focused session (a few hours max)
@@ -527,7 +537,7 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 3b | Build todos carry a description | Surface, core-flow, and data-model todos have `--description` from the PRD; Setup/Verify todos are title-only | Add missing descriptions |
 | 3c | Every build todo has a `Done when:` line | One observable result per todo, from the PRD | Add it |
 | 3d | Failure cases assigned | Each What Can Go Wrong item sits in the `Done when:` of the todo that owns it | Attach the orphans |
-| 3e | Review task present | "Review against the PRD" in close-out, with the reviewer brief as its description | Add it (skip only for static sites) |
+| 3e | Review task present | "Review against the PRD" in close-out, with both reviewer briefs (Spec + Standards) as its description | Add it (skip only for static sites) |
 | 3f | Test framework exists where tests were promised | A todo carrying a `Test:` line is in a project scaffolded with a test setup | Fix the scaffold flags before spawning |
 | 3g | Spike task present and first | A PRD with a Gated Decision has `Spike: [question]` immediately after "Scaffold repo", carrying the question, what settles it, and the fallback | Add it; move it ahead of everything else |
 | 4 | Task count reasonable | 8–25 tasks | Merge too-granular or split too-large |
@@ -581,7 +591,8 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Todolist doubles in size | Tests and failure cases were made into their own todos | They ride inside existing todos as `Test:` and `Done when:` lines |
 | Build agent stops early or gilds a todo | No `Done when:` line, so "finished" was its own judgment call | Add the line — it's the whole point of the description |
 | Reviewer rewrites the code | Reviewer brief omitted read-only scope | Brief says report gaps, don't fix them; the build agent applies the fixes |
-| Build agent waits on the reviewer forever | Reviewer spawned with the normal Claude tool and hit a permission prompt, so it never went idle | Spawn reviewers with Claude (unattended) — see the solo skill |
+| Build agent waits on a reviewer forever | Reviewer spawned with the normal Claude tool and hit a permission prompt, so it never went idle | Spawn both reviewers with Claude (unattended) — see the solo skill |
+| Standards reviewer invents conventions the repo doesn't have | No CLAUDE.md/AGENTS.md or stack-specific skill (safaii-css, dhh-rails-style) to point it at | Fall back to a plain code-smell pass (duplication, naming, dead code) instead of guessing at house style |
 
 ---
 
