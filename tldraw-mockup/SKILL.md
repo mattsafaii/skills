@@ -1,12 +1,11 @@
 ---
-name: prototype
-description: Mock up a UI feature as several distinct variations in one self-contained HTML file, side-by-side, so Matt can pick the winner before it gets built for real. Use when Matt wants to explore how a feature should look or behave, compare UI options, says "prototype this", "show me variations", "mock this up a few ways", or "/prototype".
+name: tldraw-mockup
+description: Mock up a UI feature as several distinct variations in one self-contained HTML file, side-by-side, so Matt can pick the winner before it gets built for real. Use when Matt wants to explore how a feature should look or behave, compare UI options, says "mock this up", "show me variations", "mock this up a few ways", or "/tldraw-mockup".
 triggers:
-  - prototype this
   - mock this up
   - show me variations
   - design a few options
-  - /prototype
+  - /tldraw-mockup
 ---
 
 # Prototype Skill
