@@ -125,12 +125,12 @@ When a diff does come back, it has `summary` counts and per-finding changes (`ne
 
 ### 3c. Online presence — optional DataForSEO measurements, main session
 
-**Only if the DataForSEO MCP tools are available** — missing MCP, skip silently, Section 6 just won't have this paragraph. It's API, not browser, so run it in the main session (alongside tribunal in step 3 if that's convenient, or right after). This is the only place the teardown is allowed an ordinal — these are measurements, dated and geo-locked:
+**Only if the DataForSEO MCP tools are available** — load the `dataforseo` skill first for the tool catalog and the measurement rule. Missing MCP, skip silently, Section 6 just won't have this paragraph. It's API, not browser, so run it in the main session (alongside tribunal in step 3 if that's convenient, or right after). This is the only place the teardown is allowed an ordinal — these are measurements, dated and geo-locked:
 
-- **SERP for the brand's own terms** — `serp_organic_live_advanced`, 2–3 terms the prospect actually targets (their brand name plus the obvious category+city, e.g. "ac repair los angeles"), `location_name` = their market, `language_code: en`, `depth: 10`. Record whether the prospect appears at all, and where, plus what `related_searches` / `people_also_ask` surface.
-- **Backlink profile** — `backlinks_summary` for the prospect's domain: `backlinks`, `referring_domains`, `backlinks_spam_score`.
+- **SERP for the brand's own terms** — 2–3 terms the prospect actually targets (their brand name plus the obvious category+city, e.g. "ac repair los angeles"), geo-locked to their market. Record whether the prospect appears at all, and where, plus what `related_searches` / `people_also_ask` surface.
+- **Backlink profile** — the prospect's domain: backlinks, referring domains, spam score.
 
-Every claim carries the call's date and location — "as of `<date>`, no result for 'ac repair los angeles'" is citable; a bare "you don't rank" is not. A failed call goes to `Unknown`, never a guessed rank. Keep this *light* — two or three lines in the doc, not a section. The prospect's own absence from their category's results is the finding worth saying; a full SERP teardown belongs to the prospect skill's competitor lane, not here.
+Every claim carries the call's date and location — "as of `<date>`, no result for 'ac repair los angeles'" is citable; a bare "you don't rank" is not (see the `dataforseo` skill's measurement rule). A failed call goes to `Unknown`, never a guessed rank. Keep this *light* — two or three lines in the doc, not a section. The prospect's own absence from their category's results is the finding worth saying; a full SERP teardown belongs to the prospect skill's competitor lane, not here.
 
 ### 4. Draft every section
 

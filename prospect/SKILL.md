@@ -287,15 +287,15 @@ Keep people research to decision-maker identity, role, and the agency check. Ski
 
 ### 4b. DataForSEO measurements — main session, alongside the lanes
 
-**Only if the DataForSEO MCP tools are available.** It's API, not browser, so it runs in the main session **concurrently with the lane subagents** — no Chrome to collide over. Missing MCP? Skip this step silently; the browser observation rule in step 5 stands (and the doc header notes the skipped source, per Data sources).
+**Only if the DataForSEO MCP tools are available** — load the `dataforseo` skill first; it holds the tool catalog, the measurement rule, and cost guidance. It's API, not browser, so it runs in the main session **concurrently with the lane subagents** — no Chrome to collide over. Missing MCP? Skip this step silently; the browser observation rule in step 5 stands (and the doc header notes the skipped source, per Data sources).
 
 Run these with the customer terms from recon:
 
-- **SERP positions** — `serp_organic_live_advanced`, one call per customer term, `location_name` set to the prospect's market (city/region for local business types; country otherwise), `language_code: en`, `depth: 10`. **This is a measurement, not an observation** — real geo-locked rank data. Record, per term: where the prospect lands (rank_group / rank_absolute, and `organic` vs `local_pack` — a maps placement is a different game than a blue link), the full result list for the competitor lane, and which `related_searches` / `people_also_ask` items appear (customer vocabulary, direct from Google).
-- **Backlink profiles** — `backlinks_summary` for the prospect and top 2–3 competitors. Compare `backlinks`, `referring_domains`, and `backlinks_spam_score`. A prospect with 12 referring domains against competitors with 200 is a concrete, citable gap — stronger than the browser's impression.
-- **Keyword volume (optional)** — `kw_data_google_ads_search_volume` for the customer terms, to size the demand each term carries.
+- **SERP positions** — one call per customer term, geo-locked to the prospect's market. This is a measurement, not an observation. Record, per term: where the prospect lands (rank, and `organic` vs `local_pack` — a maps placement is a different game than a blue link), the full result list for the competitor lane, and which `related_searches` / `people_also_ask` items appear (customer vocabulary, direct from Google).
+- **Backlink profiles** — the prospect and top 2–3 competitors. Compare counts and spam scores. A prospect with 12 referring domains against competitors with 200 is a concrete, citable gap — stronger than the browser's impression.
+- **Keyword volume (optional)** — the customer terms, to size the demand each term carries.
 
-**The measurement rule changes what's citable.** From DataForSEO you can state an ordinal with its date and location: "as of `<date>`, rank 4 in Google LA results for 'ac repair'." That's the one place the skill allows it — the step 5 browser rule stays observation-only. Every DataForSEO claim carries the date and location the call used; the data is a snapshot, not a trend.
+The `dataforseo` skill's measurement rule governs what's citable: ordinals only with the call's date and location, and a failed call goes to the `Unknown` list — never a guessed rank.
 
 If a call fails or returns nothing, write the term into the `Unknown` list — don't leave the gap silent and don't hand-wave a rank.
 
