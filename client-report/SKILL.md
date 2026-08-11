@@ -89,7 +89,7 @@ The top-pages list does double duty: report content AND the traffic weight used 
 ### 4. Fetch GSC (skip if no `gsc_property`)
 
 ```bash
-cd ~/.claude/skills/client-report
+cd ~/Code/skills/client-report
 node scripts/gsc-fetch.mjs \
   --key <gsc_key_file> --property "<GSC_PROPERTY>" \
   --start <FROM> --end <TO> --prev-start <PREV_FROM> --prev-end <PREV_TO> \
@@ -152,6 +152,6 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Report reads like a scan dump | Drafted from `merge_groups`/API JSON without translating | Re-read the Marathon Power doc; every line needs a consequence, not a metric |
 | Index status claims overreach | Presented the inspected top-pages sample as full coverage | GSC API only inspects individual URLs — say "your key pages," never "every page" |
 | GSC section silently missing when creds exist | Service account not yet added to that client's property | Add the service-account email as a user on the property in Search Console, once |
-| `gsc-fetch.mjs` fails with missing module | `pnpm install` never run in this skill's dir | `cd ~/.claude/skills/client-report && pnpm install` |
+| `gsc-fetch.mjs` fails with missing module | `pnpm install` never run in this skill's dir | `cd ~/Code/skills/client-report && pnpm install` |
 | Draft posted without approval | Treated silence/ambiguity as a yes | Only an explicit yes publishes; anything else waits |
 | Fathom deltas look wrong | Compared windows of different lengths | Previous window must be the same number of days, immediately preceding |

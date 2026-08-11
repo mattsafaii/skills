@@ -2,7 +2,7 @@
 
 Start a build cycle. This is the moment the bet is placed — everything needed to go from "card in Up Next" to "build session running in Solo" happens here, in one command.
 
-**Matt runs `/build` from anywhere with the Solo MCP connected** — cwd doesn't matter. The skill looks the project up explicitly and spawns the build agent into the correct Solo project, so it doesn't care where it was launched. It creates the Basecamp project, writes the PRD doc, posts the kickoff, creates the todolist, scaffolds the repo in a new workspace folder, registers it in Solo, spawns a Claude agent inside it with its first prompt, and moves the card to In Progress. Matt then switches to the project in Solo where the build session is already working.
+**Matt runs `/build` from anywhere with the Solo MCP connected** — cwd doesn't matter. The skill looks the project up explicitly and spawns the build agent into the correct Solo project, so it doesn't care where it was launched. It creates the Basecamp project, writes the PRD doc, posts the kickoff, creates the todolist, scaffolds the repo in a new workspace folder, registers it in Solo, spawns an OpenCode agent inside it with its first prompt, and moves the card to In Progress. Matt then switches to the project in Solo where the build session is already working.
 
 Never start coding the build from this session — the build session must live in the project directory so its transcript, memory, and resume stay with the project. (Footnote: avoid launching `/build` from the target repo's *actively-building* agent — it works, but it's a session spawning a sibling into its own project. Anywhere else is fine.)
 
@@ -61,9 +61,9 @@ cd <repo_path> && basecamp config show --json
 
 This gives `project_id` (and the prior `todolist_id`, which gets repointed in step 8). Then:
 
-- **Skip:** step 4 (project creation), step 8's scaffold/solo.yml/CLAUDE.md creation/repo config init, and step 9's registration (still look up the existing Solo project id there)
+- **Skip:** step 4 (project creation), step 8's scaffold/solo.yml/AGENTS.md creation/repo config init, and step 9's registration (still look up the existing Solo project id there)
 - **Keep:** steps 3, 5, 6, 7, 10, 11, 12 — run them against the existing project
-- **Adjust:** name things for the cycle, update the existing CLAUDE.md, and repoint the Basecamp config — details flagged per step below
+- **Adjust:** name things for the cycle, update the existing AGENTS.md, and repoint the Basecamp config — details flagged per step below
 
 ### 3. Derive the todolist
 
@@ -114,17 +114,35 @@ Then, from the PRD, propose a build breakdown to Matt. Present it before creatin
   The `Done when:` line absorbed the empty-state failure; the `Test:` line covers the one thing you can't confirm by looking at the page.
 
 - Anything in the PRD's **What Can Go Wrong** section attaches to the todo that owns it, as part of `Done when:` — the empty state belongs to the surface that shows it, the bad-input path to the flow that takes the input. Don't make failure handling its own todo; it's part of the work, not a follow-up.
+- Add a close-out **"Write QA plan"** task, placed right after the Verify tasks and before "Review against the PRD", with this description:
+
+  ```
+  Consolidate every Verify task above into one walkthrough: the exact steps to
+  reproduce each (URL to visit, what to click, what input to give) and the
+  observable result that proves it. Post it as a comment on this todo, not a
+  new doc.
+
+  This isn't a restatement of the acceptance criteria — it's a script Matt can
+  follow without re-deriving what "verify X" means. Order the steps so later
+  ones don't require redoing earlier setup.
+
+  Done when: the comment lets Matt walk the whole app once, top to bottom,
+  checking every Verify criterion, without opening the code.
+  ```
+
+  The individual "Verify:" todos stay as the acceptance-criteria record; this task turns them into one ordered script instead of leaving Matt to reconstruct the walkthrough himself. Skip it for a project with one or two Verify tasks — the consolidation isn't worth a todo when there's nothing to order.
 - Add a close-out **"Review against the PRD"** task, placed before Finalize README, with this description:
 
   ```
-  Spawn two reviewers (Claude (unattended)) over the Solo MCP, in parallel, each
-  reading the diff independently so neither's read pollutes the other:
+  Spawn two reviewers (OpenCode (unattended) — DeepSeek V4 Flash, over the
+  Solo MCP, in parallel), each reading the diff independently so neither's read
+  pollutes the other:
 
   - Spec reviewer: the PRD's acceptance criteria and What Can Go Wrong list, the
     full diff for this cycle. Run the test suite first if there is one and hand
     it the result. Report gaps against the PRD.
   - Standards reviewer: the full diff, plus whatever conventions this repo
-    documents (CLAUDE.md/AGENTS.md, safaii-css/safaii-html/dhh-rails-style as the
+    documents (AGENTS.md, safaii-css/safaii-html/dhh-rails-style as the
     stack dictates); fall back to a general code-smell pass (duplication, unclear
     naming, dead code) if the repo documents no specific conventions. Report
     deviations.
@@ -139,7 +157,7 @@ Then, from the PRD, propose a build breakdown to Matt. Present it before creatin
 - For apps, CLIs, and libraries (anything with real application logic — **not** static/marketing/landing sites), add a final **"Document the codebase (run /document)"** task. The build agent invokes the `document` skill from inside the repo to generate the architecture doc set with inline diagrams into this project's Basecamp Docs. Skip it for static sites.
 - Each task should be completable in a focused session (a few hours max)
 
-**Task order:** Scaffold → Spike (if the PRD gates one) → rest of Setup → Data model (if applicable) → Surfaces (simplest first) → Core flow → Verification → close-out (Review against the PRD, Finalize README, LICENSE+NOTICE, Document the codebase — whichever apply)
+**Task order:** Scaffold → Spike (if the PRD gates one) → rest of Setup → Data model (if applicable) → Surfaces (simplest first) → Core flow → Verification → Write QA plan (if there are enough Verify tasks to warrant it) → close-out (Review against the PRD, Finalize README, LICENSE+NOTICE, Document the codebase — whichever apply)
 
 **Proposed format:**
 
@@ -164,6 +182,7 @@ Verify
 - Verify: [visual/interactive criterion 2]
 
 Close-out
+- Write QA plan          (only when there are enough Verify tasks to warrant consolidating)
 - Review against the PRD
 - Finalize README
 ```
@@ -317,7 +336,7 @@ Keep the returned id for the "Scaffold repo" todo — step 8 needs it. **Existin
 
 **Existing project:** the repo already exists — no scaffold, no solo.yml, no `basecamp config init`. Instead:
 
-1. Update the existing `CLAUDE.md` with the new cycle's context (summary, surfaces, no-gos) — append or revise, don't blow away what's there. Keep the Basecamp section CLI-based; don't add IDs or URLs.
+1. Update the existing `AGENTS.md` with the new cycle's context (summary, surfaces, no-gos) — append or revise, don't blow away what's there. Keep the Basecamp section CLI-based; don't add IDs or URLs. (If the repo predates the AGENTS.md convention and still has a standalone `CLAUDE.md`, migrate it first: `git mv CLAUDE.md AGENTS.md`.)
 2. Repoint the Basecamp config at the new list: `cd <repo> && basecamp config set todolist_id <new_todolist_id>`
 3. Commit those changes, then skip to step 9
 
@@ -372,9 +391,9 @@ processes: {}
 
 Fill `processes` with the project's real commands once the stack is known — dev server, build, worker, and a **Test** process wherever the project has a test suite (`bin/rails test`, `go test ./...`) so the build agent and the reviewer can run it as a managed command — each with its port set through `env` rather than a hardcoded flag (`PORT: "3002"` for Rails, `ZONEBRITE_API_ADDR: ":8083"` style for Go). Assign each project a distinct port; don't leave two apps on the same framework default.
 
-Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent entry lands in the Commands section and forfeits idle detection, auto-summaries, and Claude recaps. Launch agents with `Cmd+T` — the row persists across restarts with **Resume last session**, so nothing is lost by not auto-starting one.
+Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent entry lands in the Commands section and forfeits idle detection, auto-summaries, and recaps. Launch agents with `Cmd+T` — the row persists across restarts with **Resume last session**, so nothing is lost by not auto-starting one.
 
-**`CLAUDE.md`** — the briefing the build session wakes up to. It must stand alone; the build session has none of this conversation's context. Include:
+**`AGENTS.md`** — the briefing the build session wakes up to. It must stand alone; the build session has none of this conversation's context. Write it with the content below. Include:
 
 - One-paragraph summary of what's being built and why
 - Stack, naming the deploy target (Rails → Kamal on VPS, SQLite-only; 11ty → Cloudflare Pages, pnpm). For 11ty/Rails, add a line pointing the build session at the `safaii-css` and `safaii-html` skills for CSS/markup conventions — they auto-trigger, but naming them removes the dependency on that.
@@ -390,7 +409,7 @@ Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent 
   write that test alongside the code rather than afterwards.
 
   The Basecamp list is mirrored into Solo. Close a unit with
-  `python3 ~/.claude/skills/solo/scripts/basecamp-bridge.py ship <todo_id> <sha>`,
+  `python3 ~/Code/skills/solo/scripts/basecamp-bridge.py ship <todo_id> <sha>`,
   which comments the SHA on Basecamp and completes it in both places. Either id
   works — the Basecamp one you just finished, or the Solo one from the sidebar.
   ```
@@ -452,13 +471,13 @@ mcp__solo__create_project(path: "/Users/matt/Code/personal/<name>", name: "<name
 
 Note the returned project `id`. (The public Solo docs omit `create_project` — it exists and works; verified on Solo 0.7.1.)
 
-Don't append Solo's MCP docs to CLAUDE.md — the build session runs inside Solo, which auto-injects its own getting-started and exposes its tools live, so a static dump just duplicates that, bloats every repo, and rots as Solo changes. The two-line Solo pointer written in step 8 is all that's needed.
+Don't append Solo's MCP docs to AGENTS.md — the build session runs inside Solo, which auto-injects its own getting-started and exposes its tools live, so a static dump just duplicates that, bloats every repo, and rots as Solo changes. The two-line Solo pointer written in step 8 is all that's needed.
 
 If the Solo MCP isn't connected, tell Matt to add the folder in Solo with Cmd+Shift+O, and skip step 10. Note that no build agent was spawned (see step 12 handoff).
 
 ### 9b. Seed the state scratchpad
 
-The build agent wakes up with CLAUDE.md and the Basecamp todos, but nothing that tracks where the work stands between sessions. Create that now so it exists from the first turn:
+The build agent wakes up with AGENTS.md and the Basecamp todos, but nothing that tracks where the work stands between sessions. Create that now so it exists from the first turn:
 
 ```
 mcp__solo__scratchpad_write(
@@ -476,7 +495,7 @@ Seed it from the PRD — the shaping decisions and no-gos, not a copy of the tod
 The Basecamp list is the record; the Solo copy is what shows in the sidebar beside the running agent, and what `ship` closes both halves of. Needs `.basecamp/config.json` (step 8) and the Solo project (step 9), so it runs here:
 
 ```bash
-cd ~/Code/personal/<name> && python3 ~/.claude/skills/solo/scripts/basecamp-bridge.py import
+cd ~/Code/personal/<name> && python3 ~/Code/skills/solo/scripts/basecamp-bridge.py import
 ```
 
 Idempotent — safe on a cycle, where it picks up the new list's open todos and skips anything already there. If it reports the repo isn't a Solo project, step 9 didn't take; fix that rather than skipping this.
@@ -485,12 +504,12 @@ This does **not** make Solo a second tracker: nothing is closed in Solo alone, a
 
 ### 10. Spawn the build agent
 
-Start the Claude session inside the new project and brief it:
+Start the OpenCode session inside the new project and brief it:
 
-1. `mcp__solo__list_agent_tools` — find the Claude agent tool id
+1. `mcp__solo__list_agent_tools` — find the OpenCode agent tool id
 2. `mcp__solo__spawn_agent(agent_tool_id: <id>, project_id: <solo_project_id>, name: "Build")`
 3. If the response includes `agent_instructions`, prepend them to the first prompt
-4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read CLAUDE.md and this project's Solo state scratchpad (scratchpad_list with tag 'state'), then start on the first todo in the Basecamp Build list. Work through the todos in order, closing each with the Solo bridge's ship command as you complete it — it writes the SHA comment to Basecamp and completes the todo in both places. Each build todo's description ends with a 'Done when:' line — that's the finish line, not your own judgment of done; where a description carries a 'Test:' line, write that test with the code rather than afterwards. Keep the state scratchpad current — update it when a decision gets made and before your context compacts. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101).")`
+4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read AGENTS.md and this project's Solo state scratchpad (scratchpad_list with tag 'state'), then start on the first todo in the Basecamp Build list. Work through the todos in order, closing each with the Solo bridge's ship command as you complete it — it writes the SHA comment to Basecamp and completes the todo in both places. Each build todo's description ends with a 'Done when:' line — that's the finish line, not your own judgment of done; where a description carries a 'Test:' line, write that test with the code rather than afterwards. Keep the state scratchpad current — update it when a decision gets made and before your context compacts. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101).")`
 
 **Existing project:** always spawn a fresh agent for the cycle (named e.g. "Build: [Cycle Name]", prompt referencing the cycle's todolist) — never send the kickoff to an existing session; its context is full of the previous cycle and the prompt may interrupt it mid-task. Leave existing sessions alone — Matt often runs multiple agents in the same repo, and an idle session may just mean he stepped away. Never close one.
 
@@ -506,9 +525,9 @@ If the move returns `ok: false`, retry once — transient failures happen.
 
 One line: Basecamp project created, PRD doc written, [N] todos created, repo scaffolded, card moved to In Progress. Share the Basecamp project URL. Then the handoff: "Open **<name>** in Solo — the build session is already running on the first todo."
 
-**If no agent was spawned** (Solo MCP wasn't connected, step 10 skipped): don't claim a session is running. Handoff instead: "Add **<name>** to Solo (Cmd+Shift+O), then start a Claude session and tell it: *Read CLAUDE.md, then start on the first todo in the Basecamp Build list.*"
+**If no agent was spawned** (Solo MCP wasn't connected, step 10 skipped): don't claim a session is running. Handoff instead: "Add **<name>** to Solo (Cmd+Shift+O), then start an OpenCode session and tell it: *Read AGENTS.md, then start on the first todo in the Basecamp Build list.*"
 
-**Existing project:** the one-liner is instead: PRD doc written, kickoff posted, [N] todos created on "Build: [Cycle Name]", CLAUDE.md updated, cycle agent spawned (or manual-start note if Solo wasn't connected), card moved to In Progress.
+**Existing project:** the one-liner is instead: PRD doc written, kickoff posted, [N] todos created on "Build: [Cycle Name]", AGENTS.md updated, cycle agent spawned (or manual-start note if Solo wasn't connected), card moved to In Progress.
 
 ---
 
@@ -538,14 +557,15 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 3c | Every build todo has a `Done when:` line | One observable result per todo, from the PRD | Add it |
 | 3d | Failure cases assigned | Each What Can Go Wrong item sits in the `Done when:` of the todo that owns it | Attach the orphans |
 | 3e | Review task present | "Review against the PRD" in close-out, with both reviewer briefs (Spec + Standards) as its description | Add it (skip only for static sites) |
+| 3e2 | QA plan task present when warranted | "Write QA plan" in close-out, after Verify tasks, when there are enough Verify tasks to consolidate | Add it (skip for one or two Verify tasks) |
 | 3f | Test framework exists where tests were promised | A todo carrying a `Test:` line is in a project scaffolded with a test setup | Fix the scaffold flags before spawning |
 | 3g | Spike task present and first | A PRD with a Gated Decision has `Spike: [question]` immediately after "Scaffold repo", carrying the question, what settles it, and the fallback | Add it; move it ahead of everything else |
 | 4 | Task count reasonable | 8–25 tasks | Merge too-granular or split too-large |
 | 4b | Project has a description | Created with `-d`, not title-only | `basecamp projects update --description` |
 | 5 | Scaffold matches stack | Command matches PRD stack | Fix scaffold command |
 | 6 | Name resolved before scaffold | No TBD or "may collide" name used | Ask Matt before running |
-| 7 | CLAUDE.md stands alone | Build session can start without this conversation | Add missing context |
-| 7b | CLAUDE.md is ID-free | No Basecamp IDs/URLs committed — Basecamp section points at the CLI/config | Replace IDs/URLs with the CLI-based section |
+| 7 | AGENTS.md stands alone | Build session can start without this conversation | Add missing context |
+| 7b | AGENTS.md is ID-free | No Basecamp IDs/URLs committed — Basecamp section points at the CLI/config | Replace IDs/URLs with the CLI-based section |
 | 8 | solo.yml valid | `processes:` top-level, no agent entries | Fix YAML nesting; move any agent row out |
 | 8b | Basecamp config set | `.basecamp/config.json` has account, project, todolist ids and is trusted | Run config init/set/trust |
 | 8c | README stub committed + finalize task exists | `README.md` written in scaffold; a "Finalize README" task is in the list | Write the stub; add the task |
@@ -573,7 +593,7 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Build coded in the session that ran `/build` | Forgot this is an outside-in command | Hand off to the spawned agent; never code here |
 | `create_project` YAML parse error | Malformed solo.yml (`processes` nested under `name`) | Fix indentation, retry |
 | Gem scaffolded with placeholder name | Skipped name resolution check | Always check for TBD names in pitch/PRD before scaffolding |
-| Build session asks basic questions | CLAUDE.md too thin | Include stack, data contract, no-gos, and the CLI-based Basecamp section |
+| Build session asks basic questions | AGENTS.md too thin | Include stack, data contract, no-gos, and the CLI-based Basecamp section |
 | Card stays in Up Next | Forgot move command, or transient `ok: false` | Always run move after todos created; retry once on failure |
 | Wrong account on project commands | Missing `-a 6191443` | Always pass account flag |
 | Duplicate Basecamp project or repo created | Skipped the new-vs-existing check (step 2b) | Check before step 4; trash the duplicate, rerun against the existing project |
@@ -591,8 +611,9 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Todolist doubles in size | Tests and failure cases were made into their own todos | They ride inside existing todos as `Test:` and `Done when:` lines |
 | Build agent stops early or gilds a todo | No `Done when:` line, so "finished" was its own judgment call | Add the line — it's the whole point of the description |
 | Reviewer rewrites the code | Reviewer brief omitted read-only scope | Brief says report gaps, don't fix them; the build agent applies the fixes |
-| Build agent waits on a reviewer forever | Reviewer spawned with the normal Claude tool and hit a permission prompt, so it never went idle | Spawn both reviewers with Claude (unattended) — see the solo skill |
-| Standards reviewer invents conventions the repo doesn't have | No CLAUDE.md/AGENTS.md or stack-specific skill (safaii-css, dhh-rails-style) to point it at | Fall back to a plain code-smell pass (duplication, naming, dead code) instead of guessing at house style |
+| Build agent waits on a reviewer forever | Reviewer spawned with the wrong tool and hit a permission prompt, so it never went idle | Spawn both reviewers with OpenCode (unattended) — see the solo skill |
+| Matt has to re-derive what "verify X" means for each criterion by hand | QA plan task skipped or written as a restatement of the criteria instead of a walkthrough script | Write concrete steps (URL, click, input) and the observable result per step, ordered so setup isn't redone |
+| Standards reviewer invents conventions the repo doesn't have | No AGENTS.md or stack-specific skill (safaii-css, dhh-rails-style) to point it at | Fall back to a plain code-smell pass (duplication, naming, dead code) instead of guessing at house style |
 
 ---
 

@@ -5,7 +5,7 @@ description: Post a dated dev log entry to the project's Basecamp message board.
 
 # Dev Log Skill
 
-Post a narrative dev log entry to the Basecamp project's message board. The entry captures what changed and — more importantly — why it changed, drawn from both git history and what happened during the current session. Dev logs live in Basecamp only — never write them into AGENTS.md or CLAUDE.md.
+Post a narrative dev log entry to the Basecamp project's message board. The entry captures what changed and — more importantly — why it changed, drawn from both git history and what happened during the current session. Dev logs live in Basecamp only — never write them into AGENTS.md.
 
 ## Workflow
 
@@ -90,5 +90,5 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Distribution board fills with low-value cards | Step 6 forced an insight out of a session that didn't produce one | Most sessions produce zero insights; skip step 6 entirely rather than manufacture one |
 | Client specifics leak into the public tweet queue | An insight card captured a client-identifiable detail | For client work, only capture insights that are generic and non-confidential — skip anything that names or fingerprints the client |
 | Insight card lands under the wrong account/project | Coordinates improvised instead of using the fixed ones | Insight cards always use Safaii Studio account `6191443`, Content project `46824770`, Distribution table `10010006453`, Triage column `10010006454` — regardless of which repo (including Zonebrite work) the dev log itself is for |
-| Dev log content ends up in AGENTS.md/CLAUDE.md | Confused with the daily/repo-level logging habit | Dev logs are Basecamp-only; AGENTS.md/CLAUDE.md is a separate, repo-local log this skill never touches |
+| Dev log content ends up in AGENTS.md | Confused with the daily/repo-level logging habit | Dev logs are Basecamp-only; AGENTS.md is a separate, repo-local log this skill never touches |
 | Entry lists what changed but not why | Only git history was read; the reasoning was in the scratchpad | Read the `state` scratchpad in step 1 before writing bullets |

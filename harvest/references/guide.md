@@ -30,7 +30,7 @@ Match the idea to the board that already owns that content type (keeps the two-b
 ## Writing rules (hard — same as the rest of the system)
 
 - **Essays / videos: seeds only.** Capture the angle, never draft the prose. `develop-essay` does the writing with Matt.
-- **Tweets / insights: draft clay.** Draft as a starting point; Matt rewrites. Mark every clay card: *"Draft clay — rewrite in your voice. NOT for posting as-is."* When drafting for X, apply the X-algorithm reference at `~/.claude/skills/distribute/references/x-algorithm.md` (reply/dwell/share/profile-click positives; never engagement-bait — it's subordinate to the writing rules).
+- **Tweets / insights: draft clay.** Draft as a starting point; Matt rewrites. Mark every clay card: *"Draft clay — rewrite in your voice. NOT for posting as-is."* When drafting for X, apply the X-algorithm reference at `~/Code/skills/distribute/references/x-algorithm.md` (reply/dwell/share/profile-click positives; never engagement-bait — it's subordinate to the writing rules).
 - **Gut-check claims.** These are mined from the work — flag any strong claim so Matt confirms he stands behind it.
 - **Don't over-produce.** A period of work yields a *few* real insights, not twenty. Most commits are not insights. A high bar beats a wall of filler cards. If a window is thin, say so and produce little.
 

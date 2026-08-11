@@ -90,7 +90,7 @@ Be honest about the stage. A project with no downloadable build can't run a "go 
 
 - **Built project:** read its **plan doc** (in its build project's Docs). It has positioning, channel mix, blockers/gates, raw-facts bank, essay angles. If no plan doc exists, offer to create one first (it's the brief everything links to) — or proceed and link the Playbook instead.
 - **Unbuilt idea:** read the **Lab idea card** (the shaped pitch is the brief).
-- **Facts:** if the brief is thin, read the repo (README, CLAUDE.md) for concrete, accurate details. Wrong technical claims kill credibility — verify, don't guess.
+- **Facts:** if the brief is thin, read the repo (README, AGENTS.md) for concrete, accurate details. Wrong technical claims kill credibility — verify, don't guess.
 
 ### 3. Draft the cards
 
@@ -143,7 +143,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | `[🌱 Establish]` card has a postable draft | Treated it as clay | Seeds only — give openings to contribute, Matt writes the post |
 | Card reads as stealth marketing | Question is a veiled pitch | Make it a real question; usually drop the product mention entirely |
 | Launch card with a dead CTA | Project isn't actually launchable | Check for a deploy/notarized build; mark the card gated |
-| Wrong technical claim in a draft | Guessed instead of reading the repo | Read README/CLAUDE.md; verify before drafting |
+| Wrong technical claim in a draft | Guessed instead of reading the repo | Read README/AGENTS.md; verify before drafting |
 | Card body posts as raw HTML or breaks on quotes | Shell escaping | Use a heredoc for the body; HTML is sent as-is for cards |
 | Proposed a video card | YouTube is deferred | Don't, unless Matt says he's reopening video |
 | 15 cards nobody posts | Over-produced | Fewer, stronger pieces; size to the project |

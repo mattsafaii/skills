@@ -5,7 +5,7 @@ description: Backfill a dev log in Basecamp from the full git history. Use this 
 
 # Dev Log Backfill Skill
 
-Retroactively generate a dev log by synthesizing the full git history into grouped, dated entries posted to the Basecamp project's message board. This is for projects that don't have a dev log yet and want to bootstrap one from what's already been committed. Dev logs live in Basecamp only — never write them into CLAUDE.md.
+Retroactively generate a dev log by synthesizing the full git history into grouped, dated entries posted to the Basecamp project's message board. This is for projects that don't have a dev log yet and want to bootstrap one from what's already been committed. Dev logs live in Basecamp only — never write them into AGENTS.md.
 
 ## Important caveat
 
@@ -73,7 +73,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | An old repo gets hundreds of noisy entries | Every day treated as worth its own entry | Skip trivial days, combine adjacent related days, aim for density over completeness |
 | Matt has to ask for a redo after messages are already live | Entries posted before he reviewed them | Always show drafted entries and wait for confirmation before posting |
 | Message board reads out of chronological order | Entries posted newest-first instead of oldest-first | Post oldest first, so the board still reads newest-first overall |
-| Backfilled content ends up in CLAUDE.md | Confused with a repo-local log | Dev logs are Basecamp-only, same as the real-time `dev-log` skill |
+| Backfilled content ends up in AGENTS.md | Confused with a repo-local log | Dev logs are Basecamp-only, same as the real-time `dev-log` skill |
 
 ## Status
 

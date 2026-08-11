@@ -40,7 +40,7 @@ Need a **brand/prospect name** and a **URL**. Ask for whichever is missing — d
 Sections 1–5 need an actual read of the page, not just tribunal's technical facts — the hero's four jobs, the objection stack, copy quality, and visual hierarchy are all judgment calls about what a visitor sees and feels.
 
 ```bash
-cd ~/.claude/skills/teardown
+cd ~/Code/skills/teardown
 mkdir -p ~/.local/share/teardown/<slug>
 node scripts/capture-homepage.mjs <url> \
   ~/.local/share/teardown/<slug>/<timestamp>-desktop.png \
@@ -123,6 +123,15 @@ When a diff does come back, it has `summary` counts and per-finding changes (`ne
 
 **The diff is for Matt, not the doc.** It surfaces only in the report-back (step 8) — the teardown doc itself always reads as a fresh look. Whether to tell a prospect "we've looked at this before" is a sales call Matt makes deliberately, not something the draft should decide for him (the prior teardown may never have been sent).
 
+### 3c. Online presence — optional DataForSEO measurements, main session
+
+**Only if the DataForSEO MCP tools are available** — missing MCP, skip silently, Section 6 just won't have this paragraph. It's API, not browser, so run it in the main session (alongside tribunal in step 3 if that's convenient, or right after). This is the only place the teardown is allowed an ordinal — these are measurements, dated and geo-locked:
+
+- **SERP for the brand's own terms** — `serp_organic_live_advanced`, 2–3 terms the prospect actually targets (their brand name plus the obvious category+city, e.g. "ac repair los angeles"), `location_name` = their market, `language_code: en`, `depth: 10`. Record whether the prospect appears at all, and where, plus what `related_searches` / `people_also_ask` surface.
+- **Backlink profile** — `backlinks_summary` for the prospect's domain: `backlinks`, `referring_domains`, `backlinks_spam_score`.
+
+Every claim carries the call's date and location — "as of `<date>`, no result for 'ac repair los angeles'" is citable; a bare "you don't rank" is not. A failed call goes to `Unknown`, never a guessed rank. Keep this *light* — two or three lines in the doc, not a section. The prospect's own absence from their category's results is the finding worth saying; a full SERP teardown belongs to the prospect skill's competitor lane, not here.
+
 ### 4. Draft every section
 
 Fetch the template first so you're filling its exact structure:
@@ -138,6 +147,8 @@ basecamp -a 6191443 docs show 9994887966 -p 46876803 --md
 - `merge_groups` — the reconciled findings to work from. Each has `kind` (`corroborated` = multiple engines independently agree, the strongest signal; `single-source` = one engine only, hold more loosely; `conflicting` = flag if you use it at all), `severity`, `confidence`, `category`, and the underlying `findings[]` with `evidence`.
 
 If step 3b produced a diff, don't write it into this section — the doc reads as a fresh look regardless (see step 3b for why). The diff goes to Matt in the report-back instead.
+
+If step 3c produced an online-presence read, fold it in as the last paragraph of this section — the brand's SERP absence or position, and the backlink count, each dated and geo-located, each tied to a consequence (a competitor owning the category's first page, no links pointing at the site, the site missing from AI answers). Keep it to two or three lines, in Matt's voice, no jargon.
 
 Write it the way Matt actually writes it — read Basecamp doc `10032725076` ("Marathon Power Website Review (to send)") as the reference for tone before drafting. That document is the bar: plain language, zero jargon, each issue tied to a real consequence (Google ranking, security exposure, lost trust, a visitor bouncing) instead of a metric name, ordered by what actually matters rather than by raw severity, and warm even when the news is bad ("Good news here", "Nothing here requires changing the site you just built"). Keep it tight — surface the handful of things that matter, fold near-duplicates together, skip anything a prospect would shrug at. If nothing significant turned up, say that directly.
 
@@ -193,7 +204,7 @@ If no card exists yet, just tell Matt — don't create one. Whether a prospect i
 
 ### 8. Report back
 
-Give Matt the doc URL and a one-line summary (e.g. "3 corroborated findings surfaced, overall score 75 — mostly performance; sections 1-5/7/8 are a first-pass draft to rewrite"). If a diff ran, add one line of deltas (e.g. "vs the March run: 2 new, 1 resolved, overall −4") — this is the only place the diff surfaces; the doc doesn't mention prior runs. Note how many visual findings got annotated in step 2b (or that none did, and why — no concrete target, or the capture failed). Mention where the durable artifacts landed (`~/.local/share/tribunal/history/<slug>/` for the scan, `~/.local/share/teardown/<slug>/` for the screenshots and annotated `.tldraw`/PNG) in case Matt wants to look at them later. Nothing more beyond that.
+Give Matt the doc URL and a one-line summary (e.g. "3 corroborated findings surfaced, overall score 75 — mostly performance; sections 1-5/7/8 are a first-pass draft to rewrite"). If a diff ran, add one line of deltas (e.g. "vs the March run: 2 new, 1 resolved, overall −4") — this is the only place the diff surfaces; the doc doesn't mention prior runs. Note how many visual findings got annotated in step 2b (or that none did, and why — no concrete target, or the capture failed). If the step 3c online-presence pass ran, mention the headline number in one line (e.g. "no SERP presence for its own category term — the strongest line in Section 6"); if the DataForSEO MCP was absent, say the pass was skipped so Matt knows it wasn't a decision. Mention where the durable artifacts landed (`~/.local/share/tribunal/history/<slug>/` for the scan, `~/.local/share/teardown/<slug>/` for the screenshots and annotated `.tldraw`/PNG) in case Matt wants to look at them later. Nothing more beyond that.
 
 Never delete anything under either of those two directories — they're the durable record, not scratch space. `/tmp` files created along the way (redirected stdout, etc.) are fine to leave or clean up; they're not the source of truth for anything.
 
@@ -211,7 +222,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Annotation circle lands on the wrong element or off to the side | Coordinates guessed from eyeballing the screenshot instead of measured | Always scan pixel colors with ImageMagick to find the real edge (step 2b) — don't estimate by eye |
 | Exported annotated image still shows toolbar/menu/minimap | `mode: 'canvas'` doesn't always exclude app chrome, especially with a shape still selected | Call `editor.selectNone()` before capturing; if chrome still appears, crop it out with ImageMagick against the known shape bounds |
 | tldraw annotation step fails outright (no server.json, connection refused) | tldraw Desktop isn't running | Skip step 2b, note it in the report-back, don't block the rest of the teardown on it |
-| `capture-homepage.mjs` fails with a missing module / browser error | `pnpm install` or the chromium download was never run in this skill's directory | `cd ~/.claude/skills/teardown && pnpm install && pnpm exec playwright install chromium` |
+| `capture-homepage.mjs` fails with a missing module / browser error | `pnpm install` or the chromium download was never run in this skill's directory | `cd ~/Code/skills/teardown && pnpm install && pnpm exec playwright install chromium` |
 | Most engines come back `unavailable`, only ~4 of 13 ran | Ran the bare `tribunal` binary instead of the Docker image | Always run via `docker run --rm tribunal audit ...` per step 3 — the bare binary only has the API-based engines |
 | Performance/accessibility score looks alarmingly low | Lighthouse/axe are lab (synthetic) data — can read much harsher than real-user field data | Frame it as lab vs. field (tribunal's own distinction), not a contradiction of anything Matt already knows about the site — see Section 6 guidance |
 | Run never shows up in `~/.local/share/tribunal/history/` | Ran `docker run --rm tribunal` without the `-v` volume mount — the save happened, then `--rm` deleted the container (and the file) with it | Always include the `-v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history` mount from step 3 |
@@ -221,3 +232,5 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Report-back presents a "resolved" finding as a fix the prospect made | Its category lost engine coverage between runs — unchecked, not fixed | Cross-check resolved findings against the diff's `coverage_changes` before reporting them |
 | Doc mentions "since we last looked" / a prior audit | Diff data leaked into Section 6 | The diff is report-back-only (step 3b) — the doc always reads as a fresh look |
 | Duplicate prospect folder created in Deals vault | Didn't check `docs list` first | Always list the Deals vault (`9792703029`) before creating a folder |
+| Section 6 claims the brand "ranks Nth" or "doesn't rank" with no date | Treated a one-off lookup as a permanent fact | Only DataForSEO-measured positions (step 3c) can state an ordinal, and always with the call's date and location |
+| Online-presence paragraph turned into a full SERP teardown | Overran step 3c's scope | Two or three lines, the absence or the count and its consequence — full competitor SERP work belongs to the prospect skill |

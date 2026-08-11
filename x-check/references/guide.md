@@ -2,7 +2,7 @@
 
 Matt wrote a tweet/thread/reply and wants a gut-check before posting. Return **findings** on how it reads against the X "For You" algorithm so he can decide what to change. This is the X equivalent of `develop-essay`'s critique pass.
 
-**Load the algorithm reference first:** `~/.claude/skills/distribute/references/x-algorithm.md` is the single source of truth for how the feed ranks. Read it; don't reproduce or re-derive it here. This guide is only the *checking procedure*.
+**Load the algorithm reference first:** `~/Code/skills/distribute/references/x-algorithm.md` is the single source of truth for how the feed ranks. Read it; don't reproduce or re-derive it here. This guide is only the *checking procedure*.
 
 ---
 

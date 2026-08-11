@@ -10,11 +10,4 @@ SKILLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 mkdir -p ~/.config/opencode
 ln -sfn "$SKILLS_DIR" ~/.config/opencode/skills
 
-# Claude Code: reads only ~/.claude/skills/, and that dir is shared with the
-# skills.sh symlinks, so link each own-skill individually and leave the rest alone.
-mkdir -p ~/.claude/skills
-for d in "$SKILLS_DIR"/*/; do
-  ln -sfn "${d%/}" ~/.claude/skills/
-done
-
-echo "Skills linked (OpenCode + Claude Code)."
+echo "Skills linked (OpenCode)."

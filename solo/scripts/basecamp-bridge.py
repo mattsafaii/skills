@@ -201,7 +201,7 @@ def cmd_ship(args):
     bc_id = bc_ids[0]
 
     note = args.note or f"Shipped in {args.sha}"
-    bc_json(["comment", bc_id, note, "--in", cfg["project_id"], "-a", cfg["account_id"]], repo)
+    bc_json(["comments", "create", bc_id, note, "--in", cfg["project_id"], "-a", cfg["account_id"]], repo)
     bc_json(["todos", "complete", bc_id, "-p", cfg["project_id"], "-a", cfg["account_id"]], repo)
     solo("POST", f"/api/projects/{project['id']}/todos/{todo['id']}/complete", {"completed": True})
 

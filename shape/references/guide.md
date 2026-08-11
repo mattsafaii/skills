@@ -1,6 +1,6 @@
 # Shape Skill Guide
 
-Shape an idea into a complete pitch using Shape Up methodology, adapted for a solo developer working with AI agents. The output is a pitch that is rough, solved, and bounded — and doubles as a brief for Claude to build from.
+Shape an idea into a complete pitch using Shape Up methodology, adapted for a solo developer working with AI agents. The output is a pitch that is rough, solved, and bounded — and doubles as a brief for the build agent.
 
 ---
 
@@ -18,7 +18,7 @@ Shape Up was written for small teams doing human-speed implementation. AI change
 
 **What doesn't change:** appetite as a forcing function, no permanent backlog, rough/solved/bounded, fixed time/variable scope, shaping as the hardest and most important part.
 
-**What AI changes about shaping:** bad shaping used to produce slow wrong results. With AI it produces fast wrong results. The quality of the shape directly determines the quality of what Claude builds. Shaping is more critical, not less.
+**What AI changes about shaping:** bad shaping used to produce slow wrong results. With AI it produces fast wrong results. The quality of the shape directly determines the quality of what the build agent builds. Shaping is more critical, not less.
 
 **The new primary rabbit hole:** AI adds features you didn't ask for. No-gos are now guardrails for the agent, not just planning discipline. Be explicit.
 
@@ -28,7 +28,7 @@ Shape Up was written for small teams doing human-speed implementation. AI change
 
 Three properties from Shape Up — all three required:
 
-- **Rough** — solution elements are clear but details are left for the builder. No wireframes, no task lists, no pixel specs. Space for creative judgment. Claude fills in the details; the shape sets the direction.
+- **Rough** — solution elements are clear but details are left for the builder. No wireframes, no task lists, no pixel specs. Space for creative judgment. The build agent fills in the details; the shape sets the direction.
 - **Solved** — the main elements connect. The critical unknowns are resolved. Not just a problem statement — there's a real solution at macro level.
 - **Bounded** — clear what's NOT included. Fixed appetite, explicit no-gos. Scope shrinks to fit time; time never expands to fit scope.
 
@@ -110,7 +110,7 @@ Ask: "Is this a small batch or big batch?" Help decide based on solution complex
 
 Keep it rough. Describe key elements — surfaces, flows, data model shape — without specifying UI details. Think breadboard level: what are the places, what affordances exist, how do they connect.
 
-This pitch will become a brief for Claude to build from. That means: concrete enough for Claude to have a clear direction, abstract enough that Claude can make implementation decisions. Don't write a spec — write a map.
+This pitch will become a brief for the build agent. That means: concrete enough for it to have a clear direction, abstract enough that it can make implementation decisions. Don't write a spec — write a map.
 
 - What's the tech stack? (Rails+Kamal+SQLite, or 11ty+Cloudflare — confirm this)
 - What are the core surfaces? (Public browse, owner dashboard, reviewer flow, etc.)
@@ -134,9 +134,18 @@ For each rabbit hole: either resolve it in the pitch (make the call) or cut it t
 
 Named features or capabilities explicitly out of scope for this appetite. Not "we'll keep it simple" — specific things that won't be built.
 
-With AI, no-gos serve double duty: they prevent scope creep during planning AND prevent Claude from adding features during building. Be more explicit than feels necessary.
+With AI, no-gos serve double duty: they prevent scope creep during planning AND prevent the build agent from adding features during building. Be more explicit than feels necessary.
 
-### 3. Check: rough, solved, bounded?
+### 3. Research or prototype checkpoint
+
+Before locking the pitch, ask: does anything here need to be *known* or *seen* before it can be described accurately?
+
+- **Research** — the solution touches an unfamiliar external API or integration (payments, an uncommon third-party service) where the details would otherwise be guessed at in the PRD and discovered wrong mid-build. If so, run the `research` skill now; it spins up a background agent that writes findings to a Markdown file, cited to primary sources. Point the pitch's Solution/rabbit holes at what it finds. This is separate from step 8's pre-build research (that's demand/community validation — "would anyone want this"; this is technical — "how does this API actually behave").
+- **Prototype** — taste needs to be imposed before it can be described: UI that needs to look/feel a certain way, a state model or logic that's easier to sanity-check by running it than by describing it, software architecture worth trying before committing. If so, run the `prototype` skill now; it builds throwaway code (UI variations or a tiny interactive state-machine driver) to answer the question. Fold the answer into the Solution section once decided.
+
+Skip both for anything well-understood — a familiar CRUD flow, a stack you've built before. Don't force it. If triggered, the research findings or prototype verdict get folded into the pitch before step 4, not bolted on after.
+
+### 4. Check: rough, solved, bounded?
 
 Before presenting the pitch:
 
@@ -146,7 +155,7 @@ Before presenting the pitch:
 
 If any fail, keep shaping.
 
-### 4. Present the full shaped pitch
+### 5. Present the full shaped pitch
 
 The pitch should be readable by someone (or something) that wasn't in the conversation. It needs to stand alone as a build brief.
 
@@ -174,7 +183,7 @@ Ask: "Update the card and move it to Shaped?"
 
 Wait for explicit approval before touching Basecamp.
 
-### 5. Update the card
+### 6. Update the card
 
 The card update replaces the body entirely — before doing that, preserve the original add-idea capture (inspiration/source, details, open questions) as a comment, not in the body. It has to stay out of the body: `/build` reads the card assuming exactly one `<hr>` splitting pitch from PRD ("everything below the `<hr>`" — see `build`'s guide, step 2), and a second `<hr>` from carrying the raw capture forward would make that split ambiguous. A comment keeps the provenance visible to Matt without ever touching what an agent parses.
 
@@ -218,13 +227,13 @@ Use this HTML structure:
 </ul>
 ```
 
-### 6. Move to Shaped
+### 7. Move to Shaped
 
 ```bash
 basecamp cards move <card_id> --to 9768185098 --card-table 9768185094 --in 46824335 -a 6191443 --json
 ```
 
-### 7. Pre-build research (optional)
+### 8. Pre-build research (optional)
 
 Only when shaping surfaced a real **validation unknown** — demand uncertainty ("would anyone want this?"), an unfamiliar community whose pain you're guessing at, or a problem you can't confirm from your own experience — or when Matt explicitly wants to do user research / get a foot in a community. **Don't force it.** A well-understood itch you're scratching for yourself needs no research.
 
@@ -253,7 +262,7 @@ basecamp card "[🔬 Research] <question topic> (<Idea>)" "<p>🔬 <strong>Idea:
 - **Discipline:** the membership test above IS the discipline — if Matt's a real member, asking is natural; if not, participate and be useful *first*. A drive-by "what do you all think of X?" from a stranger gets ignored. Most research posts shouldn't mention he's building anything.
 - Rules of the road live in the **Distribution Playbook** (doc 10016763197).
 
-### 8. Confirm
+### 9. Confirm
 
 One line: card updated and moved to Shaped (and note any `[🔬 Research]` cards created). Offer to move on to the next idea or write the PRD.
 
@@ -267,7 +276,7 @@ One line: card updated and moved to Shaped (and note any `[🔬 Research]` cards
 - **Don't let a private admin tool scope the public site.** If only Matt uses it locally, it doesn't need to be a web app.
 - **Kill criteria belong in appetite.** If the project only works with real-world data collection, name the threshold where you'd abandon it.
 - **Appetite measures human attention, not agent speed.** "Lean MVP" isn't an appetite. Small batch or big batch is.
-- **No-gos need to be explicit for AI.** Claude will add features that seem reasonable. Name what's out of scope so it can't.
+- **No-gos need to be explicit for AI.** The build agent will add features that seem reasonable. Name what's out of scope so it can't.
 
 ---
 
@@ -283,6 +292,7 @@ One line: card updated and moved to Shaped (and note any `[🔬 Research]` cards
 | 6 | No-gos are named features | Not "we'll keep it simple" | Name them explicitly |
 | 7 | Pitch stands alone | Readable as a build brief without the conversation | Rewrite until it does |
 | 8 | Original capture preserved as a comment, body stays single-section | Add-idea's original content is a comment, not appended to the body; body has zero `<hr>`s (prd adds the first one later) | Post the comment before overwriting the body |
+| 9 | Research/prototype checkpoint considered | Asked and answered (even if the answer is "neither needed") before presenting the pitch | Go back and ask before step 4 |
 
 ---
 
@@ -303,6 +313,8 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Shaped column accumulates unpicked ideas | Treating Shaped as a shelf | Unselected shaped ideas go to Graveyard, not left in Shaped |
 | Original add-idea capture (source, details, questions) is gone after shaping | Body was overwritten without posting the comment first | Always comment the original body before the update call |
 | `/build` misreads the pitch/PRD split | Raw capture appended into the body added a second `<hr>` | Raw capture belongs in a comment, never in the body |
+| PRD guesses at an external API's behavior and gets it wrong mid-build | Research checkpoint skipped for an unfamiliar integration | Run the `research` skill before finalizing the pitch, not after the build stalls |
+| Pitch describes a UI/architecture Matt didn't actually want | Prototype checkpoint skipped where taste needed resolving | Run the `prototype` skill before finalizing the pitch |
 
 ---
 

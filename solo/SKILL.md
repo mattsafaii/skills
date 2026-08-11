@@ -5,7 +5,7 @@ description: How to use Solo's coordination tools — scratchpads for durable co
 
 # Solo
 
-Solo sits above Claude, OpenCode, and the rest. It doesn't replace them — it adds tools they can call: a place to write things down, a way to start and brief other agents, and a way to sleep until something finishes.
+Solo sits above the agent sessions that work in it. It doesn't replace them — it adds tools they can call: a place to write things down, a way to start and brief other agents, and a way to sleep until something finishes.
 
 This covers those tools. Solo injects its own getting-started for processes and ports; that side isn't repeated here. `help(topic="...")` in the Solo MCP has the full reference for any tool below.
 
@@ -39,14 +39,13 @@ At the end of a cycle, `scratchpad_save_to_file` can drop it into the repo or fe
 
 ## 2. Delegate
 
-Four agent tools are configured. Resolve ids with `list_agent_tools` — don't hardcode them.
+Three agent tools are configured. Resolve ids with `list_agent_tools` — don't hardcode them.
 
 | Tool | Use for |
 |---|---|
-| **Claude** | Matt's own sessions. Asks before it acts. |
-| **Claude (unattended)** | Spawned workers doing real work in a repo. Skips permission prompts — which is also what keeps idle timers honest (see below). |
-| **OpenCode** | Medium coding work on the Go plan. Limited budget — don't default to it. |
-| **OpenCode (local)** | Free local model, auto-approving. Boilerplate, greps, formatting, high-volume small jobs. |
+| **OpenCode** | Primary agent. Orchestration, architecture, build work. |
+| **OpenCode (unattended)** | DeepSeek V4 Flash, auto-approving. Spawned workers — reviews, scans, mechanical sweeps. The Claude (unattended) successor. |
+| **OpenCode (local)** | Free local model, auto-approving. Boilerplate, greps, formatting, high-volume small jobs. Interactive only — never spawn it as an unattended worker. |
 
 Smart orchestrator, cheap workers. A review, a scan, a mechanical sweep does not need the expensive model.
 
@@ -66,7 +65,7 @@ The brief must stand on its own — the worker has none of this conversation:
 Rules that don't bend:
 - **Never send new work into an existing session.** Its context belongs to another task, and the input interrupts it mid-turn. Spawn a fresh one.
 - **Never close a session you didn't spawn.** Matt runs several agents per repo; idle often just means he stepped away.
-- **A spawned worker stays in its repo.** Never let it edit `~/.claude`, `~/.dotfiles`, or another project.
+- **A spawned worker stays in its repo.** Never let it edit `~/.dotfiles`, `~/.config/opencode`, or another project.
 
 Close your own workers once you've harvested them.
 
@@ -87,7 +86,7 @@ Four things get this wrong:
 1. **Always pass `max_wait_ms`.** Treat it as required. 30 minutes is a sane ceiling.
 2. **Schedule after dispatching, never before.** `idle_any` watches for a *transition* — anything already idle when the timer is set is ignored, and the timer decays into a plain sleep.
 3. **Read the status that comes back.** `scheduled` means it's really watching. `waiting_for_max_wait` or `already_satisfied` means it isn't — fix it now rather than waking up in half an hour.
-4. **An agent stuck on a permission prompt never goes idle**, so the timer never fires. Spawn workers with **Claude (unattended)** or **OpenCode (local)** and it can't happen. If a timer expires on max-wait instead of idle, check the worker for a prompt before assuming it's still working — approve with `send_input` bytes `[13]`.
+4. **An agent stuck on a permission prompt never goes idle**, so the timer never fires. Spawn workers with **OpenCode (unattended)** and it can't happen. If a timer expires on max-wait instead of idle, check the worker for a prompt before assuming it's still working — approve with `send_input` bytes `[13]`.
 
 The body is delivered verbatim as a user turn. Write it as plain instructions with everything needed to act cold: process ids, scratchpad id, next action. Skip XML-ish tags and heavy code fences.
 
@@ -110,9 +109,9 @@ Keys name the area, not the file: `repo.migrations`, `repo.css`, `repo.solo-yml`
 `/build` imports the todolist as part of setting a project up, so every build has the mirror: progress visible in the sidebar next to the agent, and one command that closes a unit properly in both places. Outside a build — a one-off fix, a spike, a piece of client work — import only when there's real ordering to track.
 
 ```bash
-python3 ~/.claude/skills/solo/scripts/basecamp-bridge.py import     # open Basecamp todos -> Solo
-python3 ~/.claude/skills/solo/scripts/basecamp-bridge.py status     # show the mapping
-python3 ~/.claude/skills/solo/scripts/basecamp-bridge.py ship 42 a1b2c3d
+python3 ~/Code/skills/solo/scripts/basecamp-bridge.py import     # open Basecamp todos -> Solo
+python3 ~/Code/skills/solo/scripts/basecamp-bridge.py status     # show the mapping
+python3 ~/Code/skills/solo/scripts/basecamp-bridge.py ship 42 a1b2c3d
 ```
 
 `import` is one-way and safe to rerun — it skips what's already there. It reads `.basecamp/config.json` in the repo and matches the Solo project by path. Blockers are yours to wire afterwards with `todo_set_blockers`.
@@ -129,7 +128,7 @@ Locking a Solo todo (`todo_lock`) before starting it is how a lead keeps two wor
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Lead waits the full `max_wait_ms` every time | Worker was blocked on a permission prompt, so it never went idle | Spawn workers with the unattended tool; approve a stuck prompt with `send_input` bytes `[13]` |
+| Lead waits the full `max_wait_ms` every time | Worker was blocked on a permission prompt, so it never went idle | Spawn workers with OpenCode (unattended); approve a stuck prompt with `send_input` bytes `[13]` |
 | Timer fires immediately or acts like a sleep | Scheduled before dispatch, or every watched process was already idle | Dispatch first, then schedule; read the returned status instead of assuming |
 | Scratchpad edit wipes another agent's work | `scratchpad_write` used for a partial change | Use `scratchpad_edit` / `scratchpad_append_section` with `expected_revision` |
 | Fresh session has no idea where things stand | Nothing was written down before the last session ended | Update the `state` scratchpad at session end, read it at session start |

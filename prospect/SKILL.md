@@ -71,9 +71,9 @@ Two things worth pulling: how long they've been online at all (a 2006 first capt
 | TheirStack | `THEIRSTACK_API_KEY` | Job postings — hiring signals, headcount trajectory | 200/mo |
 | People Data Labs | `PDL_API_KEY` | Company enrichment — headcount, industry | 100/mo |
 | Wappalyzer | `WAPPALYZER_API_KEY` | Tech stack | 50/mo |
-| DataForSEO | `DATAFORSEO_LOGIN` / `DATAFORSEO_PASSWORD` | Real SERP position and keyword volume | $50 deposit, no subscription |
+| DataForSEO (MCP) | DataForSEO MCP tools present | Real geo-located SERP (rank, local pack, related searches), backlinks, keyword volume | $50 deposit, no subscription |
 
-**If DataForSEO is configured, it replaces the browser search-visibility step** and the observation-only caveat lifts — real geo-located SERP data is a measurement, so rank can be stated as fact with its date and location. Without it, the browser rule in step 5 stands.
+**If DataForSEO is configured, run step 4b — it replaces the browser search-visibility step** and the observation-only caveat lifts: real geo-located SERP data is a measurement, so rank can be stated as fact with its date and location. Without it, the browser rule in step 5 stands and step 4b is skipped silently.
 
 **Permanently browser-only.** Don't look for an API; none is available to a solo operator: G2, Capterra, TrustRadius (tokens tie to paid vendor plans), and Crunchbase, PitchBook, Harmonic (quote-gated enterprise sales). Meta's Ad Library API excludes US commercial ads, so that's the web UI too.
 
@@ -285,7 +285,19 @@ Keep people research to decision-maker identity, role, and the agency check. Ski
 - Trade associations, publications, where the industry talks to itself
 - **Best-in-class reference set** — 2–3 top operators in this category *nationally*. What they do that the prospect doesn't. This is what Matt shows them.
 
-### 5. Browser lane — serial, in the main session
+### 4b. DataForSEO measurements — main session, alongside the lanes
+
+**Only if the DataForSEO MCP tools are available.** It's API, not browser, so it runs in the main session **concurrently with the lane subagents** — no Chrome to collide over. Missing MCP? Skip this step silently; the browser observation rule in step 5 stands (and the doc header notes the skipped source, per Data sources).
+
+Run these with the customer terms from recon:
+
+- **SERP positions** — `serp_organic_live_advanced`, one call per customer term, `location_name` set to the prospect's market (city/region for local business types; country otherwise), `language_code: en`, `depth: 10`. **This is a measurement, not an observation** — real geo-locked rank data. Record, per term: where the prospect lands (rank_group / rank_absolute, and `organic` vs `local_pack` — a maps placement is a different game than a blue link), the full result list for the competitor lane, and which `related_searches` / `people_also_ask` items appear (customer vocabulary, direct from Google).
+- **Backlink profiles** — `backlinks_summary` for the prospect and top 2–3 competitors. Compare `backlinks`, `referring_domains`, and `backlinks_spam_score`. A prospect with 12 referring domains against competitors with 200 is a concrete, citable gap — stronger than the browser's impression.
+- **Keyword volume (optional)** — `kw_data_google_ads_search_volume` for the customer terms, to size the demand each term carries.
+
+**The measurement rule changes what's citable.** From DataForSEO you can state an ordinal with its date and location: "as of `<date>`, rank 4 in Google LA results for 'ac repair'." That's the one place the skill allows it — the step 5 browser rule stays observation-only. Every DataForSEO claim carries the date and location the call used; the data is a snapshot, not a trend.
+
+If a call fails or returns nothing, write the term into the `Unknown` list — don't leave the gap silent and don't hand-wave a rank.
 
 Run **after** the parallel lanes and **alone**. Concurrent agents sharing one Chrome collide and produce garbage.
 
@@ -308,7 +320,7 @@ Load Chrome tools in one `ToolSearch` call, then work the sources this type actu
 - Marketplace and Trustpilot presence; Clutch-style directories; case studies and client lists; press releases and analyst mentions; careers page scale. Follow the evidence map rather than defaulting to Maps.
 
 **All types**
-- **Search visibility** — run the customer terms and record what comes back. **Report as an observation, never a measurement**: "in a browser search from LA on `<date>`, the top results were X, Y, Z." Never state an ordinal about the prospect — no "you're fourth for emergency AC repair." Browser results aren't geo-locked, personalized, or stable, and they'll pull out a phone and see something different. That's the exact credibility loss the hard rule exists to prevent.
+- **Search visibility** — run the customer terms and record what comes back. **Report as an observation, never a measurement**: "in a browser search from LA on `<date>`, the top results were X, Y, Z." Never state an ordinal about the prospect — no "you're fourth for emergency AC repair." Browser results aren't geo-locked, personalized, or stable, and they'll pull out a phone and see something different. That's the exact credibility loss the hard rule exists to prevent. *(If DataForSEO is configured, step 4b already replaced this — skip the browser search.)*
 - **Ad presence** — Meta Ad Library (`facebook.com/ads/library`), plus whoever is buying the customer terms.
 - **Socials** — alive or dead, cadence, engagement. Weight by where this type's buyers actually are.
 
@@ -440,7 +452,7 @@ If something fails in a way this table doesn't cover, show Matt the raw error an
 | Doc creation fails on escaping or argument length | Built a long string inline | Write to a file, pass `"$(cat …)"` |
 | A subagent returned an unsourced fact | Lane prompt omitted the hard rule | The rule goes in every lane prompt verbatim — step 4 |
 | A lane returned prose, or nothing about what it couldn't find | Prompt template not used | Use the frame in step 4; the `Unknown` list is required |
-| Brief claims the prospect ranks Nth for a term | Treated browser results as rank tracking | Observation with date and location, never an ordinal about the prospect |
+| Brief claims the prospect ranks Nth for a term | Treated browser results as rank tracking | Browser results stay observation-only with date and location. Only DataForSEO-measured positions (step 4b) can state an ordinal, and then only with the call's date and location |
 | Review velocity stated without a method | Eyeballed instead of counting | Sort by newest, count the last 90 days, or `Unknown` |
 | Competitor list is wrong | Named from the prospect's own site instead of live searches | Competitors come from running the customer terms — step 3 |
 | Brief is 4,000 words | Ignored the budgets | The table in step 8 is a cap, not a suggestion. Over budget means cut |

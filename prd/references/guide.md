@@ -7,9 +7,9 @@ Turn a shaped pitch into a build-ready PRD. The output is the PRD appended to th
 ## What a PRD is
 
 The pitch answers: *what to build and why, at macro level.*
-The PRD answers: *what exists, how it works, and what done looks like — specific enough that Claude can build without asking basic questions, rough enough that Claude still makes implementation decisions.*
+The PRD answers: *what exists, how it works, and what done looks like — specific enough that the build agent can build without asking basic questions, rough enough that it still makes implementation decisions.*
 
-A PRD that names every field and specifies every UI behavior is a spec — too much. A PRD that just restates the pitch is too little. The right level: Claude reads it and knows exactly what to build, but still has room for judgment on how.
+A PRD that names every field and specifies every UI behavior is a spec — too much. A PRD that just restates the pitch is too little. The right level: the build agent reads it and knows exactly what to build, but still has room for judgment on how.
 
 ---
 
@@ -61,7 +61,7 @@ Keep it breadboard level — not UI layout, just what exists and what affordance
 
 **Core flows**
 
-Walk the main use case end to end from the user's perspective. Step by step. This is the scenario Claude will make sure works.
+Walk the main use case end to end from the user's perspective. Step by step. This is the scenario the build agent will make sure works.
 
 - Start from the entry point (URL, CLI command, etc.)
 - Walk to the completed action
@@ -119,7 +119,7 @@ Carry no-gos over rather than repeating them here — anything deliberately out 
 
 Before presenting:
 
-- **Specific enough?** Could Claude build this without asking "what models exist?" or "what does the main flow do?"
+- **Specific enough?** Could the build agent build this without asking "what models exist?" or "what does the main flow do?"
 - **Rough enough?** Does it specify button labels, exact field names, or pixel layout? Strip back if so.
 - **Complete?** Does every surface have a purpose? Does the core flow work end to end? Are acceptance criteria testable?
 - **Checkable?** Does every acceptance criterion name its check — a command or a manual step?
