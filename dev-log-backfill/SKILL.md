@@ -49,7 +49,7 @@ Show the user the drafted entries **before posting** — backfill can produce ma
 Once confirmed, post each entry as its own message, oldest first (so the message board reads newest-first like the real-time log):
 
 ```bash
-basecamp message "Dev log — YYYY-MM-DD: <summary>" "<body>" --in <project> --jq '.data.app_url'
+basecamp messages create "Dev log — YYYY-MM-DD: <summary>" "<body>" --in <project> --jq '.data.app_url'
 ```
 
 Existing dev log messages are immutable — never edit or delete them.

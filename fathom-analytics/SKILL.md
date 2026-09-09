@@ -17,7 +17,7 @@ Run this when asked to set up or improve tracking on a repo. **Nothing gets crea
 
 Layered, cheapest-first:
 1. Grep the repo for an existing embed (`data-site="..."` in any HTML/template file). Already-live sites have this.
-2. If none, check `~/.config/client-report/clients.json` for a `fathom_site_id` matching this project (by `url` or key).
+2. If none, look for the site ID in the client's `SEO — Project Context` doc in Basecamp (Internal > SEO, `## Analytics` → `Fathom site id:` line). Match the client's project by name via `basecamp -a 6191443 projects list --json`, then read the doc.
 3. If still nothing, ask Matt for the site ID, or offer to create one: `POST /sites` with `{"name": "..."}` — only do this on explicit go-ahead, it's a real object in the account.
 
 State which path found it (or that none did) when you present the plan — don't silently guess.
@@ -51,17 +51,18 @@ Wait for explicit approval. Revise in place if Matt wants changes — don't crea
 
 ### 4. Execute
 
-**Check the token's scope before creating anything**: `GET /token`. The shared `~/.config/client-report/fathom-token` was set up for client-report's read-only aggregation pulls — it may not have write access, and a create call will fail if it doesn't. If it's read-only, ask Matt to generate a write-scoped token at `app.usefathom.com/api` and either paste it for this run or overwrite the shared file (safe — write access is a superset of what client-report needs, so the swap doesn't break it).
+**Check the token's scope before creating anything**: `GET /token`. The shared token at `op://Secrets/Fathom API Token/password` was set up for client-report's read-only aggregation pulls — it may not have write access, and a create call will fail if it doesn't. If it's read-only, ask Matt to generate a write-scoped token at `app.usefathom.com/api` and either paste it for this run or update the 1Password item (safe — write access is a superset of what client-report needs, so the swap doesn't break it).
 
 On approval, in order:
 1. Create the site first if step 1 didn't find one (`POST /sites`).
 2. `GET /sites/{site_id}/events` and diff against the plan — **skip any event that already exists by name** rather than creating a duplicate. Create the rest with `POST /sites/{site_id}/events` (see [references/api-reference.md](references/api-reference.md) for the exact body).
 3. Create approved milestones with `POST /sites/{site_id}/milestones`.
 4. Wire the `trackEvent()` calls into the code — see [references/instrumentation.md](references/instrumentation.md) for the delegated-listener pattern. Prefer it over hand-writing a listener per event; it's less code to drift out of sync later, and it doesn't assume any particular framework. **Verify any trigger condition based on a URL or pathname against the actual deployed site, not just the source template** — static hosts routinely rewrite URLs (Cloudflare Pages strips `.html`, some hosts add/remove trailing slashes), so a check that matches the template's literal filename can silently never fire in production.
+5. **Record the goal set in the client's `SEO — Project Context` doc** so `client-report` knows what to report on: patch the **Analytics** section's `Fathom goals:` line to the comma-separated event names that shipped (e.g. `quote request submitted, call now clicked`). If a site is instrumented outside the context-doc flow, still write the line — without it, `client-report` has nothing to query. Use the same full-document write loop as `seo-project-setup`: find `SEO — Project Context` by exact title in Internal → SEO, read it, patch only the `Fathom goals:` line, upload the entire doc via `files update`, re-read and assert the rest survived. If the `Fathom goals:` line doesn't exist in the doc yet, add it under `Fathom site id:`.
 
 ### 5. Report back
 
-List what was created (event/milestone name + Fathom's returned ID) and which files changed. Point at the dashboard's Events tab so Matt can see them land. If any event was skipped as a pre-existing duplicate, say so — don't let it look silently omitted.
+List what was created (event/milestone name + Fathom's returned ID), which files changed, and that the `Fathom goals:` line was written into the client's context doc. Point at the dashboard's Events tab so Matt can see them land. If any event was skipped as a pre-existing duplicate, say so — don't let it look silently omitted.
 
 ---
 
@@ -139,10 +140,10 @@ Persists in that browser's local storage indefinitely. Reverse with `fathom.enab
 
 Base URL: `https://api.usefathom.com/v1`. Bearer token auth — generate a token at `app.usefathom.com/api`. **Every API call counts against the site's monthly pageview allowance** — don't poll in a loop.
 
-Store the token at `~/.config/client-report/fathom-token` (shared with the client-report skill — one token, don't create a second file) unless the task is outside that context, in which case ask where Matt wants it kept.
+The token lives in 1Password at `op://Secrets/Fathom API Token/password` (shared with the client-report skill — one token, don't create a second).
 
 ```bash
-TOKEN=$(cat ~/.config/client-report/fathom-token)
+TOKEN=$(op read 'op://Secrets/Fathom API Token/password')
 
 # Totals for a window
 curl -s -H "Authorization: Bearer $TOKEN" \

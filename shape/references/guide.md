@@ -253,7 +253,7 @@ If the community itself is unclear, run the **`find-community`** skill first —
 For each genuine unknown, create a **`[🔬 Research]`** card in the Distribution posting queue (NOT the Lab board — the queue is where all postable content lives):
 
 ```bash
-basecamp card "[🔬 Research] <question topic> (<Idea>)" "<p>🔬 <strong>Idea:</strong> <a href=\"<lab card app_url>\"><Idea> — shaping</a></p><blockquote><draft question></blockquote><p><em>Draft clay — rewrite in your voice. You have zero standing at the idea stage: contribute to the community first, ask second.</em></p>" \
+basecamp cards create -a 6191443 "[🔬 Research] <question topic> (<Idea>)" "<p>🔬 <strong>Idea:</strong> <a href=\"<lab card app_url>\"><Idea> — shaping</a></p><blockquote><draft question></blockquote><p><em>Draft clay — rewrite in your voice. You have zero standing at the idea stage: contribute to the community first, ask second.</em></p>" \
   --in 46824770 --card-table 10010006453 --column 10010006454 -a 6191443 --jq '.data.app_url'
 ```
 

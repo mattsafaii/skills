@@ -15,4 +15,4 @@ triggers:
 
 Turn a project Matt built into ready-to-post distribution cards in the Safaii Studio **Distribution** posting queue — the right content types for where the project is in its lifecycle, drafted to Matt's rules (clay he rewrites for tweets/Reddit; seeds he writes himself for essays and community-establishing posts).
 
-Open `@references/guide.md` and follow it. Do not proceed without it.
+Open `@references/guide.md` and follow it. Do not proceed without it. Read `@references/voice.md` before drafting any X copy so clay lands in Matt's voice.

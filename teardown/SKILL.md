@@ -1,6 +1,6 @@
 ---
 name: teardown
-description: Generate a full first-draft Teardown for a Safaii Studio sales prospect — reads the prospect's homepage (copy + screenshot) and runs Matt's tribunal website-audit CLI against it, drafts every section of the Full Teardown template (hero read, objection stack, copy, design/hierarchy, technical findings, prioritized fixes), and publishes it as a new "Teardown — [Brand]" doc in Basecamp (Sales project, Deals vault) for Matt to rewrite in his own voice before sending. Use this whenever Matt says "teardown [company/domain]", "full teardown for [prospect]", "/teardown", "run the teardown on X", or wants a first pass at a teardown ahead of a discovery call. This is the deep, written Tier-2 deliverable — NOT the 5-minute Loom light tier (that's a video Matt records himself, this skill doesn't touch it), and not a generic site audit for existing clients (use the audit-website skill for that).
+description: Generate a full first-draft Teardown for a Safaii Studio sales prospect — reads the prospect's homepage (copy + screenshot) and runs Matt's tribunal website-audit CLI against it, drafts every section of the Full Teardown template (hero read, objection stack, copy, design/hierarchy, technical findings, prioritized fixes), and publishes it as a new "Teardown — [Brand]" doc in Basecamp (Sales project, Deals vault) for Matt to rewrite in his own voice before sending. Use this whenever Matt says "teardown [company/domain]", "full teardown for [prospect]", "/teardown", "run the teardown on X", or wants a first pass at a teardown ahead of a discovery call. CLIENT-FACING — the deliverable to send after Matt rewrites it. Internal pre-meeting research = prospect skill; existing-client audit = audit-website. This is the deep, written Tier-2 deliverable — NOT the 5-minute Loom light tier (that's a video Matt records himself, this skill doesn't touch it).
 ---
 
 # Teardown Skill
@@ -92,9 +92,17 @@ If the capture script failed (see the fallback above) or no finding in Section 5
 Most of tribunal's engines (axe, Lighthouse, pa11y, retire, whatweb, nuclei) only ship inside the bundled Docker image — a bare `go build` binary only picks up the API-based engines (SSL Labs, Observatory) plus whatever happens to already be on PATH, silently degrading to a fraction of the coverage. Always run it through Docker:
 
 ```bash
-docker image inspect tribunal >/dev/null 2>&1 || (cd ~/Code/personal/tribunal && docker build -t tribunal .)
+# Rebuild when the image is older than the newest tribunal commit — build-if-missing
+# never catches a stale image, and a stale image silently drops engines (verified:
+# crux was missing for a month this way).
+IMAGE_CREATED=$(docker image inspect tribunal --format '{{.Created}}' 2>/dev/null)
+SOURCE_UPDATED=$(git -C ~/Code/personal/tribunal log -1 --format=%cI)
+if [ -z "$IMAGE_CREATED" ] || [[ "$SOURCE_UPDATED" > "$IMAGE_CREATED" ]]; then
+  (cd ~/Code/personal/tribunal && docker build -t tribunal .)
+fi
 mkdir -p ~/.local/share/tribunal/history
-docker run --rm -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
+docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/password')" \
+  -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
   tribunal audit <url> --format json > /tmp/teardown-<brand-slug>.json
 ```
 
@@ -224,6 +232,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | tldraw annotation step fails outright (no server.json, connection refused) | tldraw Desktop isn't running | Skip step 2b, note it in the report-back, don't block the rest of the teardown on it |
 | `capture-homepage.mjs` fails with a missing module / browser error | `pnpm install` or the chromium download was never run in this skill's directory | `cd ~/Code/skills/teardown && pnpm install && pnpm exec playwright install chromium` |
 | Most engines come back `unavailable`, only ~4 of 13 ran | Ran the bare `tribunal` binary instead of the Docker image | Always run via `docker run --rm tribunal audit ...` per step 3 — the bare binary only has the API-based engines |
+| An engine missing from the output entirely (e.g. crux absent while other engines show) | Docker image predates the engine's source — build-if-missing never rebuilds a stale image | Compare the image's created date to the tribunal repo's last commit; rebuild, then re-run (step 3) |
 | Performance/accessibility score looks alarmingly low | Lighthouse/axe are lab (synthetic) data — can read much harsher than real-user field data | Frame it as lab vs. field (tribunal's own distinction), not a contradiction of anything Matt already knows about the site — see Section 6 guidance |
 | Run never shows up in `~/.local/share/tribunal/history/` | Ran `docker run --rm tribunal` without the `-v` volume mount — the save happened, then `--rm` deleted the container (and the file) with it | Always include the `-v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history` mount from step 3 |
 | tribunal build fails | Go toolchain mismatch or stale `go.sum` | Run `go build` from `~/Code/personal/tribunal` directly and surface the real error to Matt rather than guessing a fix |

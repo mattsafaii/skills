@@ -51,7 +51,7 @@ Body (Markdown — the basecamp CLI converts it to HTML):
 Get the project ID from `.basecamp/config.json` in the repo root. If there's no config, find the project with `basecamp projects list` (or ask which project).
 
 ```bash
-basecamp message "Dev log — YYYY-MM-DD: <summary>" "<body>" --in <project> --jq '.data.app_url'
+basecamp messages create "Dev log — YYYY-MM-DD: <summary>" "<body>" --in <project> --jq '.data.app_url'
 ```
 
 Past entries are immutable — always post a new message; never edit or delete earlier dev log messages.
@@ -63,7 +63,7 @@ Scan the session and the dev log you just wrote for any **generic, non-obvious, 
 For each genuine insight, create a card in the Safaii Studio **Distribution** card table so it joins the build-in-public tweet queue:
 
 ```bash
-basecamp -a 6191443 card "[💡 Insight] <takeaway> (<Project>)" "<blockquote><draft tweet></blockquote><p><em>Draft clay — rewrite in your voice; gut-check the claim before posting.</em></p>" \
+basecamp cards create -a 6191443 "[💡 Insight] <takeaway> (<Project>)" "<blockquote><draft tweet></blockquote><p><em>Draft clay — rewrite in your voice; gut-check the claim before posting.</em></p>" \
   --in 46824770 --card-table 10010006453 --column 10010006454 --jq '.data.app_url'
 ```
 

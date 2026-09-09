@@ -5,10 +5,10 @@
     {
       "id": 1,
       "prompt": "Set up Fathom tracking for this site. [run inside a client repo with a contact form, a pricing page with a 'Book a call' CTA linking to Calendly, and no existing Fathom embed]",
-      "expected_output": "Greps for an existing data-site embed first, then checks client-report's clients.json, then asks for the site ID or offers to create one rather than guessing. Analyzes the repo and proposes a small set of decision-worthy events (contact form submitted, booking link clicked) rather than every clickable element. Presents the plan as a table and stops for approval before calling the API or editing any files.",
+      "expected_output": "Greps for an existing data-site embed first, then checks the client's SEO — Project Context doc in Basecamp (Internal > SEO, Analytics section) for the Fathom site id, then asks for the site ID or offers to create one rather than guessing. Analyzes the repo and proposes a small set of decision-worthy events (contact form submitted, booking link clicked) rather than every clickable element. Presents the plan as a table and stops for approval before calling the API or editing any files.",
       "files": [],
       "expectations": [
-        "Follows the layered site-id resolution (grep embed -> client-report registry -> ask/offer to create) rather than assuming a site_id",
+        "Follows the layered site-id resolution (grep embed -> SEO Project Context doc -> ask/offer to create) rather than assuming a site_id",
         "Proposes events only for genuine decision points (contact form, booking CTA) — does not propose tracking for every button or nav link",
         "Presents the full plan (events, any milestone, instrumentation points) before creating or editing anything",
         "Does not call the Fathom API or write code until Matt approves"
@@ -51,12 +51,12 @@
     {
       "id": 5,
       "prompt": "Pull last month's total visits and top 10 pages for site ID ABCDE from the Fathom API.",
-      "expected_output": "Two curl calls against api.usefathom.com/v1/aggregations with a bearer token read from the shared client-report token file: one for totals (visits/uniques/pageviews), one with field_grouping=pathname, sort_by=pageviews:desc, limit=10.",
+      "expected_output": "Two curl calls against api.usefathom.com/v1/aggregations with a bearer token resolved from 1Password (op read 'op://Secrets/Fathom API Token/password'): one for totals (visits/uniques/pageviews), one with field_grouping=pathname, sort_by=pageviews:desc, limit=10.",
       "files": [],
       "expectations": [
         "Uses /v1/aggregations with entity=pageview and entity_id=ABCDE",
         "Includes a totals query and a separate top-pages query with field_grouping=pathname",
-        "Reads the token from ~/.config/client-report/fathom-token rather than asking Matt to paste one",
+        "Resolves the token from 1Password via op read rather than asking Matt to paste one",
         "Uses date_from/date_to for the specific month"
       ]
     },
@@ -85,12 +85,12 @@
     {
       "id": 8,
       "prompt": "[approved plan, starting the execute phase] Go ahead and create the events in Fathom.",
-      "expected_output": "Checks GET /token first to confirm the token has write access before attempting any POST. If the token turns out to be read-only, stops and asks for a write-scoped token (offering to use it for this run or have it swapped into the shared ~/.config/client-report/fathom-token file) rather than attempting the create call and failing, or silently trying alternate auth.",
+      "expected_output": "Checks GET /token first to confirm the token has write access before attempting any POST. If the token turns out to be read-only, stops and asks for a write-scoped token (offering to use it for this run or have it swapped into the 1Password item at op://Secrets/Fathom API Token) rather than attempting the create call and failing, or silently trying alternate auth.",
       "files": [],
       "expectations": [
         "Calls GET /token before attempting to create anything",
         "If read-only, stops and asks for a write-scoped token rather than proceeding to a failing POST",
-        "Notes that overwriting the shared token file is safe since write access covers client-report's read-only needs too"
+        "Notes that updating the shared 1Password item is safe since write access covers client-report's read-only needs too"
       ]
     },
     {

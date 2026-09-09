@@ -282,7 +282,7 @@ Omit Data Model for non-database projects. If no doc named "PRD" is found (e.g. 
 Post a short message to the project's Message Board summarizing what's being built:
 
 ```bash
-basecamp message "<Project Name>: Cycle Kickoff" "$(cat <<'EOF'
+basecamp messages create "<Project Name>: Cycle Kickoff" "$(cat <<'EOF'
 [Kickoff message content]
 EOF
 )" --in <project_id> -a 6191443 --json

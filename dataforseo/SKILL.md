@@ -9,7 +9,7 @@ External SEO data via the DataForSEO MCP server (89 tools). The MCP returns real
 
 ## Setup / availability
 
-- Requires the `dataforseo` MCP server to be connected. Auth is the `DATAFORSEO_BASIC_AUTH` token in `~/.secrets` (loaded by `~/.zshrc`); it's basic auth over the hosted MCP endpoint, so no local process.
+- Requires the `dataforseo` MCP server to be connected. Auth is the `DATAFORSEO_BASIC_AUTH` token resolved from 1Password at shell startup (`~/.zshrc`): it prefers the interactive `op` session and falls back to the service-account token (`~/.config/op/sa.token`), so it stays available even when the CLI session is signed out/expired. If BOTH paths fail, `.zshrc` prints a visible warning at shell start ("could not resolve DATAFORSEO_BASIC_AUTH") — the var is empty, the MCP server won't connect, and the fix is `op signin --account safaiistudio.1password.com` or checking the service account token in 1Password admin. It's basic auth over the hosted MCP endpoint, so no local process.
 - **No DataForSEO MCP tools present? Say so and stop** — never fabricate or approximate SEO data from memory. Skip whatever step wanted it.
 - Costs are pay-as-you-go against the account balance — no subscription.
 
