@@ -36,4 +36,4 @@ Everything worth knowing about **scroll-scrubbed video** (the Apple/Emons techni
 
 ## House adaptation requirements (if ever built)
 
-Non-negotiables that differ from scroll-world's engine: copy server-rendered in the document (never a hidden SEO mirror — the document IS the page); CSS in the project stylesheet, not injected; stills mode (reduced-motion, data-saver, LPM) is the same complete document, not a degraded mirror; one moment, not a full-page film. Approval flows through the document-alive proposal step like any other motion — with this file attached as the cost sheet.
+Non-negotiables that differ from scroll-world's engine: copy server-rendered in the document (never a hidden SEO mirror — the document IS the page); CSS in the project stylesheet, not injected; stills mode (reduced-motion, data-saver, LPM) is the same complete document, not a degraded mirror; one moment, not a full-page film. Approval flows through the scroll-driven-animation proposal step like any other motion — with this file attached as the cost sheet.

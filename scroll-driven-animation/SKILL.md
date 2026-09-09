@@ -1,9 +1,9 @@
 ---
-name: document-alive
+name: scroll-driven-animation
 description: Bring a document website alive — propose and implement approved moments of scroll-driven life (CSS animation-timeline scroll()/view()) as a pure enhancement layer on a complete HTML document. Use when Matt wants a page to "come alive", asks for scroll animations, scroll-driven reveals, scrollytelling, reading progress, or wants an essay/album/document page to respond to scroll — and as the review mechanism whenever any scroll-driven animation is being considered. Scrollytelling, never scroll-cinema; the document stays the product.
 ---
 
-# document-alive
+# scroll-driven-animation
 
 The document-web inversion of scroll-cinema (Emons, Apple, scroll-world): there, the page is a film and the document is a hidden SEO mirror. Here, the document is the product — complete and readable with zero CSS and zero JS — and motion is an approved enhancement layer on top. Text primary; visuals annotate the reading.
 
