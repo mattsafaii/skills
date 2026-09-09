@@ -1,10 +1,10 @@
-# Harvest Zonebrite Skill Guide
+# Content Ideas Zonebrite Skill Guide
 
-Sweep a time window of Zonebrite's Basecamp activity, distill **content ideas**, and create idea cards routed to the right content board with source links. This is the Zonebrite version of `/harvest` — same shape, but it mines Basecamp (not git repos), produces *content ideas* (not build-in-public insights), and carries a stronger confidentiality guardrail because the raw material is real customers' security work.
+Sweep a time window of Zonebrite's Basecamp activity, distill **content ideas**, and create idea cards routed to the right content board with source links. This is the Zonebrite version of `/content-ideas` — same shape, but it mines Basecamp (not git repos), produces *content ideas* (not build-in-public insights), and carries a stronger confidentiality guardrail because the raw material is real customers' security work.
 
 **What makes it good:** the cross-job patterns. One install is a job; the same customer question showing up across five jobs is a blog post, a GBP answer, or a resource. Hunt for the recurring thing.
 
-This skill is governed by the **Content Playbook (Zonebrite)** (doc 10021739130) and subordinate to the **Brand Strategy** (anti-fear voice). Read those rules; this guide is the harvesting procedure.
+This skill is governed by the **Content Playbook (Zonebrite)** (doc 10021739130) and subordinate to the **Brand Strategy** (anti-fear voice). Read those rules; this guide is the content-ideas procedure.
 
 ---
 
@@ -94,14 +94,14 @@ Skip anything substantially already captured.
 Pull genuine, useful ideas: a recurring buyer question, a confusion worth a guide, a job lesson generalized, an FAQ that should be a resource, a seasonal/timely GBP angle. **High bar** — most activity isn't a content idea. A thin window yields few; say so. Prioritize the cross-job recurring patterns.
 
 ### 5. Draft + route the cards
-For each idea: route by format (table above), draft to the right depth (clay vs seeds), tag with the prefix, and attach a `🔗 Source:` line (internal link or plain-text provenance — a citation, not necessarily a hyperlink; the same rules as `/harvest`'s source attribution). Keep public content anonymized regardless of the source.
+For each idea: route by format (table above), draft to the right depth (clay vs seeds), tag with the prefix, and attach a `🔗 Source:` line (internal link or plain-text provenance — a citation, not necessarily a hyperlink; the same rules as `/content-ideas`'s source attribution). Keep public content anonymized regardless of the source.
 
 ### 6. Confirm before posting to Basecamp
 Show Matt the list — title, one-line description, target board, source — grouped by board. **Call out any idea derived from a specific client job explicitly** for veto. Get approval, then create.
 
 ### 7. Create the cards
 ```bash
-basecamp -a 6060605 card "[<prefix>] <title>" "<HTML body: idea + angle + draft/outline + 🔗 Source + confidentiality-safe note>" \
+basecamp cards create -a 6060605 "[<prefix>] <title>" "<HTML body: idea + angle + draft/outline + 🔗 Source + confidentiality-safe note>" \
   --in 46771824 --card-table <board table id> --column <board Ideas column id> --jq '.data.app_url'
 ```
 Land in each board's **Ideas** column. Use a heredoc for the body (shell escaping; HTML sent as-is for cards). One card per idea.
@@ -112,7 +112,7 @@ List created cards grouped by board with sources. Note the strongest recurring t
 ---
 
 ## Scheduled / recurring use
-On-demand by default. For a weekly cadence, set a `/schedule` reminder (a cloud routine can't reach Matt's local `basecamp` auth, and the confidentiality veto needs a human — so it nudges, it doesn't auto-run). Offer it once after a successful run; don't set it up unprompted. (Mirror of `/harvest`'s 🌾 weekly reminder.)
+On-demand by default. For a weekly cadence, set a `/schedule` reminder (a cloud routine can't reach Matt's local `basecamp` auth, and the confidentiality veto needs a human — so it nudges, it doesn't auto-run). Offer it once after a successful run; don't set it up unprompted. (Mirror of `/content-ideas`'s 🌾 weekly reminder.)
 
 ---
 
@@ -133,6 +133,6 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 ---
 
 ## Related
-- `/harvest` — the Safaii sibling (mines repos for build-in-public insights). This one mines Zonebrite's Basecamp for content ideas. Different account, sources, boards, guardrails — keep them separate.
+- `/content-ideas` — the Safaii sibling (mines repos for build-in-public insights). This one mines Zonebrite's Basecamp for content ideas. Different account, sources, boards, guardrails — keep them separate.
 - Content Playbook (Zonebrite) doc `10021739130` — the rulebook this skill serves.
 - Brand Strategy doc `10003942350` — the voice this skill obeys.

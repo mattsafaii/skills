@@ -1,6 +1,6 @@
 # Matt's X voice — spec for drafting clay
 
-What Matt's X posts sound like. Skills (distribute, harvest, jab-hook, x-post-check) consult this before drafting so clay arrives in his voice and needs minimal rewriting. Fiction it isn't: this is a *copy of how Matt actually writes*, distilled from his own posts — not a persona to perform. If a draft reads more like the spec than like Matt, it's wrong.
+What Matt's X posts sound like. Skills (distribute, content-ideas, jab-hook, x-post-check) consult this before drafting so clay arrives in his voice and needs minimal rewriting. Fiction it isn't: this is a *copy of how Matt actually writes*, distilled from his own posts — not a persona to perform. If a draft reads more like the spec than like Matt, it's wrong.
 
 ## The one-line test
 

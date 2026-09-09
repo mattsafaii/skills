@@ -51,5 +51,5 @@ Do **not** post it, create a card, or rewrite it. The skill ends at findings; Ma
 ## Related
 
 - `x-algorithm.md` (in `distribute/references/`) — the knowledge this skill applies; single source of truth.
-- `/distribute`, `/harvest` — generate X content (clay/seeds). This skill checks content Matt wrote himself.
+- `/distribute`, `/content-ideas` — generate X content (clay/seeds). This skill checks content Matt wrote himself.
 - `develop-essay` — the same findings-not-rewrites discipline, for long-form.

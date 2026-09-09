@@ -2,7 +2,7 @@
 
 How X ranks the For You feed, distilled into what it means for drafting X content. Sources: the open-source [`xai-org/x-algorithm`](https://github.com/xai-org/x-algorithm) repo (release dated May 15, 2026), read from the actual scorer code — not the 2023 Twitter release — plus a community source-level breakdown (`codebreaker77/X-Algo-Breakdown`) for the Grox content-understanding pipeline. **Caveat on the breakdown:** its specific multipliers (decay 0.5, OON 0.75, etc.) are *illustrative examples*, not values from source — the real weights are withheld upstream. Don't cite numbers.
 
-**Read this before drafting any X content (tweets, threads) in `/distribute` or `/harvest`.**
+**Read this before drafting any X content (tweets, threads) in `/distribute` or `/content-ideas`.**
 
 ---
 
