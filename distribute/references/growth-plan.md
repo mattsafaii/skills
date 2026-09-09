@@ -27,10 +27,10 @@ DHH (craft/opinion) · levelsio (build-in-public) · thdxr (edge). Blend registe
 ## Consumed by
 `references/voice.md` — how posts sound. `references/x-algorithm.md` — how the feed ranks. `references/reply-shortlist.md` — accounts to reply under. `references/posting-calendar.md` — the Phase 1 calendar (due-dated). This file — the plan itself.
 
-## Automated weekly harvest (launchd)
-- **Job:** `com.mattsafaii.harvest-weekly` (LaunchAgent, loaded). Fires **Fri 14:00** each week.
+## Automated weekly content-ideas (launchd)
+- **Job:** `com.mattsafaii.content-ideas-weekly` (LaunchAgent, loaded). Fires **Fri 14:00** each week.
 - **Script:** `~/.config/opencode/scripts/content-ideas-weekly.sh` — runs `opencode run` headless (deepseek-v4-flash) invoking `/content-ideas` over the past 7 days, voice-drafting client-work (transferable only) + business-growth + build-in-public insights into Distribution Triage as clay, setting due dates, never posting, never drafting essay prose.
-- **Logs:** `~/.config/opencode/logs/content-ideas-weekly.log` (script), `launchd-harvest.{out,err}`.
+- **Logs:** `~/.config/opencode/logs/content-ideas-weekly.log` (script), `launchd-content-ideas.{out,err}`.
 - **Why launchd, not Solo timer:** Solo timers deliver into a running agent session and don't survive session/quit; launchd fires regardless of Solo being open. This is the honest schedule mechanism.
 - **Note:** the earlier recurring-check-in idea was dropped — check-in create endpoint is broken in CLI v0.8.1, and check-ins were the wrong tool for a solo reminder anyway (they collect team answers).
 
