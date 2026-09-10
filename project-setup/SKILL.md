@@ -91,6 +91,7 @@ Brief: <title> — draft | approved YYYY-MM-DD | none yet
 
 ## Kit
 
+Workspace: ~/Work/safaii-studio/clients/<slug>
 Repo: <GitHub org/repo or "not yet">
 Cloudflare: <account / Pages project or "not yet">
 Production URL: same as Domain | <url>
@@ -253,6 +254,7 @@ Ask:
 
 Record what exists, planned state vs "not yet":
 
+- Workspace: derive `<slug>` from the Basecamp project name — lowercase, hyphens, no extra words (e.g. "Konnected Concepts" → `konnected-concepts`) — and confirm the slug with Matt once. Write the full path on the `Workspace:` line: `~/Work/safaii-studio/clients/<slug>`. If that directory does not exist, create it with `mkdir -p`. If **mkdir fails**, record the path anyway, tell Matt, and do not abort the Basecamp write. This step creates the directory only — do not create `site/`, do not `git init`, do not scaffold 11ty, do not copy Basecamp docs into the workspace.
 - Repo: GitHub org/repo
 - Cloudflare: account / Pages project
 - Production URL
