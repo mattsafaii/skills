@@ -27,7 +27,7 @@ Load the **dataforseo** skill for the catalog and hard rules. The essentials:
 - Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `project_id` and `seo_folder_id` exactly as `seo-project-setup` does — do not invent a second folder walk.
 - **Which project?** If the audited domain is an existing client, match it to their project and create the report there. If it's a prospect or unknown, ask Matt which project it belongs to — never guess. (Prospects normally get a `teardown`; if Matt says audit a prospect instead, this skill still runs and the report doc goes wherever Matt directs.)
 - The domain to audit is the one Matt names — if it's a client, confirm it matches the context doc's `Domain:` line.
-- tribunal lives at `~/Code/personal/tribunal`; it runs via its Docker image (see step 2) or the local binary.
+- tribunal lives at `~/Work/personal/tribunal`; it runs via its Docker image (see step 2) or the local binary.
 - Tone reference for client-facing prose: Basecamp doc `10032725076` ("Marathon Power Website Review (to send)") — read it before drafting, every time.
 - **Basecamp 5 renders markdown** — the report doc is markdown, not HTML. GFM tables render.
 
@@ -44,7 +44,7 @@ Read `SEO — Project Context` if it exists — what the business does decides w
 Same mechanics as teardown/client-report — Docker image, history volume mount (so a later `client-report` diff can use this run as its baseline):
 
 ```bash
-docker image inspect tribunal >/dev/null 2>&1 || (cd ~/Code/personal/tribunal && docker build -t tribunal .)
+docker image inspect tribunal >/dev/null 2>&1 || (cd ~/Work/personal/tribunal && docker build -t tribunal .)
 mkdir -p ~/.local/share/tribunal/history
 docker run --rm -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
   tribunal audit <domain> --format json > /tmp/seo-audit-<domain>-run.json

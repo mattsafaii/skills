@@ -17,7 +17,7 @@ Turns a dream client into a landing-page love letter: five signals (Just like yo
 
 **Load `prospect` for the heavy company recon when needed** — this skill is the letter; prospect is the research engine.
 
-**Campaign home:** `~/Code/_safaii-studio/love-letters/<client-slug>/` — one folder, one `index.html`, plus a `brief.md` with the research + sourcing.
+**Campaign home:** `~/Work/safaii-studio/love-letters/<client-slug>/` — one folder, one `index.html`, plus a `brief.md` with the research + sourcing.
 
 ---
 
@@ -30,7 +30,7 @@ Love letters are a big-swing, long-game play. They shine when bills are covered 
 Check what already exists before asking Matt anything:
 
 ```bash
-ls ~/Code/_safaii-studio/love-letters/ 2>/dev/null
+ls ~/Work/safaii-studio/love-letters/ 2>/dev/null
 basecamp -a 6191443 cards list --card-table 9782662056 -p 46876803 --md
 cat ~/.config/makerskills/love-letter/config.md
 ```
@@ -117,4 +117,4 @@ If something fails in a way this table doesn't cover, show Matt the raw error an
 - `prospect` — the research engine; compose for the company side of the homework pass.
 - `references/signals.md` — the six signals; the spine of this skill.
 - `safaii-css` / `safaii-html` — page craft underneath the client's visual identity.
-- `~/Code/_safaii-studio/love-letters/` — campaign archive; read before re-running on the same company.
+- `~/Work/safaii-studio/love-letters/` — campaign archive; read before re-running on the same company.

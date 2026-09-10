@@ -23,7 +23,7 @@ Do not ask Matt for these — they are fixed for this skill:
 - Full Teardown template doc: `9994887966` ("Teardown — Full (Template)")
 - Pipeline card table: `9782662056`
 
-tribunal lives at `~/Code/personal/tribunal` (module `github.com/mattsafaii/tribunal`).
+tribunal lives at `~/Work/personal/tribunal` (module `github.com/mattsafaii/tribunal`).
 
 This skill has its own bundled dependency: `scripts/capture-homepage.mjs` (Playwright, headless — no visible browser tab). If `node_modules` isn't present in this skill's directory, run `pnpm install` here once; if `~/Library/Caches/ms-playwright` has no chromium build, run `pnpm exec playwright install chromium` once.
 
@@ -40,7 +40,7 @@ Need a **brand/prospect name** and a **URL**. Ask for whichever is missing — d
 Sections 1–5 need an actual read of the page, not just tribunal's technical facts — the hero's four jobs, the objection stack, copy quality, and visual hierarchy are all judgment calls about what a visitor sees and feels.
 
 ```bash
-cd ~/Code/skills/teardown
+cd ~/Work/skills/teardown
 mkdir -p ~/.local/share/teardown/<slug>
 node scripts/capture-homepage.mjs <url> \
   ~/.local/share/teardown/<slug>/<timestamp>-desktop.png \
@@ -96,9 +96,9 @@ Most of tribunal's engines (axe, Lighthouse, pa11y, retire, whatweb, nuclei) onl
 # never catches a stale image, and a stale image silently drops engines (verified:
 # crux was missing for a month this way).
 IMAGE_CREATED=$(docker image inspect tribunal --format '{{.Created}}' 2>/dev/null)
-SOURCE_UPDATED=$(git -C ~/Code/personal/tribunal log -1 --format=%cI)
+SOURCE_UPDATED=$(git -C ~/Work/personal/tribunal log -1 --format=%cI)
 if [ -z "$IMAGE_CREATED" ] || [[ "$SOURCE_UPDATED" > "$IMAGE_CREATED" ]]; then
-  (cd ~/Code/personal/tribunal && docker build -t tribunal .)
+  (cd ~/Work/personal/tribunal && docker build -t tribunal .)
 fi
 mkdir -p ~/.local/share/tribunal/history
 docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/password')" \
@@ -230,12 +230,12 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Annotation circle lands on the wrong element or off to the side | Coordinates guessed from eyeballing the screenshot instead of measured | Always scan pixel colors with ImageMagick to find the real edge (step 2b) — don't estimate by eye |
 | Exported annotated image still shows toolbar/menu/minimap | `mode: 'canvas'` doesn't always exclude app chrome, especially with a shape still selected | Call `editor.selectNone()` before capturing; if chrome still appears, crop it out with ImageMagick against the known shape bounds |
 | tldraw annotation step fails outright (no server.json, connection refused) | tldraw Desktop isn't running | Skip step 2b, note it in the report-back, don't block the rest of the teardown on it |
-| `capture-homepage.mjs` fails with a missing module / browser error | `pnpm install` or the chromium download was never run in this skill's directory | `cd ~/Code/skills/teardown && pnpm install && pnpm exec playwright install chromium` |
+| `capture-homepage.mjs` fails with a missing module / browser error | `pnpm install` or the chromium download was never run in this skill's directory | `cd ~/Work/skills/teardown && pnpm install && pnpm exec playwright install chromium` |
 | Most engines come back `unavailable`, only ~4 of 13 ran | Ran the bare `tribunal` binary instead of the Docker image | Always run via `docker run --rm tribunal audit ...` per step 3 — the bare binary only has the API-based engines |
 | An engine missing from the output entirely (e.g. crux absent while other engines show) | Docker image predates the engine's source — build-if-missing never rebuilds a stale image | Compare the image's created date to the tribunal repo's last commit; rebuild, then re-run (step 3) |
 | Performance/accessibility score looks alarmingly low | Lighthouse/axe are lab (synthetic) data — can read much harsher than real-user field data | Frame it as lab vs. field (tribunal's own distinction), not a contradiction of anything Matt already knows about the site — see Section 6 guidance |
 | Run never shows up in `~/.local/share/tribunal/history/` | Ran `docker run --rm tribunal` without the `-v` volume mount — the save happened, then `--rm` deleted the container (and the file) with it | Always include the `-v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history` mount from step 3 |
-| tribunal build fails | Go toolchain mismatch or stale `go.sum` | Run `go build` from `~/Code/personal/tribunal` directly and surface the real error to Matt rather than guessing a fix |
+| tribunal build fails | Go toolchain mismatch or stale `go.sum` | Run `go build` from `~/Work/personal/tribunal` directly and surface the real error to Matt rather than guessing a fix |
 | `diff` errors "need two saved runs … found 1" | First teardown of this prospect | Not a failure — skip the diff (step 3b) and draft Section 6 from this run alone |
 | `diff` errors "found 0" even though this prospect was torn down before | Prior run was made without the `-v` history mount (so it never persisted), or a different URL form was passed than last time (slug mismatch) | Check `ls ~/.local/share/tribunal/history/` for the actual slug folders; pass the same URL form the prior audit used |
 | Report-back presents a "resolved" finding as a fix the prospect made | Its category lost engine coverage between runs — unchecked, not fixed | Cross-check resolved findings against the diff's `coverage_changes` before reporting them |

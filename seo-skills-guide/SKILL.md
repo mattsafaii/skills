@@ -99,10 +99,10 @@ Docs & Files
 | Tool | What it does | How it's reached | Secrets |
 | --- | --- | --- | --- |
 | DataForSEO MCP | real SERP/keyword/backlink/domain data | the `dataforseo` skill's catalog | `DATAFORSEO_BASIC_AUTH` via 1Password → `~/.zshrc` |
-| GSC | first-party search data (clicks, impressions, striking distance) | `~/Code/scripts/gsc-fetch/gsc-fetch.rb` (one shared script) | service-account JSON via `op read 'op://Secrets/GSC Service Account JSON/notesPlain'` |
-| Basecamp resolution | resolve a client + read its Context / Rank Tracker / Landscape docs in one pass | `~/Code/scripts/client-report-prep.rb` (client-report step 1) | none |
+| GSC | first-party search data (clicks, impressions, striking distance) | `~/Work/scripts/gsc-fetch/gsc-fetch.rb` (one shared script) | service-account JSON via `op read 'op://Secrets/GSC Service Account JSON/notesPlain'` |
+| Basecamp resolution | resolve a client + read its Context / Rank Tracker / Landscape docs in one pass | `~/Work/scripts/client-report-prep.rb` (client-report step 1) | none |
 | Fathom | analytics | direct API calls (client-report) | token via `op read 'op://Secrets/Fathom API Token/password'` |
-| tribunal | audit engine (technical, passive; incl. field CWV via the crux engine) | Docker image at `~/Code/personal/tribunal` | CrUX key via `GOOGLE_CrUX_API_KEY` (wired in `~/.zshrc`) |
+| tribunal | audit engine (technical, passive; incl. field CWV via the crux engine) | Docker image at `~/Work/personal/tribunal` | CrUX key via `GOOGLE_CrUX_API_KEY` (wired in `~/.zshrc`) |
 | Browser-control | live Maps detail panel (review text, Q&A, posts) | browser-control skill / MCP | runs in Matt's browser |
 
 **Basecamp:** always `-a 6191443` (Safaii Studio), passed explicitly. Documents are markdown (Basecamp 5 renders GFM tables). `files doc create` takes content as an argument, never `-` stdin.

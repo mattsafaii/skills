@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Link these skills into the places my agents read from.
-# Own skills live here (~/Code/skills); third-party skills stay in ~/.agents/skills
+# Own skills live here (~/Work/skills); third-party skills stay in ~/.agents/skills
 # (managed by the skills.sh CLI) and are NOT touched by this script.
 set -euo pipefail
 

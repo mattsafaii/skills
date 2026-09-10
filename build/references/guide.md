@@ -340,7 +340,7 @@ Keep the returned id for the "Scaffold repo" todo — step 8 needs it. **Existin
 2. Repoint the Basecamp config at the new list: `cd <repo> && basecamp config set todolist_id <new_todolist_id>`
 3. Commit those changes, then skip to step 9
 
-Workspace path: `~/Code/personal/<kebab-name>`. Confirm with Matt if anything other than the default makes sense.
+Workspace path: `~/Work/personal/<kebab-name>`. Confirm with Matt if anything other than the default makes sense.
 
 Don't pre-create the directory — `rails new`, `hugo new site`, and `bundle gem` create it themselves, and a pre-existing dir makes `bundle gem` prompt or fail. Only the stacks that `cd` into the dir below (11ty, Go, static) need the `mkdir` first; each command includes it.
 
@@ -348,7 +348,7 @@ Scaffold for the stack, using the absolute path. If the stack isn't one of the r
 
 **Rails:** (creates the dir)
 ```bash
-rails new ~/Code/personal/<name> --database=sqlite3 --no-skip-test
+rails new ~/Work/personal/<name> --database=sqlite3 --no-skip-test
 ```
 
 `--no-skip-test` is load-bearing, not noise. `~/.railsrc` carries `--skip-test` and Rails merges it into every `rails new`, so leaving the flag off silently scaffolds a project with no test directory — nowhere for the `Test:` lines from step 3 to go. Verified on Rails 8.1.3: with `--no-skip-test` the `test/` tree is created despite the rc file.
@@ -357,27 +357,27 @@ Drop it (and let `--skip-test` win) only for a Rails project that's essentially 
 
 **11ty:** (deploys to Cloudflare Pages)
 ```bash
-mkdir -p ~/Code/personal/<name> && cd ~/Code/personal/<name> && git init && pnpm init && pnpm add @11ty/eleventy
+mkdir -p ~/Work/personal/<name> && cd ~/Work/personal/<name> && git init && pnpm init && pnpm add @11ty/eleventy
 ```
 
 **Hugo:** (creates the dir)
 ```bash
-hugo new site ~/Code/personal/<name> --force && cd ~/Code/personal/<name> && git init
+hugo new site ~/Work/personal/<name> --force && cd ~/Work/personal/<name> && git init
 ```
 
 **Ruby gem/CLI:** (creates the dir — do not mkdir first)
 ```bash
-cd ~/Code/personal && bundle gem <name>
+cd ~/Work/personal && bundle gem <name>
 ```
 
 **Go:**
 ```bash
-mkdir -p ~/Code/personal/<name> && cd ~/Code/personal/<name> && git init && go mod init <module-path>
+mkdir -p ~/Work/personal/<name> && cd ~/Work/personal/<name> && git init && go mod init <module-path>
 ```
 
 **Static (no framework):**
 ```bash
-mkdir -p ~/Code/personal/<name> && cd ~/Code/personal/<name> && git init
+mkdir -p ~/Work/personal/<name> && cd ~/Work/personal/<name> && git init
 ```
 
 Then write two files into the workspace:
@@ -409,7 +409,7 @@ Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent 
   write that test alongside the code rather than afterwards.
 
   The Basecamp list is mirrored into Solo. Close a unit with
-  `python3 ~/Code/skills/solo/scripts/basecamp-bridge.py ship <todo_id> <sha>`,
+  `python3 ~/Work/skills/solo/scripts/basecamp-bridge.py ship <todo_id> <sha>`,
   which comments the SHA on Basecamp and completes it in both places. Either id
   works — the Basecamp one you just finished, or the Solo one from the sidebar.
   ```
@@ -438,7 +438,7 @@ Keep the stub short — real usage, install, and examples come at the finalize-R
 **Basecamp repo config** — so the build session can run `basecamp` commands without `-a`/`--in` flags. Run the bundled script rather than retyping the sequence:
 
 ```bash
-@scripts/init-basecamp-config.sh ~/Code/personal/<name> <project_id> <todolist_id>
+@scripts/init-basecamp-config.sh ~/Work/personal/<name> <project_id> <todolist_id>
 ```
 
 It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `set todolist_id` / `trust`, then appends `.basecamp/` to `.gitignore`. (`trust` is only needed for authority keys, but it's harmless and future-proofs the config.) `.basecamp/` stays out of git — it's local session config holding account and project IDs, not project code. `solo.yml` IS committed: it describes how to run the project, which is worth sharing and worth having in a fresh clone. Gitignoring `.basecamp/` before the commit keeps the `git add -A` scaffold commit clean — important since these repos are often open-core-ready or public. The build session pulls the PRD/pitch via `basecamp` commands (config above), so no IDs or URLs need to be written into the committed repo.
@@ -446,7 +446,7 @@ It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `
 Commit the scaffold and offer to push to GitHub:
 
 ```bash
-cd ~/Code/personal/<name> && git add -A && git commit -m "Scaffold [stack]"
+cd ~/Work/personal/<name> && git add -A && git commit -m "Scaffold [stack]"
 gh repo create <name> --private --source . --push   # creates under the gh-authed account (mattsafaii)
 ```
 
@@ -466,7 +466,7 @@ Otherwise the build agent hits "Scaffold repo" as its first todo already done an
 **Existing project:** already registered — find its project id with `mcp__solo__list_projects` and skip to step 10.
 
 ```
-mcp__solo__create_project(path: "/Users/matt/Code/personal/<name>", name: "<name>")
+mcp__solo__create_project(path: "/Users/matt/Work/personal/<name>", name: "<name>")
 ```
 
 Note the returned project `id`. (The public Solo docs omit `create_project` — it exists and works; verified on Solo 0.7.1.)
@@ -495,7 +495,7 @@ Seed it from the PRD — the shaping decisions and no-gos, not a copy of the tod
 The Basecamp list is the record; the Solo copy is what shows in the sidebar beside the running agent, and what `ship` closes both halves of. Needs `.basecamp/config.json` (step 8) and the Solo project (step 9), so it runs here:
 
 ```bash
-cd ~/Code/personal/<name> && python3 ~/Code/skills/solo/scripts/basecamp-bridge.py import
+cd ~/Work/personal/<name> && python3 ~/Work/skills/solo/scripts/basecamp-bridge.py import
 ```
 
 Idempotent — safe on a cycle, where it picks up the new list's open todos and skips anything already there. If it reports the repo isn't a Solo project, step 9 didn't take; fix that rather than skipping this.
