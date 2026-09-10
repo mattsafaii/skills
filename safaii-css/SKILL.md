@@ -344,7 +344,7 @@ Real stylesheets that follow the conventions. Study before starting:
 
 - **`references/starter.css` — the canonical artifact and source of truth for the stylesheet itself.** Every project starts from this; the examples below are real-world applications of it, not replacements for it. When in doubt, the starter wins.
 - `~/Work/personal/mattsafaii/src/css/style.css` — layer order, config tokens, body grid with named bleed/content columns, element-first styling, `color-mix` muting, gated motion/hover, `@scope` components (including a `to (.lightbox)` boundary example).
-- `~/Work/safaii-studio/clients/konnectedconcepts/src/assets/css/base.css` (config layer) — the bigger-palette token system: primitive ramp + accents, semantic tier built on top, relative color syntax for derived values. Color structure only — its layer list and utilities predate the conventions (8-layer order, hex neutral ramp, not oklch).
+- `~/Work/safaii-studio/clients/konnected-concepts/site/src/assets/css/base.css` (config layer) — the bigger-palette token system: primitive ramp + accents, semantic tier built on top, relative color syntax for derived values. Color structure only — its layer list and utilities predate the conventions (8-layer order, hex neutral ramp, not oklch).
 - Basecamp "Frontend Conventions" (derived human-readable view, not authoritative): https://app.basecamp.com/6191443/buckets/46824335/documents/9768197742
 
 ## Status

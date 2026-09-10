@@ -170,6 +170,15 @@ Uploads / Review / Handoff / Admin   (client-visible)
 
 No `[DRAFT]` / `[Final]` in titles — Basecamp versions are the trail. Do not create per-phase folders; Working stays flat. Live docs still on the older tree (Internal → Strategy/Copy/…/SEO) keep their existing titles until a later migration; new jobs use the flat tree.
 
+## Client workspace (filesystem)
+
+```
+~/Work/safaii-studio/clients/<slug>/     ← workspace: briefs, exports, research, assets
+                                   site/ ← the website repo root pushed to GitHub
+```
+
+`<slug>` = Basecamp project name → lowercase, spaces to hyphens, strip other punctuation; confirm once. Example: `~/Work/safaii-studio/clients/guru-packaging/site`. `project-setup` creates the workspace folder only; Build creates `site/` and runs `git init`.
+
 ---
 
 ## Rules for agents
