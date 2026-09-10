@@ -7,6 +7,8 @@ description: The map for Matt's SEO skill chain — which skill to run when, in 
 
 The map of Matt's SEO skill chain. This skill never produces a deliverable — it routes. It tells you which skill to run next and why; the individual skills carry their own rules, frozen contracts, and confirm gates.
 
+> For the whole studio site pipeline (project-setup → inventory-brief → structure-map → structure-copy, plus where search plugs in), see `SKILL-INDEX.md` at the repo root — it supersedes this guide for studio order. This guide still owns the SEO-only detail.
+
 ## The spine
 
 The default path for any client with SEO work:
@@ -15,7 +17,7 @@ The default path for any client with SEO work:
 seo-project-setup → keyword-research → seo-rank-tracking
 ```
 
-- **`seo-project-setup`** is the gate. Nothing runs without the client's `SEO — Project Context` doc — every research skill refuses to start if it's missing. Run it first, always.
+- **`seo-project-setup`** is the search gate. It itself reads the **master `Project Context`** doc first (Internal root, built by the `project-setup` skill) — company facts come from there, never re-interviewed; missing master doc → run `project-setup` first. Nothing runs without the client's `SEO — Project Context` doc — every research skill refuses to start if it's missing. Run it first, always.
 - **`keyword-research`** finds the saved-keyword set (the tracking contract).
 - **`seo-rank-tracking`** tracks positions on demand (dated position snapshots, same-day cap) — it only needs a dated `## Saved keywords`, not a page map. The monthly cadence belongs to `client-report`.
 
@@ -25,7 +27,7 @@ seo-project-setup → keyword-research → seo-rank-tracking
 
 | Situation | Run | Why |
 | --- | --- | --- |
-| Any client, first time | `seo-project-setup` | The gate — context doc must exist |
+| Any client, first time | `project-setup` → `seo-project-setup` | `project-setup` creates the master `Project Context` at the Internal root (company facts, Offer gate); the search add-on fills GSC / plan / brand terms |
 | Greenfield build, no site yet | `seo-project-setup` → `keyword-research` | Seeds come from positioning (no GSC, no site to fetch); KR defines the saved set — clustering + `seo-strategy` Entity Map define the page structure for copywriting |
 | Launched site, never did SEO | `seo-project-setup` → `keyword-research` | "Never did SEO ≠ new site" — GSC striking-distance is the advantage; harvest it |
 | Bad / wrong information architecture | `keyword-research` → `keyword-clustering` → `seo-strategy` | Seeds come from positioning, not the broken site; clustering + strategy output the corrected IA to rebuild against |
@@ -63,7 +65,8 @@ Every doc lives in the client's **Docs & Files → Internal → SEO folder** unl
 
 | Doc | Owner | Consumed by |
 | --- | --- | --- |
-| `SEO — Project Context` | `seo-project-setup` | every research skill (the gate) |
+| `Project Context` *(Internal root, not the SEO folder)* | `project-setup` | company facts for every skill — read first, never re-asked |
+| `SEO — Project Context` | `seo-project-setup` (search add-on) | every research skill (the search gate) |
 | `SEO — Keyword Research` | `keyword-research` | rank-tracking, clustering, strategy, landscape, local-seo |
 | `SEO — Page Map` | `keyword-clustering` | strategy |
 | `SEO — Competitive Landscape` | `competitive-landscape` | strategy, link-prospecting, client-report (optional `## Market read`) |
@@ -106,7 +109,8 @@ Docs & Files
 
 ## Rules that apply across the chain
 
-- **The context doc gates everything.** Missing → run `seo-project-setup` first.
+- **The search doc gates everything.** Missing `SEO — Project Context` → run `seo-project-setup` first. The master `Project Context` gates company facts — `seo-project-setup` requires it (missing → run `project-setup`).
+- **Split of ownership.** Company facts (domain, offer, contacts, kit, Fathom, writing rules) belong to the master `Project Context` doc; the SEO doc holds only search facts (GSC property, plan, brand terms, scoreboard tokens). `client-report` reads both: master doc first for domain + Fathom (falls back to the SEO doc when the master doc doesn't exist yet), SEO doc for Plan / GSC / brand terms.
 - **Consume, never re-research.** Each skill reads what the previous one wrote; re-deriving is a failure.
 - **Measurement, not observation.** Every number carries a date; market is US by default unless the context doc says otherwise.
 - **Confirm gates are per-skill, not universal.** Research / landscape / analysis / local / strategy write only after Matt confirms their doc. **Rank-tracking writes with no confirm gate** — it appends a factual snapshot of an already-confirmed set. Client-report and seo-audit confirm **create** (the report doc in Internal) and **handoff** (the message, after Matt's move) — the move itself is Matt's ship gate.
