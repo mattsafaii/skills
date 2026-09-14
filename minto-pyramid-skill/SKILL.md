@@ -1,6 +1,6 @@
 ---
 name: minto-pyramid
-description: Restructures writing into Barbara Minto's Pyramid Principle — conclusion first, then grouped reasons, then evidence — and audits an existing draft's logic against Minto's rules. Use when the user is writing, or has drafted, something that asks a reader to accept a judgment or make a decision: a recommendation, proposal, exec summary, memo, review with a verdict, or status update with an ask; or when a draft buries its point or narrates the process instead of the finding. Not for incident timelines, runbooks, tutorials, notes, or writing where chronology is the content.
+description: "Restructures writing into Barbara Minto's Pyramid Principle — conclusion first, then grouped reasons, then evidence — and audits an existing draft's logic against Minto's rules. Use when the user is writing, or has drafted, something that asks a reader to accept a judgment or make a decision: a recommendation, proposal, exec summary, memo, review with a verdict, or status update with an ask; or when a draft buries its point or narrates the process instead of the finding. Not for incident timelines, runbooks, tutorials, notes, or writing where chronology is the content."
 ---
 
 # Minto Pyramid

@@ -1,6 +1,6 @@
 ---
 name: remember
-description: Write a durable, curated memory file to the tool-agnostic agent-memory store (~/.agents/memory/curated/, indexed by qmd as the "agent-memory" collection). Two triggers — explicit ("remember this", "save this to memory", "/remember") and proactive: when you notice something memory-worthy (a correction, a confirmed non-obvious decision, an ongoing project fact), offer to save it and wait for a yes before writing. Never write silently.
+description: "Write a durable, curated memory file to the tool-agnostic agent-memory store (~/.agents/memory/curated/, indexed by qmd as the \"agent-memory\" collection). Two triggers — explicit (\"remember this\", \"save this to memory\", \"/remember\") and proactive: when you notice something memory-worthy (a correction, a confirmed non-obvious decision, an ongoing project fact), offer to save it and wait for a yes before writing. Never write silently."
 ---
 
 # Remember Skill

@@ -1,6 +1,6 @@
 ---
 name: dataforseo
-description: How to use the DataForSEO MCP server (v3) — the api_request and docs tools, the endpoint catalog, the measurement rule, cost awareness, and geo-location handling. Load whenever external SEO data is needed: real SERP positions and rankings, keyword volume and difficulty, backlinks, on-page checks, competitor SEO. Used when Matt says "check their rankings", "keyword research", "backlink profile", "search volume", or asks for real search-engine data; also referenced by the prospect and teardown skills. Do not use for general questions that don't need external SEO data.
+description: "How to use the DataForSEO MCP server (v3) — the api_request and docs tools, the endpoint catalog, the measurement rule, cost awareness, and geo-location handling. Load whenever external SEO data is needed: real SERP positions and rankings, keyword volume and difficulty, backlinks, on-page checks, competitor SEO. Used when Matt says \"check their rankings\", \"keyword research\", \"backlink profile\", \"search volume\", or asks for real search-engine data; also referenced by the prospect and teardown skills. Do not use for general questions that don't need external SEO data."
 ---
 
 # DataForSEO

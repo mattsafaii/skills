@@ -1,6 +1,6 @@
 ---
 name: develop-essay
-description: Develop an essay idea from Matt's Content board through grilling, outlining, organizing his raw notes, and critiquing his drafts — without ever writing prose for him. Use when Matt says "develop this idea", "grill this essay", "flesh out [idea]", "organize my notes", "critique my draft", "/develop-essay", or picks an Ideas card to work on. The skill is a thinking partner and editor, never a ghostwriter: it interrogates, structures, and flags — Matt writes every sentence that gets published.
+description: "Develop an essay idea from Matt's Content board through grilling, outlining, organizing his raw notes, and critiquing his drafts — without ever writing prose for him. Use when Matt says \"develop this idea\", \"grill this essay\", \"flesh out [idea]\", \"organize my notes\", \"critique my draft\", \"/develop-essay\", or picks an Ideas card to work on. The skill is a thinking partner and editor, never a ghostwriter: it interrogates, structures, and flags — Matt writes every sentence that gets published."
 ---
 
 # develop-essay

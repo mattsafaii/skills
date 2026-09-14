@@ -1,6 +1,6 @@
 ---
 name: seo-skills-guide
-description: The map for Matt's SEO skill chain — which skill to run when, in what order, and why. A reference router, not a workflow: it answers "which SEO skill should I use", "what's next in SEO", "/seo-skills-guide", "how do I do SEO for a client", "what order do the SEO skills go in", or "which skill does X". It carries the spine, the routing decisions, the doc-contract inventory, and the tool/secret map. Load it when deciding what to run next; the individual skills do the actual work and have their own confirm gates.
+description: "The map for Matt's SEO skill chain — which skill to run when, in what order, and why. A reference router, not a workflow: it answers \"which SEO skill should I use\", \"what's next in SEO\", \"/seo-skills-guide\", \"how do I do SEO for a client\", \"what order do the SEO skills go in\", or \"which skill does X\". It carries the spine, the routing decisions, the doc-contract inventory, and the tool/secret map. Load it when deciding what to run next; the individual skills do the actual work and have their own confirm gates."
 ---
 
 # SEO Skills Guide
