@@ -45,14 +45,14 @@ If the same market was mapped within the last 30 days — reuse fingerprint = sa
 The saved set is a **tracking set** — what Matt agreed to chase, often commercial and already filtered. It answers "who wins *our* money queries," not "who wins the category." Use it as the default, then sharpen:
 
 - **If it's one intent** (mostly commercial), ask Matt to add 3–5 informational/comparison terms from the positioning — no new discovery dump, just enough to see who owns the whole category.
-- **If it's under ~10 terms**, call the read **directional**, or confirm a small `dataforseo_labs_google_related_keywords` broaden — capped (5 seeds × ~10 terms, then stop).
+- **If it's under ~10 terms**, call the read **directional**, or confirm a small `dataforseo_labs/google/related_keywords/live` broaden — capped (5 seeds × ~10 terms, then stop).
 
 Write the final query list under `## Query set used` — that's the next run's reuse fingerprint.
 
 ### 5. Find the recurring domains
 
 - **Start from the roster:** the context doc's competitors are the starting list — ground the read in them.
-- **Confirm with SERP data:** `dataforseo_labs_google_serp_competitors` across the query set surfaces the domains that actually recur. Use `serp_organic_live_advanced` for live SERP composition on a few representative queries (at most ~10 queries, batched).
+- **Confirm with SERP data:** `dataforseo_labs/google/serp_competitors/live` across the query set surfaces the domains that actually recur. Use `serp/google/organic/live/advanced` for live SERP composition on a few representative queries (at most ~10 queries, batched).
 - If the context doc's competitor list is empty, infer the roster from the SERP competitors and confirm with Matt before spending deeper on it.
 
 ### 6. Group domains by type
@@ -69,8 +69,8 @@ This is the guardrail in practice — a publisher owning the SERP is not a produ
 ### 7. Size the strongest domains — and the client
 
 Run the same footprint calls on the **client's own domain** plus the top 3–5 recurring domains (before expanding):
-- **Organic footprint:** `dataforseo_labs_google_domain_rank_overview` (estimated traffic, ranking keywords, distribution) — same date/location, labeled estimate.
-- **Keyword coverage:** `dataforseo_labs_google_ranked_keywords` for the direct competitors and relevant publishers — what they rank for, at what position, with what intent.
+- **Organic footprint:** `dataforseo_labs/google/domain_rank_overview/live` (estimated traffic, ranking keywords, distribution) — same date/location, labeled estimate.
+- **Keyword coverage:** `dataforseo_labs/google/ranked_keywords/live` for the direct competitors and relevant publishers — what they rank for, at what position, with what intent.
 
 The client's row is what makes the "opening" concrete — without it, "the gap" is a vibe. For the client's row only, if GSC is wired, anchor with the existing first-party fetch (no new paid call): clicks/impressions beat an estimated traffic number for *their* row. Batch these; don't expand beyond the top 5 without a reason.
 
@@ -78,7 +78,7 @@ The client's row is what makes the "opening" concrete — without it, "the gap" 
 
 ### 8. Authority (optional)
 
-Use `backlinks_summary` for the client's domain and the top competitors **when authority appears to be why someone wins** — a publisher or directory dominating on reach, or the user asks why. Compare referring domains and spam score. **Authority calls sit inside the step-7 spend ceiling** — they also need a yes after the default batch. If backlinks data is unavailable, continue on SERP/domain evidence and say so — don't stall.
+Use `backlinks/summary/live` for the client's domain and the top competitors **when authority appears to be why someone wins** — a publisher or directory dominating on reach, or the user asks why. Compare referring domains and spam score. **Authority calls sit inside the step-7 spend ceiling** — they also need a yes after the default batch. If backlinks data is unavailable, continue on SERP/domain evidence and say so — don't stall.
 
 ### 9. Synthesize the market read
 

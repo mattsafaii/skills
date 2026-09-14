@@ -1,5 +1,5 @@
 {
-  "skill_name": "tldraw-mockup",
+  "skill_name": "ui-mockup",
   "notes": "Behavioral evals for the prototype skill. Each targets a place a generic agent would default the wrong way: reskinning instead of genuinely varying, taking on a page-sized ask without narrowing it, ignoring a requested variation count, or carrying prototype shortcuts into the real build. Run a fresh agent that reads SKILL.md (not the evals) per prompt, then grade the output against the expectations.",
   "evals": [
     {

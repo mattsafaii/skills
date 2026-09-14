@@ -11,6 +11,6 @@ triggers:
 
 # PRD Skill
 
-Turn a shaped pitch into a build-ready PRD. The PRD is appended to the shaped card below an `<hr>` — pitch + PRD live together on the card — and the card moves to the PRD column. Nothing else is created; the bet (Basecamp project, workspace, Solo, todos) is placed by `/build`.
+Turn a shaped pitch into a build-ready PRD. The PRD is appended to the shaped card below an `<hr>` — pitch + PRD live together on the card — and the card moves to the PRD column. Nothing else is created; the bet (Basecamp project, workspace, Herdr workspace, todos) is placed by `/build`.
 
 Open `@references/guide.md` and follow it. Do not proceed without it.

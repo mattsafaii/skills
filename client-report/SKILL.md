@@ -15,7 +15,7 @@ Turns tribunal's run history + Fathom + Google Search Console into the monthly p
 - **The report is an artifact, not a message body.** The flow: create the report doc in the client's **Internal > Reports** folder (team-only, born hidden), Matt reviews and manually moves it to **Deliverables > Reports** (client-visible — the move flips visibility), then a short message posts to the client's Message Board with a link to the moved doc. The report itself lives in Docs & Files; the message is the email-body-style handoff.
 - Client and project are resolved from Basecamp, never a local file: the prep script at `~/Work/scripts/client-report-prep.rb` (see step 1) matches the project by name and reads per-client facts from two context docs. Company facts (domain, Fathom site id + goals) come from the master `Project Context` doc at the root of Internal — built by `project-setup` — and fall back to the SEO doc when the master doc doesn't exist yet. Search facts (GSC property, scoreboard metrics, plan, brand terms) come from the `SEO — Project Context` doc (Internal > SEO).
 - **The SEO docs are consumed, never re-pulled.** Keyword positions come from `SEO — Rank Tracker`'s newest `## Run —` section and `## Tracker config` — never re-run SERP checks here. Market context comes from `SEO — Competitive Landscape`'s `## Market read` when present. On Growth clients the Rankings section is standing: if the docs don't exist, the section says in one line that tracking hasn't produced keyword positions or a market read yet (Foundation omits the heading entirely — see `Plan:`).
-- tribunal lives at `~/Work/personal/tribunal`; it runs via its Docker image (see step 2).
+- tribunal lives at `~/Work/safaii-studio/lab/tribunal`; it runs via its Docker image (see step 2).
 - This skill uses the shared prep script at `~/Work/scripts/client-report-prep.rb` (canonical copy — no per-skill copies) plus the shared GSC helper at `~/Work/scripts/gsc-fetch/gsc-fetch.rb` (canonical copy, shared with keyword-research — no per-skill copies). No dependencies; Ruby stdlib only.
 - Local secrets live in 1Password, resolved on demand with `op read` — the Fathom token is `op://Secrets/Fathom API Token/password`, the GSC service-account JSON is `op://Secrets/GSC Service Account JSON/notesPlain`. Both are shared across clients; nothing sits in a file on disk.
 
@@ -74,19 +74,20 @@ Same mechanics as the teardown skill — Docker image, history volume mount (wit
 # guard never catches a stale image, and a stale image silently drops engines (verified:
 # crux was missing for a month this way).
 IMAGE_CREATED=$(docker image inspect tribunal --format '{{.Created}}' 2>/dev/null)
-SOURCE_UPDATED=$(git -C ~/Work/personal/tribunal log -1 --format=%cI)
+SOURCE_UPDATED=$(git -C ~/Work/safaii-studio/lab/tribunal log -1 --format=%cI)
 if [ -z "$IMAGE_CREATED" ] || [[ "$SOURCE_UPDATED" > "$IMAGE_CREATED" ]]; then
-  (cd ~/Work/personal/tribunal && docker build -t tribunal .)
+  (cd ~/Work/safaii-studio/lab/tribunal && docker build -t tribunal .)
 fi
 mkdir -p ~/.local/share/tribunal/history
-docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/password')" \
+docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/credential')" \
+  -e GOOGLE_SAFE_BROWSING_API_KEY="$(op read 'op://Secrets/GOOGLE_SAFE_BROWSING_API_KEY/credential')" \
   -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
   tribunal audit <domain> --format json > /tmp/client-report-<project_id>-run.json
 docker run --rm -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
   tribunal diff <domain> --format json > /tmp/client-report-<project_id>-diff.json
 ```
 
-The audit run carries `-e GOOGLE_CrUX_API_KEY` (resolved from 1Password, headless-safe via the service account) — the CrUX engine needs it for real-user CWV. The diff run doesn't need it: no engines run against saved history.
+The audit run carries `-e GOOGLE_CrUX_API_KEY` and `-e GOOGLE_SAFE_BROWSING_API_KEY` (both resolved from 1Password, headless-safe via the service account) — the CrUX engine needs its key for real-user CWV, the Safe Browsing engine for the malware/phishing check. The diff run needs neither: no engines run against saved history.
 
 Pass the context doc's `Domain:` value to both, verbatim.
 
@@ -173,7 +174,7 @@ If the script fails (auth, property not shared with the service account yet), th
 
 ### 4a. Generate charts
 
-The **pingplot** CLI (`~/Work/personal/pingplot/src/cli.js`) turns the fetched data into charts via Observable Plot. Write chart data files to `/tmp` (keyed by `<project_id>`), run pingplot, then embed via the attach-and-position recipe below (step 4a's chart embedding — verified live).
+The **pingplot** CLI (`~/Work/safaii-studio/lab/pingplot/src/cli.js`) turns the fetched data into charts via Observable Plot. Write chart data files to `/tmp` (keyed by `<project_id>`), run pingplot, then embed via the attach-and-position recipe below (step 4a's chart embedding — verified live).
 
 Invocation (pingplot is a global npm package — `pingplot` is on PATH):
 ```bash
@@ -382,7 +383,7 @@ One line to Matt: the report doc URL, the handoff draft doc URL, the message URL
 
 The mechanic: `files update --content` replaces the **whole body every time** — Basecamp has no partial edit. Drift enters two ways: **regeneration** (an agent rewrites untouched sections, so phrasing drifts) and **stale writes** (publishing a copy fetched before an outside change). The pattern that prevents both:
 
-1. **Canonical file first.** The report's canonical body lives in a stable path outside `/tmp` — `~/Work/client-reports/<project-slug>/report-<YYYY-MM>.html` — written at publish and kept for the cycle. Every edit patches *that file*, then publishes it. Never publish "a fresh fetch plus a small change" unless the fetch is first verified equal to canonical.
+1. **Canonical file first.** The report's canonical body lives in a stable path outside `/tmp` — `~/Work/safaii-studio/reports/<project-slug>/report-<YYYY-MM>.html` — written at publish and kept for the cycle. Every edit patches *that file*, then publishes it. Never publish "a fresh fetch plus a small change" unless the fetch is first verified equal to canonical.
 2. **Patch, never regenerate.** An edit is a targeted string replacement inside the current content. Untouched sections must come out byte-identical — after any edit, diff the published body against canonical: only the intended lines may differ.
 3. **Fresh fetch before every write.** If the live doc differs from canonical (outside edits landed), stop and show Matt the diff — never write over unknown changes.
 4. **Verify on re-read — twice.** Content probes (key sentences, table counts, chart count) after every publish; a failed probe stops the run — never "fix it up" by regenerating. Then audit with Basecamp's own diff: every update lands as a version at `/documents/<doc-id>/changes/<version-id>` with an inline green/red diff — open it and confirm **only the intended lines show green/red**. A diff that touches more than the edit intended is a dirty write: stop, restore from canonical, republish.

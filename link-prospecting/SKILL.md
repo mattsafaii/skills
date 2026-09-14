@@ -50,7 +50,7 @@ If the same asset was prospected within the last 30 days (same asset, same marke
 
 ### 4. Mine competitor backlinks first (when competitors exist)
 
-For the strongest competitor domains from the context doc (or the referring domains surfaced by `competitor-analysis`), run `backlinks_referring_domains` / `backlinks_summary` to see where their links come from — publications, directories, communities, partners. These are the first prospect leads.
+For the strongest competitor domains from the context doc (or the referring domains surfaced by `competitor-analysis`), run `backlinks/referring_domains/live` / `backlinks/summary/live` to see where their links come from — publications, directories, communities, partners. These are the first prospect leads.
 
 **Cap the dump:** after the overview, take a shortlist of ~30 referring domains by rank/traffic — skip the competitor's own properties and obvious spam. Don't ingest thousands of rows. Continue without backlink evidence if it's unavailable.
 
@@ -64,7 +64,7 @@ Build 5–10 queries from the asset/topic:
 - `<topic> guide` / `examples` / `templates` / `software`
 - `<topic> for <audience>`
 
-Run them batched via `serp_organic_live_advanced` (≤10 queries per call). Look for ranking articles, listicles, resource pages, comparisons, statistics pages, templates, and curated lists.
+Run them batched via `serp/google/organic/live/advanced` (≤10 queries per call). Look for ranking articles, listicles, resource pages, comparisons, statistics pages, templates, and curated lists.
 
 ### 6. Filter the prospects
 
@@ -73,7 +73,7 @@ Deprioritize: homepages, login pages, thin affiliate pages, spam, unrelated foru
 
 ### 7. Qualify the shortlist
 
-For the strongest prospect domains (shortlist capped at ~10), `dataforseo_labs_google_domain_rank_overview` to confirm topical fit and size. Qualification is only for prospects you already kept — don't expand into exhaustive research.
+For the strongest prospect domains (shortlist capped at ~10), `dataforseo_labs/google/domain_rank_overview/live` to confirm topical fit and size. Qualification is only for prospects you already kept — don't expand into exhaustive research.
 
 ### 8. Define the outreach angle per prospect
 

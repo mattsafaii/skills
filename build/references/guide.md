@@ -1,8 +1,8 @@
 # Build Skill Guide
 
-Start a build cycle. This is the moment the bet is placed — everything needed to go from "card in Up Next" to "build session running in Solo" happens here, in one command.
+Start a build cycle. This is the moment the bet is placed — everything needed to go from "card in Up Next" to "build session running in Herdr" happens here, in one command.
 
-**Matt runs `/build` from anywhere with the Solo MCP connected** — cwd doesn't matter. The skill looks the project up explicitly and spawns the build agent into the correct Solo project, so it doesn't care where it was launched. It creates the Basecamp project, writes the PRD doc, posts the kickoff, creates the todolist, scaffolds the repo in a new workspace folder, registers it in Solo, spawns an OpenCode agent inside it with its first prompt, and moves the card to In Progress. Matt then switches to the project in Solo where the build session is already working.
+**Matt runs `/build` from anywhere inside Herdr** — cwd doesn't matter. The skill looks the project up explicitly and spawns the build agent into the correct Herdr workspace, so it doesn't care where it was launched. It creates the Basecamp project, writes the PRD doc, posts the kickoff, creates the todolist, scaffolds the repo in a new workspace folder, creates (or finds) the project's Herdr workspace, starts an OpenCode agent in it with its first prompt, and moves the card to In Progress. Matt then switches to the project's Herdr workspace where the build session is already working.
 
 Never start coding the build from this session — the build session must live in the project directory so its transcript, memory, and resume stay with the project. (Footnote: avoid launching `/build` from the target repo's *actively-building* agent — it works, but it's a session spawning a sibling into its own project. Anywhere else is fine.)
 
@@ -51,7 +51,7 @@ The card body contains the shaped pitch and the PRD (separated by `<hr>`). Read 
 
 ### 2b. New or existing project?
 
-A card can be a brand-new project or a follow-up cycle on an existing one (existing Basecamp project, existing repo, already in Solo). Check whether the card/PRD names an existing project or repo; if unclear, ask Matt: "New project, or a cycle on an existing one?"
+A card can be a brand-new project or a follow-up cycle on an existing one (existing Basecamp project, existing repo, already in Herdr). Check whether the card/PRD names an existing project or repo; if unclear, ask Matt: "New project, or a cycle on an existing one?"
 
 **Existing project path** — identify the repo (from the card/PRD, or ask Matt which project this cycle is for), then read its Basecamp ids straight from the repo instead of asking Matt to recite them:
 
@@ -61,7 +61,7 @@ cd <repo_path> && basecamp config show --json
 
 This gives `project_id` (and the prior `todolist_id`, which gets repointed in step 8). Then:
 
-- **Skip:** step 4 (project creation), step 8's scaffold/solo.yml/AGENTS.md creation/repo config init, and step 9's registration (still look up the existing Solo project id there)
+- **Skip:** step 4 (project creation), step 8's scaffold/AGENTS.md creation/repo config init, and step 9's workspace creation (still find the existing Herdr workspace there)
 - **Keep:** steps 3, 5, 6, 7, 10, 11, 12 — run them against the existing project
 - **Adjust:** name things for the cycle, update the existing AGENTS.md, and repoint the Basecamp config — details flagged per step below
 
@@ -79,9 +79,14 @@ Then, from the PRD, propose a build breakdown to Matt. Present it before creatin
 
 **Task derivation rules:**
 
-- One task per surface (each view/page/command gets a task)
-- One task for the core flow wiring (connecting surfaces end to end)
-- One task for the data model (schema, migrations) when the PRD has a Data Model section — skip it entirely if the PRD doesn't (see heuristics below)
+- **A task is a vertical slice, not a layer and not a screen.** Each slice is the thinnest complete path through part of the core flow — it cuts through every layer it needs (data, logic, the surface the user touches) and runs end to end. "The model" and "the list page" are not tasks; "a job shows on the board and opens its detail" is.
+- **The first slice is the tracer bullet: the thinnest path that retires the biggest risk.** Pick the slice that exercises the architecture's riskiest seam — the external API, the auth flow, the awkward data shape, the hardest core-flow step — not the easiest screen. If that path works end to end, the rest is filling in; if it doesn't, you want to know now, before three easy screens sit on a foundation that won't hold. Its `Done when:` names the whole path.
+- **A slice may span surfaces and stub what isn't built yet.** When the core flow crosses several surfaces, the first slice can walk all of them with stubbed internals ("board shows a hardcoded job, clicking opens detail"), and later slices replace the stubs with real data. Thinnest complete path, not one screen doing everything.
+- **Surfaces are the coverage inventory, not the task list.** Every surface in the PRD must be reached by some slice, but a slice is not one surface and a surface is not one slice. Use the surfaces to check coverage; use the core flow to cut the slices.
+- **Every slice ends with the app running and its suite green.** No task leaves the app broken — that is what makes a slice demoable and what keeps each commit a safe checkpoint.
+- One task for the data model (schema, migrations) when the PRD has a Data Model section — skip it entirely if the PRD doesn't (see heuristics below). A small shared schema goes up front; for a larger one, a slice may add the tables it needs rather than waiting for a complete model.
+- **Cycle builds only — prefactor first.** Open with the task that makes the change easy (extract the method, introduce the seam where the new code plugs in, add the test), before the feature work: *make the change easy, then make the easy change.* A prefactor keeps behavior identical, so it's safe alone; skipping it tangles the refactor and the feature into one risky change.
+- **Cycle builds only — one wide mechanical change is not a slice.** A rename or retype whose blast radius spans the codebase can't land green in one step, so sequence it expand → migrate → contract: add the new form beside the old (expand), move call sites over in batches sized by blast radius with the app green after each (migrate), then delete the old form (contract). Each batch is its own task.
 - Setup tasks first: scaffold, deploy config
 - **A PRD with a Gated Decision section gets a spike task, first in the list after "Scaffold repo"** — before deploy config, before the data model, before any surface. Nothing else in the build is trustworthy until the gate is answered, and a spike run late is just rework. Title it `Spike: [the question]`, with this description:
 
@@ -93,15 +98,15 @@ Then, from the PRD, propose a build breakdown to Matt. Present it before creatin
   Time-box: one session. Throw the spike code away — this answers a question, it
   doesn't start the build.
 
-  Done when: the answer is recorded as a comment on this todo and in the state
-  scratchpad, naming which path the build takes. If the fallback wins, say so in the
-  scratchpad before moving on. If the time-box runs out with no clear answer, stop
+  Done when: the answer is recorded as a comment on this todo and noted in the
+  repo's AGENTS.md, naming which path the build takes. If the fallback wins, say so
+  before moving on. If the time-box runs out with no clear answer, stop
   and ask Matt rather than picking a side.
   ```
 
   The rest of the todolist is written path-independent — that's the point of the PRD naming what holds either way. If the spike's outcome would actually reshape the surfaces or the data model, the pitch wasn't shaped tightly enough; stop and tell Matt rather than deriving todos on top of an unknown.
 - Acceptance criteria → split by the kind the PRD assigned them. **Mechanical** criteria (a command proves them) fold into the build todo that implements them, as a `Test:` line — the test gets written with the code. **Visual or interactive** criteria become verification tasks at the end ("Verify: [criterion]"), as before. A PRD whose criteria are all visual — a static site, say — produces no test lines at all, and that's right.
-- **Build-section todos (surfaces, core flow, data model) get a description**, passed via `basecamp todo`'s `--description` flag — pulled straight from the PRD, not newly authored: the surface's "what it is, what the user can do" line for surface tasks, the numbered Core Flow steps for the wiring task, the "[Model]: [key fields]" lines for the data model task. Setup and Verify todos stay title-only — the title already says everything ("Scaffold repo", "Verify: [criterion]"); a description there would just restate it.
+- **Build-section todos (slices, data model) get a description**, passed via `basecamp todo`'s `--description` flag — pulled straight from the PRD, not newly authored: the end-to-end behaviour each slice delivers (drawn from the PRD's Core Flow steps it covers) for slice tasks, the "[Model]: [key fields]" lines for the data model task. Setup and Verify todos stay title-only — the title already says everything ("Scaffold repo", "Verify: [criterion]"); a description there would just restate it.
 - **Every build-section description ends with a `Done when:` line** — one sentence naming the observable result, taken from the PRD rather than invented. It tells the build agent when to stop and gives Matt a fixed thing to review against. Then, where a mechanical criterion belongs to that todo, a `Test:` line naming the criterion and the command that proves it:
 
   ```
@@ -134,30 +139,20 @@ Then, from the PRD, propose a build breakdown to Matt. Present it before creatin
 - Add a close-out **"Review against the PRD"** task, placed before Finalize README, with this description:
 
   ```
-  Spawn two reviewers (OpenCode (unattended) — DeepSeek V4 Flash, over the
-  Solo MCP, in parallel), each reading the diff independently so neither's read
-  pollutes the other:
+  Run the `code-review` skill on the diff since the scaffold commit (the PRD is
+  its spec source). It reviews on two axes — Standards against this repo's
+  conventions, Spec against the PRD — each in its own Herdr reviewer, read-only:
+  report gaps, don't fix them. Fix what they find, then commit.
 
-  - Spec reviewer: the PRD's acceptance criteria and What Can Go Wrong list, the
-    full diff for this cycle. Run the test suite first if there is one and hand
-    it the result. Report gaps against the PRD.
-  - Standards reviewer: the full diff, plus whatever conventions this repo
-    documents (AGENTS.md, safaii-css/safaii-html/dhh-rails-style as the
-    stack dictates); fall back to a general code-smell pass (duplication, unclear
-    naming, dead code) if the repo documents no specific conventions. Report
-    deviations.
-
-  Both reviewers get read-only scope: report gaps, don't fix them. Set a
-  wake-on-idle timer with max_wait_ms rather than polling, then harvest both
-  reports side by side and fix what they find. Follow the solo skill.
+  Done when: both reports are in hand and every finding is fixed or dismissed.
   ```
 
   Two reviewers reading, not a fleet writing — the build stays single-agent. Skip it for static sites with no application logic.
 - Always include a near-the-end **"Finalize README"** task (real usage, install, examples — the scaffold only writes a stub). For open-core-ready or publishable repos, also add a **"Add LICENSE + NOTICE"** task (permissive license; NOTICE for any bundled third-party tools).
 - For apps, CLIs, and libraries (anything with real application logic — **not** static/marketing/landing sites), add a final **"Document the codebase (run /document)"** task. The build agent invokes the `document` skill from inside the repo to generate the architecture doc set with inline diagrams into this project's Basecamp Docs. Skip it for static sites.
-- Each task should be completable in a focused session (a few hours max)
+- Each task should be completable in a focused session (a few hours max) and leave the app running
 
-**Task order:** Scaffold → Spike (if the PRD gates one) → rest of Setup → Data model (if applicable) → Surfaces (simplest first) → Core flow → Verification → Write QA plan (if there are enough Verify tasks to warrant it) → close-out (Review against the PRD, Finalize README, LICENSE+NOTICE, Document the codebase — whichever apply)
+**Task order:** Scaffold → Spike (if the PRD gates one) → rest of Setup → Prefactor (cycle builds only) → Data model (if applicable) → First slice, end-to-end (the tracer bullet, riskiest path) → remaining slices (each extending the working path) → Verify core flow end-to-end → Verification (per-criterion) → Write QA plan (if there are enough Verify tasks to warrant it) → close-out (Review against the PRD, Finalize README, LICENSE+NOTICE, Document the codebase — whichever apply)
 
 **Proposed format:**
 
@@ -173,11 +168,12 @@ Data model
 - [Schema / migrations]
 
 Build
-- [Surface 1]
-- [Surface 2]
-- Wire core flow
+- [First slice] — end-to-end (tracer bullet)     (cycle: prefactor task(s) come first)
+- [Slice 2]
+- [Slice 3]
 
 Verify
+- Verify: core flow end-to-end
 - Verify: [visual/interactive criterion 1]
 - Verify: [visual/interactive criterion 2]
 
@@ -187,9 +183,9 @@ Close-out
 - Finalize README
 ```
 
-Mechanical criteria don't appear as their own line — they ride on the build todo that implements them. Say so when presenting, so the breakdown doesn't look like it dropped half the acceptance criteria: "the other three criteria are tested inside the surface todos."
+Mechanical criteria don't appear as their own line — they ride on the slice that implements them. Say so when presenting, so the breakdown doesn't look like it dropped half the acceptance criteria: "the other three criteria are tested inside the slice todos."
 
-Also confirm the project name is resolved. If the PRD or pitch flags a name as TBD (e.g., "name may collide, decide before publishing"), ask Matt to pick one now — the name determines the folder, repo, and Solo project.
+Also confirm the project name is resolved. If the PRD or pitch flags a name as TBD (e.g., "name may collide, decide before publishing"), ask Matt to pick one now — the name determines the folder, repo, and Herdr workspace.
 
 Ask: "Does this look right, or do you want to adjust anything?"
 
@@ -321,12 +317,12 @@ Match the list titled "Build". If it's missing (e.g. a project constructed befor
 
 **Existing project:** always create a fresh list named for the cycle — `"Build: [Cycle Name]"` — instead of plain "Build". This path never touches the template's placeholder list.
 
-Extract the todolist ID. Create todos in the approved order. Setup and Verify todos are title-only; Build-section todos (surfaces, core flow, data model) carry a `--description` pulled from the PRD:
+Extract the todolist ID. Create todos in the approved order. Setup and Verify todos are title-only; Build-section todos (slices, data model) carry a `--description` pulled from the PRD:
 
 ```bash
 basecamp todo "<setup or verify task>" --list <todolist_id> --in <project_id> -a 6191443 --json
-basecamp todo "<surface task>" --description "<PRD surface's 'what it is, what the user can do' line>" --list <todolist_id> --in <project_id> -a 6191443 --json
-basecamp todo "Wire core flow" --description "<PRD Core Flow steps>" --list <todolist_id> --in <project_id> -a 6191443 --json
+basecamp todo "<first slice> — end-to-end" --description "<the end-to-end behaviour this slice delivers>. Core flow: <the Core Flow steps it covers>. Done when: <the full path from entry point to result>" --list <todolist_id> --in <project_id> -a 6191443 --json
+basecamp todo "<next slice>" --description "<the behaviour this slice adds, from the PRD's Core Flow> — extends the working path" --list <todolist_id> --in <project_id> -a 6191443 --json
 basecamp todo "Data model" --description "<PRD Data Model '[Model]: [key fields]' lines>" --list <todolist_id> --in <project_id> -a 6191443 --json
 ```
 
@@ -334,13 +330,13 @@ Keep the returned id for the "Scaffold repo" todo — step 8 needs it. **Existin
 
 ### 8. Create the workspace and scaffold the repo
 
-**Existing project:** the repo already exists — no scaffold, no solo.yml, no `basecamp config init`. Instead:
+**Existing project:** the repo already exists — no scaffold, no `basecamp config init`. Instead:
 
 1. Update the existing `AGENTS.md` with the new cycle's context (summary, surfaces, no-gos) — append or revise, don't blow away what's there. Keep the Basecamp section CLI-based; don't add IDs or URLs. (If the repo predates the AGENTS.md convention and still has a standalone `CLAUDE.md`, migrate it first: `git mv CLAUDE.md AGENTS.md`.)
 2. Repoint the Basecamp config at the new list: `cd <repo> && basecamp config set todolist_id <new_todolist_id>`
 3. Commit those changes, then skip to step 9
 
-Workspace path: `~/Work/personal/<kebab-name>`. Confirm with Matt if anything other than the default makes sense.
+Workspace path: `~/Work/safaii-studio/lab/<kebab-name>`. Confirm with Matt if anything other than the default makes sense.
 
 Don't pre-create the directory — `rails new`, `hugo new site`, and `bundle gem` create it themselves, and a pre-existing dir makes `bundle gem` prompt or fail. Only the stacks that `cd` into the dir below (11ty, Go, static) need the `mkdir` first; each command includes it.
 
@@ -348,7 +344,7 @@ Scaffold for the stack, using the absolute path. If the stack isn't one of the r
 
 **Rails:** (creates the dir)
 ```bash
-rails new ~/Work/personal/<name> --database=sqlite3 --no-skip-test
+rails new ~/Work/safaii-studio/lab/<name> --database=sqlite3 --no-skip-test
 ```
 
 `--no-skip-test` is load-bearing, not noise. `~/.railsrc` carries `--skip-test` and Rails merges it into every `rails new`, so leaving the flag off silently scaffolds a project with no test directory — nowhere for the `Test:` lines from step 3 to go. Verified on Rails 8.1.3: with `--no-skip-test` the `test/` tree is created despite the rc file.
@@ -357,41 +353,30 @@ Drop it (and let `--skip-test` win) only for a Rails project that's essentially 
 
 **11ty:** (deploys to Cloudflare Pages)
 ```bash
-mkdir -p ~/Work/personal/<name> && cd ~/Work/personal/<name> && git init && pnpm init && pnpm add @11ty/eleventy
+mkdir -p ~/Work/safaii-studio/lab/<name> && cd ~/Work/safaii-studio/lab/<name> && git init && pnpm init && pnpm add @11ty/eleventy
 ```
 
 **Hugo:** (creates the dir)
 ```bash
-hugo new site ~/Work/personal/<name> --force && cd ~/Work/personal/<name> && git init
+hugo new site ~/Work/safaii-studio/lab/<name> --force && cd ~/Work/safaii-studio/lab/<name> && git init
 ```
 
 **Ruby gem/CLI:** (creates the dir — do not mkdir first)
 ```bash
-cd ~/Work/personal && bundle gem <name>
+cd ~/Work/safaii-studio/lab && bundle gem <name>
 ```
 
 **Go:**
 ```bash
-mkdir -p ~/Work/personal/<name> && cd ~/Work/personal/<name> && git init && go mod init <module-path>
+mkdir -p ~/Work/safaii-studio/lab/<name> && cd ~/Work/safaii-studio/lab/<name> && git init && go mod init <module-path>
 ```
 
 **Static (no framework):**
 ```bash
-mkdir -p ~/Work/personal/<name> && cd ~/Work/personal/<name> && git init
+mkdir -p ~/Work/safaii-studio/lab/<name> && cd ~/Work/safaii-studio/lab/<name> && git init
 ```
 
-Then write two files into the workspace:
-
-**`solo.yml`** — how to run this project, committed with the repo so a fresh clone gets the same commands. Watch the YAML: `processes` is top-level, NOT nested under `name`:
-
-```yaml
-name: <name>
-processes: {}
-```
-
-Fill `processes` with the project's real commands once the stack is known — dev server, build, worker, and a **Test** process wherever the project has a test suite (`bin/rails test`, `go test ./...`) so the build agent and the reviewer can run it as a managed command — each with its port set through `env` rather than a hardcoded flag (`PORT: "3002"` for Rails, `ZONEBRITE_API_ADDR: ":8083"` style for Go). Assign each project a distinct port; don't leave two apps on the same framework default.
-
-Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent entry lands in the Commands section and forfeits idle detection, auto-summaries, and recaps. Launch agents with `Cmd+T` — the row persists across restarts with **Resume last session**, so nothing is lost by not auto-starting one.
+Then write the project files into the workspace: `AGENTS.md` and `README.md` (plus the Basecamp config below). There is no per-project process file — Solo is gone and Herdr runs commands in panes, not from a config. The project's run and test commands live in AGENTS.md's **Commands** section instead.
 
 **`AGENTS.md`** — the briefing the build session wakes up to. It must stand alone; the build session has none of this conversation's context. Write it with the content below. Include:
 
@@ -400,25 +385,33 @@ Do NOT put agents in `solo.yml`. Anything in the file is a command, so an agent 
 - Surfaces and core flow (condensed from the PRD)
 - Data model / data contract if applicable
 - No-gos
+- Commands — how to run it: the dev server, the build, and the test command (`bin/rails test`, `go test ./...`), each on its own line with any port. Assign each project a distinct port; don't leave two apps on the same framework default. This is the run reference the reviewer and Matt use — there is no `solo.yml`.
 - How to read a todo — two sentences, because the spawn prompt only reaches the first session and a build runs across several:
 
   ```markdown
   ## Todos
-  Each build todo's description ends with a `Done when:` line — that's the finish
-  line, not your own judgment of done. Where a description carries a `Test:` line,
-  write that test alongside the code rather than afterwards.
+  Each todo is a vertical slice — when it's done the app runs end to end and its
+  tests pass; never leave it broken between todos.
 
-  The Basecamp list is mirrored into Solo. Close a unit with
-  `python3 ~/Work/skills/solo/scripts/basecamp-bridge.py ship <todo_id> <sha>`,
-  which comments the SHA on Basecamp and completes it in both places. Either id
-  works — the Basecamp one you just finished, or the Solo one from the sidebar.
+  Work one slice at a time: write the code and its test together (follow the
+  `tdd` skill), run typecheck and the test suite, then commit before the next
+  todo. Each build todo's description ends with a `Done when:` line — the finish
+  line, not your own judgment of done; where it carries a `Test:` line, that test
+  is written with the code, not afterwards.
+
+  Basecamp is the record. Close a unit by commenting the commit SHA on the todo,
+  then completing it (no flags — the repo's `.basecamp/config.json` supplies
+  account, project, and list):
+
+      basecamp comment <todo_id> "<short sha>"
+      basecamp todos complete <todo_id>
   ```
 - Basecamp section (no IDs or URLs — keeps them out of the committed file): a short paragraph telling the build session that the project config (account/project/todolist IDs) is already set in `.basecamp/config.json` (gitignored), so `basecamp` commands work without flags from this directory. To find the PRD doc, run `basecamp docs list` and match by title (`PRD: [Cycle Name]` for cycles); the pitch lives on the project's card.
-- Solo pointer (short — the build session runs inside Solo, which auto-injects its own getting-started; this just nudges toward the coordination tools it might not discover):
+- Herdr pointer (short — the build session runs inside a Herdr pane, so this just names the tool for spawning and reading sibling agents):
 
   ```markdown
-  ## Solo
-  This project runs inside Solo, which manages its processes. Keep the `state` scratchpad current — read it at session start, update it at session end and before context compacts. Follow the `solo` skill for scratchpads, spawned workers, timers, and locks.
+  ## Herdr
+  This session runs inside a Herdr workspace. Use the `herdr` skill to spawn and read sibling agents (the review step does this): split a pane with `herdr pane split --current --direction right --no-focus`, start an agent with `herdr agent start <name> --kind opencode --pane <pane-id>`, and wait on it with `herdr agent prompt <name> "..." --wait`.
   ```
 
 **`README.md`** — a stub, committed. This guarantees every repo has a README from the first commit; the build session fleshes it out at the end (see the README task in step 3). Generate it from the PRD — don't leave the repo bare:
@@ -438,15 +431,15 @@ Keep the stub short — real usage, install, and examples come at the finalize-R
 **Basecamp repo config** — so the build session can run `basecamp` commands without `-a`/`--in` flags. Run the bundled script rather than retyping the sequence:
 
 ```bash
-@scripts/init-basecamp-config.sh ~/Work/personal/<name> <project_id> <todolist_id>
+@scripts/init-basecamp-config.sh ~/Work/safaii-studio/lab/<name> <project_id> <todolist_id>
 ```
 
-It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `set todolist_id` / `trust`, then appends `.basecamp/` to `.gitignore`. (`trust` is only needed for authority keys, but it's harmless and future-proofs the config.) `.basecamp/` stays out of git — it's local session config holding account and project IDs, not project code. `solo.yml` IS committed: it describes how to run the project, which is worth sharing and worth having in a fresh clone. Gitignoring `.basecamp/` before the commit keeps the `git add -A` scaffold commit clean — important since these repos are often open-core-ready or public. The build session pulls the PRD/pitch via `basecamp` commands (config above), so no IDs or URLs need to be written into the committed repo.
+It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `set todolist_id` / `trust`, then appends `.basecamp/` to `.gitignore`. (`trust` is only needed for authority keys, but it's harmless and future-proofs the config.) `.basecamp/` stays out of git — it's local session config holding account and project IDs, not project code. Gitignoring `.basecamp/` before the commit keeps the `git add -A` scaffold commit clean — important since these repos are often open-core-ready or public. The build session pulls the PRD/pitch via `basecamp` commands (config above), so no IDs or URLs need to be written into the committed repo.
 
 Commit the scaffold and offer to push to GitHub:
 
 ```bash
-cd ~/Work/personal/<name> && git add -A && git commit -m "Scaffold [stack]"
+cd ~/Work/safaii-studio/lab/<name> && git add -A && git commit -m "Scaffold [stack]"
 gh repo create <name> --private --source . --push   # creates under the gh-authed account (mattsafaii)
 ```
 
@@ -461,57 +454,49 @@ basecamp todos complete <scaffold_todo_id> -p <project_id> -a 6191443 --json
 
 Otherwise the build agent hits "Scaffold repo" as its first todo already done and either redoes it (re-running `rails new`/`git init` into a non-empty dir) or stalls figuring out what's left to do.
 
-### 9. Register the project in Solo
+### 9. Create or find the project's Herdr workspace
 
-**Existing project:** already registered — find its project id with `mcp__solo__list_projects` and skip to step 10.
+`/build` runs inside Herdr — verify with `test "${HERDR_ENV:-}" = 1` before controlling anything, and never touch a Herdr session from outside a managed pane. The build agent is a separate OpenCode session that lives in the project's Herdr workspace, rooted at the repo.
 
-```
-mcp__solo__create_project(path: "/Users/matt/Work/personal/<name>", name: "<name>")
-```
-
-Note the returned project `id`. (The public Solo docs omit `create_project` — it exists and works; verified on Solo 0.7.1.)
-
-Don't append Solo's MCP docs to AGENTS.md — the build session runs inside Solo, which auto-injects its own getting-started and exposes its tools live, so a static dump just duplicates that, bloats every repo, and rots as Solo changes. The two-line Solo pointer written in step 8 is all that's needed.
-
-If the Solo MCP isn't connected, tell Matt to add the folder in Solo with Cmd+Shift+O, and skip step 10. Note that no build agent was spawned (see step 12 handoff).
-
-### 9b. Seed the state scratchpad
-
-The build agent wakes up with AGENTS.md and the Basecamp todos, but nothing that tracks where the work stands between sessions. Create that now so it exists from the first turn:
-
-```
-mcp__solo__scratchpad_write(
-  project_id: <solo_project_id>,
-  name: "<Name> — state",
-  tags: ["state"],
-  content: "# <Name> — state\n\n## Where things stand\nScaffolded, cycle 1 not started.\n\n## Decisions\n- <the 2–3 shaping calls from the pitch/PRD that the code won't explain>\n\n## Next\nFirst todo on the Basecamp Build list.\n\n## Open questions\n- <anything the PRD left unresolved, or 'none'>"
-)
-```
-
-Seed it from the PRD — the shaping decisions and no-gos, not a copy of the todos. **Existing project:** it already has one; append a cycle heading instead of overwriting. See the `solo` skill for the convention.
-
-### 9c. Import the todolist into Solo
-
-The Basecamp list is the record; the Solo copy is what shows in the sidebar beside the running agent, and what `ship` closes both halves of. Needs `.basecamp/config.json` (step 8) and the Solo project (step 9), so it runs here:
+**New project** — create a workspace for it:
 
 ```bash
-cd ~/Work/personal/<name> && python3 ~/Work/skills/solo/scripts/basecamp-bridge.py import
+herdr workspace create --label "<Project Name>" --cwd ~/Work/safaii-studio/lab/<name> --no-focus
 ```
 
-Idempotent — safe on a cycle, where it picks up the new list's open todos and skips anything already there. If it reports the repo isn't a Solo project, step 9 didn't take; fix that rather than skipping this.
+Read the workspace id from `.result.workspace.workspace_id` and the shell pane from `.result.root_pane.pane_id`. The root pane opens at the repo with an interactive shell — that's the pane the agent starts in.
 
-This does **not** make Solo a second tracker: nothing is closed in Solo alone, and `ship` writes the SHA comment to Basecamp every time.
+**Existing project (cycle)** — find the workspace by label instead of creating one:
+
+```bash
+herdr workspace list
+```
+
+Match `label` to the project name for its `workspace_id`, then list its panes and pick one at a shell prompt:
+
+```bash
+herdr pane list --workspace <workspace_id>
+```
+
+If the project has no workspace yet, create one as above.
 
 ### 10. Spawn the build agent
 
-Start the OpenCode session inside the new project and brief it:
+Start the OpenCode session in the workspace's shell pane, then brief it:
 
-1. `mcp__solo__list_agent_tools` — find the OpenCode agent tool id
-2. `mcp__solo__spawn_agent(agent_tool_id: <id>, project_id: <solo_project_id>, name: "Build")`
-3. If the response includes `agent_instructions`, prepend them to the first prompt
-4. `mcp__solo__send_input(process_id: <returned process_id>, input: "Read AGENTS.md and this project's Solo state scratchpad (scratchpad_list with tag 'state'), then start on the first todo in the Basecamp Build list. Work through the todos in order, closing each with the Solo bridge's ship command as you complete it — it writes the SHA comment to Basecamp and completes the todo in both places. Each build todo's description ends with a 'Done when:' line — that's the finish line, not your own judgment of done; where a description carries a 'Test:' line, write that test with the code rather than afterwards. Keep the state scratchpad current — update it when a decision gets made and before your context compacts. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101).")`
+```bash
+herdr agent start build --kind opencode --pane <pane_id>   # Herdr agent names are lowercase
+```
 
-**Existing project:** always spawn a fresh agent for the cycle (named e.g. "Build: [Cycle Name]", prompt referencing the cycle's todolist) — never send the kickoff to an existing session; its context is full of the previous cycle and the prompt may interrupt it mid-task. Leave existing sessions alone — Matt often runs multiple agents in the same repo, and an idle session may just mean he stepped away. Never close one.
+A successful start returns once Herdr detects OpenCode in that pane and it's ready for input. Then submit the first prompt — it must stand alone, since the session wakes up with none of this conversation:
+
+```bash
+herdr agent prompt build "Read AGENTS.md, then start on the first todo in the Basecamp Build list. Work through the todos in order, closing each by commenting its commit SHA on the Basecamp todo and completing it with the basecamp CLI — no flags, since the repo's .basecamp/config.json supplies account, project, and list. Each build todo's description ends with a 'Done when:' line — that's the finish line, not your own judgment of done; where a description carries a 'Test:' line, write that test with the code rather than afterwards; each todo is a vertical slice, so when it's done the app runs end to end and its tests pass — never leave it broken between todos. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101)." --wait --timeout 120000
+```
+
+Read its progress with `herdr agent read build --source recent-unwrapped --lines 120`.
+
+**Existing project:** always spawn a fresh agent for the cycle (named e.g. `build-<cycle>`, prompt referencing the cycle's todolist) — never send the kickoff to an existing session; its context is full of the previous cycle and the prompt may interrupt it mid-task. Leave existing sessions alone — Matt often runs multiple agents in the same repo, and an idle session may just mean he stepped away. Never close one.
 
 ### 11. Move card to In Progress
 
@@ -523,23 +508,31 @@ If the move returns `ok: false`, retry once — transient failures happen.
 
 ### 12. Confirm and hand off
 
-One line: Basecamp project created, PRD doc written, [N] todos created, repo scaffolded, card moved to In Progress. Share the Basecamp project URL. Then the handoff: "Open **<name>** in Solo — the build session is already running on the first todo."
+One line: Basecamp project created, PRD doc written, [N] todos created, repo scaffolded, card moved to In Progress. Share the Basecamp project URL. Then the handoff: "Switch to the **<Project Name>** workspace in Herdr — the build session is already running on the first todo."
 
-**If no agent was spawned** (Solo MCP wasn't connected, step 10 skipped): don't claim a session is running. Handoff instead: "Add **<name>** to Solo (Cmd+Shift+O), then start an OpenCode session and tell it: *Read AGENTS.md, then start on the first todo in the Basecamp Build list.*"
+**If no agent was spawned** (not running inside Herdr, step 10 skipped): don't claim a session is running. Handoff instead: "Open Herdr, start an OpenCode session in the repo (`~/Work/safaii-studio/lab/<name>`), and tell it: *Read AGENTS.md, then start on the first todo in the Basecamp Build list.*"
 
-**Existing project:** the one-liner is instead: PRD doc written, kickoff posted, [N] todos created on "Build: [Cycle Name]", AGENTS.md updated, cycle agent spawned (or manual-start note if Solo wasn't connected), card moved to In Progress.
+**Existing project:** the one-liner is instead: PRD doc written, kickoff posted, [N] todos created on "Build: [Cycle Name]", AGENTS.md updated, cycle agent spawned (or manual-start note if not inside Herdr), card moved to In Progress.
 
 ---
 
 ## Task derivation heuristics
 
-- **Surfaces first, plumbing second.** Build what the user touches before the internals.
+- **A task is a slice, not a layer or a screen.** It cuts through the layers it needs and runs end to end. "The model" and "the list page" are not tasks.
+- **The first slice retires the biggest risk.** The riskiest core-flow path goes first — the API, the auth, the awkward data shape — so the scary part is proven before anything is built on it. Everything after extends something that already runs.
+- **A slice may span surfaces and stub what isn't built.** The thinnest complete path, not one screen doing everything.
+- **Every slice ends green.** The app runs and its suite passes at each `Done when:`; never leave it broken between tasks.
+- **Surfaces are coverage, not the task list.** Every surface must be reached by some slice; the core flow is what you cut slices from.
+- **Don't save the wiring for the end.** A separate "Wire core flow" task means nothing is demoable until the last day, and integration surprises land when they're most expensive.
+- **Walk the core flow once at the end.** One Verify task exercises the whole flow after all slices land.
+- **Prefactor before the feature (cycles).** Make the change easy, then make the easy change — as two tasks, not one.
+- **Wide mechanical changes go expand → migrate → contract (cycles).** They aren't slices; forcing them into the per-slice shape produces a todolist that can't land green.
 - **Verification tasks are user-facing.** "Verify: user can submit a URL and see a result" — testable by using the app.
 - **Setup tasks are real tasks.** Scaffold, deploy config, and env setup take real time.
 - **Keep the list short.** 8–15 tasks for small batch. 15–25 for big batch. More means tasks are too granular. Test lines and `Done when:` lines ride inside existing todos, so they don't push the count up.
 - **If no data model in PRD, skip data model task.** Don't invent a schema for a CLI tool.
 - **Tests follow the PRD, not the code.** Every `Test:` line traces back to a mechanical acceptance criterion. If a test has no criterion behind it, either the PRD missed something — go add it — or the test isn't worth writing.
-- **Don't manufacture tests for surfaces.** A page that renders a list is checked by looking at it. Forcing a test there costs a session and proves nothing.
+- **Don't manufacture tests for a screen.** A page that renders a list is checked by looking at it. Forcing a test there costs a session and proves nothing.
 
 ---
 
@@ -550,30 +543,34 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 | 0 | New vs existing resolved before creating anything | Existing project/repo reused, not duplicated | Ask Matt; delete accidental duplicates |
 | 1 | PRD read before deriving tasks | Tasks match PRD content | Re-read PRD section of card |
 | 1b | PRD carries checks, failures, and any gate | `check:` present on the acceptance criteria | Backfill with Matt and write it back to the card before deriving |
-| 2 | One task per surface | Each PRD surface has a task | Add missing tasks |
+| 2 | Slices cover every surface and flow step | Every PRD surface is reached by some slice and every Core Flow step is reachable | Add the missing coverage |
 | 2b | Data model task matches the PRD | Present when the PRD has a Data Model section, absent when it doesn't | Add or remove the task to match |
+| 2c | First slice is the tracer bullet | It retires the biggest risk and runs end to end (entry point → result) with its tests; no separate "Wire core flow" task | Pick the riskiest path first; fold wiring into the first slice |
+| 2d | Cycle prefactor present (cycle only) | The refactor that makes the change easy is the first build task | Add it |
+| 2e | Wide-refactor cycle sequenced expand/contract (when applicable) | Expand → migrate batches → contract, each its own task | Resequence |
+| 2f | Tasks are slices, not layers or screens | Each task cuts through the layers it needs and runs end to end | Rework into slices |
+| 2g | App green after every slice | The app runs and its suite passes at each task's `Done when:` | Rescope so no task leaves it broken |
 | 3 | Every acceptance criterion is accounted for | Visual ones as "Verify:" tasks, mechanical ones as `Test:` lines inside build todos — none dropped | Add the missing ones |
-| 3b | Build todos carry a description | Surface, core-flow, and data-model todos have `--description` from the PRD; Setup/Verify todos are title-only | Add missing descriptions |
+| 3b | Build todos carry a description | Slice and data-model todos have `--description` from the PRD; Setup/Verify todos are title-only | Add missing descriptions |
 | 3c | Every build todo has a `Done when:` line | One observable result per todo, from the PRD | Add it |
 | 3d | Failure cases assigned | Each What Can Go Wrong item sits in the `Done when:` of the todo that owns it | Attach the orphans |
 | 3e | Review task present | "Review against the PRD" in close-out, with both reviewer briefs (Spec + Standards) as its description | Add it (skip only for static sites) |
 | 3e2 | QA plan task present when warranted | "Write QA plan" in close-out, after Verify tasks, when there are enough Verify tasks to consolidate | Add it (skip for one or two Verify tasks) |
 | 3f | Test framework exists where tests were promised | A todo carrying a `Test:` line is in a project scaffolded with a test setup | Fix the scaffold flags before spawning |
 | 3g | Spike task present and first | A PRD with a Gated Decision has `Spike: [question]` immediately after "Scaffold repo", carrying the question, what settles it, and the fallback | Add it; move it ahead of everything else |
+| 3h | Core flow verified end-to-end once | A Verify task walks the whole Core Flow after every slice has landed | Add it |
 | 4 | Task count reasonable | 8–25 tasks | Merge too-granular or split too-large |
 | 4b | Project has a description | Created with `-d`, not title-only | `basecamp projects update --description` |
 | 5 | Scaffold matches stack | Command matches PRD stack | Fix scaffold command |
 | 6 | Name resolved before scaffold | No TBD or "may collide" name used | Ask Matt before running |
 | 7 | AGENTS.md stands alone | Build session can start without this conversation | Add missing context |
 | 7b | AGENTS.md is ID-free | No Basecamp IDs/URLs committed — Basecamp section points at the CLI/config | Replace IDs/URLs with the CLI-based section |
-| 8 | solo.yml valid | `processes:` top-level, no agent entries | Fix YAML nesting; move any agent row out |
 | 8b | Basecamp config set | `.basecamp/config.json` has account, project, todolist ids and is trusted | Run config init/set/trust |
 | 8c | README stub committed + finalize task exists | `README.md` written in scaffold; a "Finalize README" task is in the list | Write the stub; add the task |
-| 8d | solo.yml committed | `solo.yml` present in `git ls-files`, absent from `.gitignore` | Remove from `.gitignore`, stage before the scaffold commit |
+| 8d | AGENTS.md carries a Commands section | Dev server, build, and test commands named (no `solo.yml` anymore) | Add it — it's the run reference |
 | 8e | Scaffold repo todo closed before spawn | "Scaffold repo" commented with the scaffold SHA and completed, not left open | Complete it before step 10 |
-| 8g | Todolist mirrored into Solo | `bridge.py status` in the repo lists every open Basecamp todo | Run step 9c |
-| 8f | State scratchpad seeded | `<Name> — state` exists in the Solo project, tagged `state`, holding the shaping decisions | Create it (step 9b) |
-| 9 | Agent spawned and briefed | Build session running in Solo on first todo — or, if Solo wasn't connected, Matt was told to start it manually | Run step 10 |
+| 8h | Herdr workspace created or found | New project: a workspace labeled for the project, rooted at the repo; cycle: the existing one reused | Create or find it — step 9 |
+| 9 | Agent spawned and briefed | Build session running in its Herdr workspace on the first todo — or, if not inside Herdr, Matt was told to start it manually | Run step 10 |
 | 9b | Spawn prompt includes the Shipped-confirmation instruction | Agent is told to ask before moving the Lab card to Shipped once all todos are done | Add it to the spawn prompt |
 | 10 | Card moved to In Progress | No longer in Up Next | Run move command |
 
@@ -583,15 +580,21 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 
 If a command fails in a way this table does not cover, show Matt the raw error and stop — don't improvise a workaround or retry variations.
 
-If a step fails partway through the build, stop and report exactly which resources already exist (Basecamp project, todos, repo, Solo project, spawned agent) and which don't — don't push on to later steps, and don't delete anything to clean up. Matt decides whether to resume or unwind.
+If a step fails partway through the build, stop and report exactly which resources already exist (Basecamp project, todos, repo, Herdr workspace, spawned agent) and which don't — don't push on to later steps, and don't delete anything to clean up. Matt decides whether to resume or unwind.
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | Can't find PRD in card body | PRD skill not run, or card has no `<hr>` separator | Ask Matt to run `/prd` first, or check card body |
 | Tasks don't match PRD | Derived from pitch instead of PRD section | Re-read below the `<hr>` |
 | Too many tasks | Tasks too granular | Merge related tasks |
+| App isn't demoable until the last task | Core-flow wiring deferred to a separate late task | Fold the end-to-end path into the first slice |
+| Tasks are layers or screens, not slices | Derived one-per-surface from the PRD | Re-cut from the Core Flow; surfaces are coverage only |
+| The first slice is the easiest screen | Risk retired late | Make the riskiest core-flow path the tracer |
+| App is broken between todos | A slice didn't end green | Each slice ends with the app running and its tests passing |
+| Nobody walks the whole flow | No end-to-end verify task | Add "Verify: core flow end-to-end" |
+| Cycle tangles a refactor with the feature | No prefactor task | Add the prefactor first |
+| A wide mechanical change can't land green | Forced into the slice shape | Sequence expand → migrate → contract |
 | Build coded in the session that ran `/build` | Forgot this is an outside-in command | Hand off to the spawned agent; never code here |
-| `create_project` YAML parse error | Malformed solo.yml (`processes` nested under `name`) | Fix indentation, retry |
 | Gem scaffolded with placeholder name | Skipped name resolution check | Always check for TBD names in pitch/PRD before scaffolding |
 | Build session asks basic questions | AGENTS.md too thin | Include stack, data contract, no-gos, and the CLI-based Basecamp section |
 | Card stays in Up Next | Forgot move command, or transient `ok: false` | Always run move after todos created; retry once on failure |
@@ -605,13 +608,13 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Backfilled sections live only in the chat | Card never updated after the backfill conversation | Write them to the card first; the card is the record |
 | Half the build gets redone after the spike | Spike ordered late, or dropped because the PRD "seemed clear enough" | It runs first, right after the scaffold — nothing built on an unanswered gate is trustworthy |
 | Spike turns into the implementation | No time-box, or its code was kept | One session, throwaway code; it answers a question and stops |
-| Nobody can tell which path the build took | Spike outcome never recorded | Comment the answer on the todo and write it into the state scratchpad |
-| Solo todos drift from Basecamp during a build | Agent completed a todo by hand instead of through `ship` | Close through the bridge; `bridge.py status` shows the drift |
-| Basecamp todo completed with no SHA comment | Same cause — `ship` writes the comment, raw `basecamp todos complete` doesn't | Comment the SHA now, use `ship` from here on |
+| Nobody can tell which path the build took | Spike outcome never recorded | Comment the answer on the todo and note it in the repo's AGENTS.md |
+| Build drifts from the Basecamp record | Agent completed a todo without the SHA comment | Comment the SHA and complete it via the basecamp CLI — always as a pair |
+| Basecamp todo completed with no SHA comment | The SHA-comment step was skipped | Comment the SHA now; make `basecamp comment` + `basecamp todos complete` the close-out pair |
 | Todolist doubles in size | Tests and failure cases were made into their own todos | They ride inside existing todos as `Test:` and `Done when:` lines |
 | Build agent stops early or gilds a todo | No `Done when:` line, so "finished" was its own judgment call | Add the line — it's the whole point of the description |
 | Reviewer rewrites the code | Reviewer brief omitted read-only scope | Brief says report gaps, don't fix them; the build agent applies the fixes |
-| Build agent waits on a reviewer forever | Reviewer spawned with the wrong tool and hit a permission prompt, so it never went idle | Spawn both reviewers with OpenCode (unattended) — see the solo skill |
+| Build agent waits on a reviewer forever | Reviewer spawned with the wrong tool and hit a permission prompt, so it never went idle | Spawn both reviewers with OpenCode (unattended) — see the herdr skill |
 | Matt has to re-derive what "verify X" means for each criterion by hand | QA plan task skipped or written as a restatement of the criteria instead of a walkthrough script | Write concrete steps (URL, click, input) and the observable result per step, ordered so setup isn't redone |
 | Standards reviewer invents conventions the repo doesn't have | No AGENTS.md or stack-specific skill (safaii-css, dhh-rails-style) to point it at | Fall back to a plain code-smell pass (duplication, naming, dead code) instead of guessing at house style |
 
@@ -619,8 +622,8 @@ If a step fails partway through the build, stop and report exactly which resourc
 
 ## Examples
 
-- **Since (2026-06-03):** menu bar Go app; 15 todos (1 setup, 6 build, 8 verify) derived from an 8-criterion PRD. Built before the outside-in rework, so the workspace/Solo/spawn steps weren't exercised — task derivation and Basecamp steps are the exemplar part.
+- **Since (2026-06-03):** menu bar Go app; 15 todos (1 setup, 6 build, 8 verify) derived from an 8-criterion PRD. Built before the outside-in rework, so the workspace/Herdr/spawn steps weren't exercised — and it predates the Solo → Herdr switch, so its Solo-era steps are gone entirely. Task derivation and Basecamp steps are the exemplar part.
 
-  **Don't copy its shape wholesale.** Since predates the 2026-07-25 changes: every acceptance criterion became its own verify todo, where mechanical ones now fold into build todos as `Test:` lines. A list like Since's — eight verify todos out of fifteen — would be wrong today.
+  **Don't copy its shape wholesale.** Since predates the 2026-07-25 changes: every acceptance criterion became its own verify todo, where mechanical ones now fold into build todos as `Test:` lines. It also predates the tracer-bullet slice model, so its build tasks aren't vertical slices and its first task isn't risk-ordered. A list like Since's — eight verify todos out of fifteen — would be wrong today.
 
-- *(no build has run under the 2026-07-25 rules yet — the first one becomes the example for spikes, `Done when:` lines, and the reviewer step)*
+- *(no build has run under the 2026-07-25 rules yet — the first one becomes the example for spikes, `Done when:` lines, the reviewer step, and the tracer-bullet slice model)*

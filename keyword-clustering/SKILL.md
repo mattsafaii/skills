@@ -13,7 +13,7 @@ Load the **dataforseo** skill for the full catalog and hard rules. The essential
 
 1. **SERP intent wins over lexical similarity.** Two keywords that read alike but serve different intents go on different pages. Two keywords with the same intent and similar ranking pages belong together even if they read differently. Don't cluster on word overlap.
 2. **Inputs come from Basecamp, never re-researched.** The keyword set comes from `SEO — Keyword Research`'s `## Saved keywords` (required, with a dated run header); the existing pages come from `SEO — Project Context`'s `## Key pages` (optional — if missing, every target defaults to `proposed: <name>`). Never invent keywords or pages.
-3. **Spend is small and targeted.** The only paid calls are `serp_organic_live_advanced` checks for important borderline terms (intent ambiguous, or the page assignment would flip on the result). Keep the batch small — 3–6 terms max. One call per term, no re-runs. (≈ $0.002 each.) Every observation carries a date; **market is US by default**.
+3. **Spend is small and targeted.** The only paid calls are `serp/google/organic/live/advanced` checks for important borderline terms (intent ambiguous, or the page assignment would flip on the result). Keep the batch small — 3–6 terms max. One call per term, no re-runs. (≈ $0.002 each.) Every observation carries a date; **market is US by default**.
 4. **Confirm before write.** The cluster map is written only after Matt confirms it. An ambiguous response is not confirmation.
 5. **Do not over-cluster.** Fewer than 10 usable terms → produce a simple map (one table, no page briefs), don't manufacture clusters.
 
@@ -52,7 +52,7 @@ This is the agent's judgment — don't lean on word overlap.
 
 ### 5. Check SERP overlap for borderline terms
 
-For the 3–6 terms where intent is ambiguous or the page assignment would flip on the result, run one `serp_organic_live_advanced` check each. If two "borderline" keywords return the same set of ranking pages, they likely belong together; if the SERPs diverge, split them.
+For the 3–6 terms where intent is ambiguous or the page assignment would flip on the result, run one `serp/google/organic/live/advanced` check each. If two "borderline" keywords return the same set of ranking pages, they likely belong together; if the SERPs diverge, split them.
 
 ### 6. Assign each cluster to a page
 

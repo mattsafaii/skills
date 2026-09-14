@@ -16,7 +16,7 @@ Load the **dataforseo** skill for the catalog and hard rules. The essentials:
 3. **Plain language, no drama.** No exclamation points, no drama words, no filler. Gloss every term of art in plain English on first use (canonical, meta description, crawler, 301, structured data). Severity words only where literally true — a down site is critical; a long title is not. **The tone doc is the single voice authority** — when a mechanical rule here conflicts with how the tone doc writes, the tone doc wins.
 4. **Skip nitpicks that don't matter.** A beginner report with twenty findings has failed. Five to ten fixes max, ordered by impact. Missing backlink or ranking data means "no recorded data," not a penalty.
 5. **Stay passive.** Tribunal runs passive engines by default. Never `--authorized` on a site you don't own or aren't authorized to test.
-6. **Spend is modest and capped.** One audit (tribunal, no cost), one `backlinks_summary`, at most one `dataforseo_labs_google_domain_rank_overview`, and at most one `dataforseo_labs_google_keyword_overview` (for the focus-area keywords). Only the DataForSEO calls spend — keep total to that. (Backlink summary ≈ $0.02; domain overview ≈ $0.02; keyword overview ≈ $0.09.)
+6. **Spend is modest and capped.** One audit (tribunal, no cost), one `backlinks/summary/live`, at most one `dataforseo_labs/google/domain_rank_overview/live`, and at most one `dataforseo_labs/google/keyword_overview/live` (for the focus-area keywords). Only the DataForSEO calls spend — keep total to that. (Backlink summary ≈ $0.02; domain overview ≈ $0.02; keyword overview ≈ $0.09.)
 7. **Nothing posts without Matt's approval.** The report is drafted, reviewed, revised, then posted only on explicit yes. Ambiguous response ≠ approval.
 8. **Reuse within 30 days.** Same domain audited within 30 days → reuse that result and say so instead of re-running. **Matt can override** — an explicit "run it anyway" re-runs despite the recent audit; say "re-running per your override" and go.
 
@@ -27,7 +27,7 @@ Load the **dataforseo** skill for the catalog and hard rules. The essentials:
 - Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `project_id` and `seo_folder_id` exactly as `seo-project-setup` does — do not invent a second folder walk.
 - **Which project?** If the audited domain is an existing client, match it to their project and create the report there. If it's a prospect or unknown, ask Matt which project it belongs to — never guess. (Prospects normally get a `teardown`; if Matt says audit a prospect instead, this skill still runs and the report doc goes wherever Matt directs.)
 - The domain to audit is the one Matt names — if it's a client, confirm it matches the context doc's `Domain:` line.
-- tribunal lives at `~/Work/personal/tribunal`; it runs via its Docker image (see step 2) or the local binary.
+- tribunal lives at `~/Work/safaii-studio/lab/tribunal`; it runs via its Docker image (see step 2) or the local binary.
 - Tone reference for client-facing prose: Basecamp doc `10032725076` ("Marathon Power Website Review (to send)") — read it before drafting, every time.
 - **Basecamp 5 renders markdown** — the report doc is markdown, not HTML. GFM tables render.
 
@@ -44,9 +44,11 @@ Read `SEO — Project Context` if it exists — what the business does decides w
 Same mechanics as teardown/client-report — Docker image, history volume mount (so a later `client-report` diff can use this run as its baseline):
 
 ```bash
-docker image inspect tribunal >/dev/null 2>&1 || (cd ~/Work/personal/tribunal && docker build -t tribunal .)
+docker image inspect tribunal >/dev/null 2>&1 || (cd ~/Work/safaii-studio/lab/tribunal && docker build -t tribunal .)
 mkdir -p ~/.local/share/tribunal/history
-docker run --rm -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
+docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/credential')" \
+  -e GOOGLE_SAFE_BROWSING_API_KEY="$(op read 'op://Secrets/GOOGLE_SAFE_BROWSING_API_KEY/credential')" \
+  -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
   tribunal audit <domain> --format json > /tmp/seo-audit-<domain>-run.json
 ```
 
@@ -58,9 +60,9 @@ Pass the domain verbatim. Passive engines only — never `--authorized`.
 ### 2b. Pull the supporting data (capped)
 
 Three DataForSEO calls max, in this order:
-- **`backlinks_summary`** for the domain — the backlink/referring-domain picture is usually the deciding data for the one thing (clean site + no backlinks → outreach; strong links → focus elsewhere). Skip when the site is clearly dead.
-- **`dataforseo_labs_google_domain_rank_overview`** — estimated organic traffic and keyword count. Skip when the site is clearly dead.
-- **`dataforseo_labs_google_keyword_overview`** — only for the focus-area keywords in step 5 (to check they're actually winnable). One batched call.
+- **`backlinks/summary/live`** for the domain — the backlink/referring-domain picture is usually the deciding data for the one thing (clean site + no backlinks → outreach; strong links → focus elsewhere). Skip when the site is clearly dead.
+- **`dataforseo_labs/google/domain_rank_overview/live`** — estimated organic traffic and keyword count. Skip when the site is clearly dead.
+- **`dataforseo_labs/google/keyword_overview/live`** — only for the focus-area keywords in step 5 (to check they're actually winnable). One batched call.
 
 That's the whole budget. If a call fails or returns nothing, it goes in the method footer as "no recorded data" — never a penalty, never a second attempt to re-buy it.
 
@@ -82,7 +84,7 @@ It must be doable this week by a non-technical person, with copy-paste-ready mec
 
 **If `SEO — Keyword Research` already has a dated saved set, defer to it** — point at that set or skip "where to focus first." Never invent a parallel 3–5 keyword list when the research exists. The focus area is a fresh-domain-only feature.
 
-For a fresh domain: propose one topic area and 3–5 specific, low-difficulty keywords the site can realistically rank for, each with the page or post to make. **Seeds come only from the site's visible on-page headings / `webfetch` language** — not from `keyword_ideas` (that's the consumer-junk path KR banned). Then one `dataforseo_labs_google_keyword_overview` call (volume/difficulty) to verify they're winnable. Drop any term that's off-positioning. Label the section a **starting direction**, and **don't write these terms into `SEO — Keyword Research`** — this isn't research, it's a pointer. **Skip this entirely when the site is down** — the one thing is all that matters there.
+For a fresh domain: propose one topic area and 3–5 specific, low-difficulty keywords the site can realistically rank for, each with the page or post to make. **Seeds come only from the site's visible on-page headings / `webfetch` language** — not from `dataforseo_labs/google/keyword_ideas/live` (that's the consumer-junk path KR banned). Then one `dataforseo_labs/google/keyword_overview/live` call (volume/difficulty) to verify they're winnable. Drop any term that's off-positioning. Label the section a **starting direction**, and **don't write these terms into `SEO — Keyword Research`** — this isn't research, it's a pointer. **Skip this entirely when the site is down** — the one thing is all that matters there.
 
 ### 6. Draft the report
 

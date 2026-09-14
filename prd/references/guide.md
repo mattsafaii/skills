@@ -43,7 +43,7 @@ basecamp cards show <card_id> --in 46824335 -a 6191443 --md
 
 Read the full shaped pitch before asking anything. Don't re-ask what's already answered.
 
-If this is a cycle on an existing project, also read the repo (`~/Work/personal/<name>`) before asking questions — don't re-ask what the code already answers, and verify the pitch's assumptions against what's actually built.
+If this is a cycle on an existing project, also read the repo (`~/Work/safaii-studio/lab/<name>`) before asking questions — don't re-ask what the code already answers, and verify the pitch's assumptions against what's actually built.
 
 ### 2. Work through PRD sections conversationally
 
@@ -59,13 +59,16 @@ What views/pages/screens/commands exist? For each one: what's on it, what can th
 
 Keep it breadboard level — not UI layout, just what exists and what affordances are present. If the pitch already names surfaces clearly, confirm and move on.
 
-**Core flows**
+These are the coverage inventory for `/build` — every surface must be reached by some slice — not the task list. The Core Flow is what the slices get cut from.
 
-Walk the main use case end to end from the user's perspective. Step by step. This is the scenario the build agent will make sure works.
+**Core flow**
+
+Walk the main use case end to end from the user's perspective. Step by step. This is the spine `/build` cuts its vertical slices from, so it has to be concrete and in order.
 
 - Start from the entry point (URL, CLI command, etc.)
 - Walk to the completed action
 - Note branches or edge cases that matter for v1
+- **Flag the riskiest step** — the one whose approach is least certain (the external API, the tricky data shape, the hardest interaction). `/build` makes that step the first slice, so naming it here aims the tracer bullet. If the uncertainty needs an experiment to settle, that's a Gated Decision instead.
 
 **Data model**
 
@@ -91,6 +94,16 @@ Two kinds, and the difference matters downstream:
 | Visual or interactive — layout, a browser flow, something you look at | a manual step: "open /jobs, submit the form, see the result" | a manual `Verify:` todo |
 
 Don't force the mechanical kind. A static site's criteria are nearly all visual, and that's correct.
+
+**Test seams** (cycle PRDs only — when a repo already exists)
+
+Where will the checks attach? Name the seam(s) the tests hang off:
+
+- Prefer an existing seam over inventing a new one — the repo already has places to test.
+- Use the highest seam possible: test through the public interface, not internals.
+- Fewer is better; the ideal is one seam for the whole feature.
+
+Skip this for a new project — there's no code to attach to yet, and the build agent picks the seam when it scaffolds.
 
 **Gated decisions** (only when the pitch has one)
 
@@ -123,6 +136,7 @@ Before presenting:
 - **Rough enough?** Does it specify button labels, exact field names, or pixel layout? Strip back if so.
 - **Complete?** Does every surface have a purpose? Does the core flow work end to end? Are acceptance criteria testable?
 - **Checkable?** Does every acceptance criterion name its check — a command or a manual step?
+- **Seam named?** (cycle PRDs) Does the PRD say where the tests attach — an existing seam preferred, highest possible, ideally one?
 - **Honest about failure?** Does "What can go wrong" name real failures, not restated no-gos?
 
 ### 4. Present the full PRD
@@ -163,6 +177,7 @@ basecamp cards update <card_id> --body "$(cat <<'EOF'
 <ul>
 <li>[Binary test] — <em>check:</em> [command that proves it, or the manual step]</li>
 </ul>
+<p><em>Test seam (cycle only):</em> [where the tests attach — existing seam preferred, highest, ideally one]</p>
 
 <h3>Gated Decision</h3>
 <p><strong>Question:</strong> [the yes/no question]<br>
@@ -183,7 +198,7 @@ EOF
 )" --in 46824335 -a 6191443 --json
 ```
 
-Omit the Data Model section for non-database projects, and the Gated Decision section for the usual case where the pitch settled everything.
+Omit the Data Model section for non-database projects, the Gated Decision section for the usual case where the pitch settled everything, and the Test seam line for a new project (no repo yet).
 
 Move the card to the PRD column:
 
@@ -201,9 +216,11 @@ One line: PRD added to card, moved to PRD column. Done — the card is ready for
 
 - **Derive, don't ask.** If the pitch specifies the stack, surfaces, or flows — extract and confirm, don't re-ask.
 - **Surfaces ≠ pages.** A CLI has commands. A static site has sections. Match the terminology to the project type.
+- **The Core Flow is the spine.** `/build` cuts its vertical slices from the flow, not the surfaces — surfaces only prove coverage. Make every step concrete and in order, and flag the riskiest one.
 - **Data model is optional.** Skip for CLI tools, static sites, scripts.
 - **Acceptance criteria are user-facing.** "User can submit a URL and see a result" not "job processes correctly."
 - **Every criterion names its check.** A command or a manual step. Without it, `/build` has to guess which criteria deserve tests.
+- **Cycle PRDs name the test seam.** New projects don't — the seam doesn't exist until the build agent scaffolds.
 - **Failures are specific.** "Empty library shows a first-run message" beats "handles errors gracefully" — the second one builds nothing.
 - **No-gos travel from the pitch.** Always carry them forward.
 - **The PRD stands alone.** `/build` reads it without the conversation context. It must be self-contained.
@@ -218,10 +235,12 @@ One line: PRD added to card, moved to PRD column. Done — the card is ready for
 | 1 | Tech stack confirmed | Named explicitly | Derive from pitch |
 | 2 | All surfaces named | Each has a purpose | Add missing surfaces |
 | 3 | Core flow is step-by-step | Numbered sequence | Rewrite as steps |
+| 3b | Riskiest step flagged | The least-certain step is named (or the flow is genuinely all-simple) | Name it — `/build` makes it the first slice |
 | 4 | Acceptance criteria are binary | Each is a yes/no test | Rewrite as pass/fail |
 | 4b | Each criterion names its check | A command or a manual step per criterion | Add the check |
 | 4c | What Can Go Wrong present | 3–5 real failures, not restated no-gos | Ask the three questions in step 2 |
 | 4d | Gated decision named where the pitch has one | Question, what settles it, fallback, what holds either way | Add the section; ask Matt if the pitch never says what would settle it |
+| 4e | Cycle PRD names the test seam | A seam named (existing preferred, highest, ideally one) — or omitted for a new project | Add it for cycles; omit for new projects |
 | 5 | No-gos carried from pitch | All pitch no-gos present | Add missing ones |
 | 6 | PRD stands alone | Readable without the conversation | Add missing context |
 | 7 | Not a spec | No field-level detail, no UI layout | Strip back |
@@ -244,6 +263,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Gate can't be judged | "Settled by" is a feeling, not a measurement | Name the fixture or threshold; ask Matt if the pitch doesn't say |
 | Card body wipes the pitch | Didn't include existing HTML in update | Always fetch card first, include existing body |
 | Forgot Data Model section | Skipped for a project that needs it | Check if it's a database-backed project |
+| Build misses the scary part | Core flow never flagged its riskiest step | Name it in the PRD; `/build` aims the tracer there |
 
 ---
 

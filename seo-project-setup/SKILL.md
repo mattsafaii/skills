@@ -135,10 +135,6 @@ The context doc lives in **Docs & Files → Internal → SEO**. Get the folder i
 
 Resolve the SEO folder id first (step 1b), then find `SEO — Project Context` **only in that folder** via `files list --vault <seo_folder_id>`. Listing the whole project risks grabbing a root-level namesake. Read it if present, and also read `SEO — Keyword Research` and `SEO — Competitive Landscape` if they exist (the landscape doc carries competitor authority notes) — their saved keywords and competitor rows already answer some questions. There is no `SEO — Backlinks` doc; backlink work lives in `SEO — Competitor — <domain>` and `SEO — Link Prospects — <asset-slug>`, so don't look for one. Show Matt a short summary of what's known and what's missing. Confirm or correct existing entries rather than re-asking questions already answered — this skill is often re-run after another skill filled in part of the context.
 
-### 2. Read what is already there
-
-Resolve the SEO folder id first (step 1b), then find `SEO — Project Context` **only in that folder** via `files list --vault <seo_folder_id>`. Listing the whole project risks grabbing a root-level namesake. Read it if present, and also read `SEO — Keyword Research` and `SEO — Competitive Landscape` if they exist (the landscape doc carries competitor authority notes) — their saved keywords and competitor rows already answer some questions. There is no `SEO — Backlinks` doc; backlink work lives in `SEO — Competitor — <domain>` and `SEO — Link Prospects — <asset-slug>`, so don't look for one.
-
 Before interviewing, satisfy the first step above: **read the master `Project Context` at the Internal root.** Missing → tell Matt to run `project-setup` and stop. Present → copy its facts into this doc and show Matt a short summary of what's known and what's missing. Confirm or correct existing entries rather than re-asking — this skill is often re-run after another skill filled in part of the context.
 
 ### 3. Fill Business overview from Project Context

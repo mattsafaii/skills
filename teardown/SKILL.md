@@ -23,7 +23,7 @@ Do not ask Matt for these — they are fixed for this skill:
 - Full Teardown template doc: `9994887966` ("Teardown — Full (Template)")
 - Pipeline card table: `9782662056`
 
-tribunal lives at `~/Work/personal/tribunal` (module `github.com/mattsafaii/tribunal`).
+tribunal lives at `~/Work/safaii-studio/lab/tribunal` (module `github.com/mattsafaii/tribunal`).
 
 This skill has its own bundled dependency: `scripts/capture-homepage.mjs` (Playwright, headless — no visible browser tab). If `node_modules` isn't present in this skill's directory, run `pnpm install` here once; if `~/Library/Caches/ms-playwright` has no chromium build, run `pnpm exec playwright install chromium` once.
 
@@ -96,12 +96,13 @@ Most of tribunal's engines (axe, Lighthouse, pa11y, retire, whatweb, nuclei) onl
 # never catches a stale image, and a stale image silently drops engines (verified:
 # crux was missing for a month this way).
 IMAGE_CREATED=$(docker image inspect tribunal --format '{{.Created}}' 2>/dev/null)
-SOURCE_UPDATED=$(git -C ~/Work/personal/tribunal log -1 --format=%cI)
+SOURCE_UPDATED=$(git -C ~/Work/safaii-studio/lab/tribunal log -1 --format=%cI)
 if [ -z "$IMAGE_CREATED" ] || [[ "$SOURCE_UPDATED" > "$IMAGE_CREATED" ]]; then
-  (cd ~/Work/personal/tribunal && docker build -t tribunal .)
+  (cd ~/Work/safaii-studio/lab/tribunal && docker build -t tribunal .)
 fi
 mkdir -p ~/.local/share/tribunal/history
-docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/password')" \
+docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/credential')" \
+  -e GOOGLE_SAFE_BROWSING_API_KEY="$(op read 'op://Secrets/GOOGLE_SAFE_BROWSING_API_KEY/credential')" \
   -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
   tribunal audit <url> --format json > /tmp/teardown-<brand-slug>.json
 ```
@@ -235,7 +236,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | An engine missing from the output entirely (e.g. crux absent while other engines show) | Docker image predates the engine's source — build-if-missing never rebuilds a stale image | Compare the image's created date to the tribunal repo's last commit; rebuild, then re-run (step 3) |
 | Performance/accessibility score looks alarmingly low | Lighthouse/axe are lab (synthetic) data — can read much harsher than real-user field data | Frame it as lab vs. field (tribunal's own distinction), not a contradiction of anything Matt already knows about the site — see Section 6 guidance |
 | Run never shows up in `~/.local/share/tribunal/history/` | Ran `docker run --rm tribunal` without the `-v` volume mount — the save happened, then `--rm` deleted the container (and the file) with it | Always include the `-v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history` mount from step 3 |
-| tribunal build fails | Go toolchain mismatch or stale `go.sum` | Run `go build` from `~/Work/personal/tribunal` directly and surface the real error to Matt rather than guessing a fix |
+| tribunal build fails | Go toolchain mismatch or stale `go.sum` | Run `go build` from `~/Work/safaii-studio/lab/tribunal` directly and surface the real error to Matt rather than guessing a fix |
 | `diff` errors "need two saved runs … found 1" | First teardown of this prospect | Not a failure — skip the diff (step 3b) and draft Section 6 from this run alone |
 | `diff` errors "found 0" even though this prospect was torn down before | Prior run was made without the `-v` history mount (so it never persisted), or a different URL form was passed than last time (slug mismatch) | Check `ls ~/.local/share/tribunal/history/` for the actual slug folders; pass the same URL form the prior audit used |
 | Report-back presents a "resolved" finding as a fix the prospect made | Its category lost engine coverage between runs — unchecked, not fixed | Cross-check resolved findings against the diff's `coverage_changes` before reporting them |

@@ -67,9 +67,9 @@ Take the seed set from the project context (positioning + business overview). If
 
 ### 5. Discover candidates — one batched pass
 
-- **Suggestions first:** `dataforseo_labs_google_keyword_suggestions` per seed keyword is the primary idea source — it returns on-topic long-tail queries, not category noise. Take up to ~20 per seed, dedupe, keep the combined list under ~100 candidates.
-- **Skip `keyword_ideas` for enterprise/B2B clients** — it returns consumer-driven category junk ("wifi test", "wifi router") that has to be thrown away. Use it only when suggestions come back too thin for a consumer-facing client.
-- **Metrics:** one `dataforseo_labs_google_keyword_overview` task for the whole candidate list → volume, difficulty, CPC, intent.
+- **Suggestions first:** `dataforseo_labs/google/keyword_suggestions/live` per seed keyword is the primary idea source — it returns on-topic long-tail queries, not category noise. Take up to ~20 per seed, dedupe, keep the combined list under ~100 candidates.
+- **Skip `dataforseo_labs/google/keyword_ideas/live` for enterprise/B2B clients** — it returns consumer-driven category junk ("wifi test", "wifi router") that has to be thrown away. Use it only when suggestions come back too thin for a consumer-facing client.
+- **Metrics:** one `dataforseo_labs/google/keyword_overview/live` task for the whole candidate list → volume, difficulty, CPC, intent.
 
 ### 6. Filter the candidates
 
@@ -91,7 +91,7 @@ Score the survivors against every factor — a term wins on the combination, not
 
 ### 8. Inspect SERPs for load-bearing terms
 
-For candidates where intent is ambiguous or the volume makes the call load-bearing, run one `serp_organic_live_advanced` check per term to see who actually owns the page. Keep this small and targeted — only terms where the SERP would change the recommendation. Note the finding in the priority decision.
+For candidates where intent is ambiguous or the volume makes the call load-bearing, run one `serp/google/organic/live/advanced` check per term to see who actually owns the page. Keep this small and targeted — only terms where the SERP would change the recommendation. Note the finding in the priority decision.
 
 ### 9. Confirm the saved set with Matt
 

@@ -2,7 +2,7 @@
 
 Signal 2 is at least half the letter, so research is at least half the work. The rule that governs all of it: **everything sourced and dated, nothing fabricated.** An invented revenue figure or a wrong childhood detail kills the letter outright. `Unknown` is a fine answer; a confident guess is the one unrecoverable failure.
 
-This composes with `prospect` (full company recon) and `deep-research` (market). For a love letter you need the *sharp* version of both — not the whole brief, just the four ingredients and the one person.
+This composes with `prospect` (full company recon). For a love letter you need the *sharp* version of it — not the whole brief, just the four ingredients and the one person.
 
 ---
 

@@ -48,12 +48,7 @@ Same convention as todos elsewhere — comment before complete, never complete s
 
 ### 6. Review the whole change
 
-Once every card for this change is done, spawn two reviewers (OpenCode (unattended) — DeepSeek V4 Flash — over the Solo MCP), in parallel, each reading the diff independently:
-
-- **Spec reviewer**: the scoping conversation from step 2 and the full diff for this change. Report gaps against what was actually discussed.
-- **Standards reviewer**: the full diff, plus whatever conventions this repo documents (AGENTS.md, safaii-css/safaii-html/dhh-rails-style as the stack dictates); fall back to a general code-smell pass (duplication, unclear naming, dead code) if the repo documents none. Report deviations.
-
-Both read-only — report gaps, don't fix them. Set a wake-on-idle timer with `max_wait_ms` rather than polling, then harvest both reports and fix what they find.
+Once every card for this change is done, run the `code-review` skill on the full diff for this change: Spec against the step-2 scoping conversation (pass it as the spec), Standards against the repo's conventions. Both reviewers are read-only — report gaps, don't fix them. Fix what it finds.
 
 ### 7. Confirm
 
@@ -70,6 +65,6 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Scoping turns into a full interview | Treated a clear-cut change like an ambiguous new feature | Post-launch changes are usually clearer-cut — confirm what Matt already said and move on |
 | Cards accumulate fake dependencies | Invented a "Blocked by" note for ordering preference, not a real gate | Only note a real blocker; most small changes have none |
 | Reviewer rewrites the code | Reviewer brief omitted read-only scope | Brief says report gaps, don't fix them; apply the fixes yourself after |
-| Build agent (or you) waits on a reviewer forever | Reviewer spawned with the wrong tool and hit a permission prompt, so it never went idle | Spawn both reviewers with OpenCode (unattended) — see the solo skill |
+| Build agent (or you) waits on a reviewer forever | Reviewer spawned with the wrong tool and hit a permission prompt, so it never went idle | Spawn both reviewers with OpenCode (unattended) — see the herdr skill |
 | Standards reviewer invents conventions the repo doesn't have | No AGENTS.md or stack-specific skill to point it at | Fall back to a plain code-smell pass instead of guessing at house style |
 | Card completed with no SHA comment | Marked done directly instead of commenting first | Comment the SHA now; comment before complete from here on |

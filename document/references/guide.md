@@ -17,7 +17,7 @@ So this skill writes **learning docs** (narrative, the hard part) into Basecamp,
 
 **Completeness means: every module/file is accounted for and explained at the right altitude — nothing silently skipped.** It does *not* mean every symbol gets a hand-written entry. Important functions get real narrative depth (what, how, why, gotchas); a trivial one-line getter gets a mention, not a templated stub. Symbol-by-symbol completeness is the generated reference's job.
 
-**This runs inside the repo.** It reads the code, so cwd must be the project directory (`~/Work/personal/<name>`). The build agent runs it there as a finalize step; standalone, Matt runs it from inside the repo. For non-trivial codebases this is a large job — parallelize the Module Guide with subagents (step 3).
+**This runs inside the repo.** It reads the code, so cwd must be the project directory (`~/Work/safaii-studio/lab/<name>`). The build agent runs it there as a finalize step; standalone, Matt runs it from inside the repo. For non-trivial codebases this is a large job — parallelize the Module Guide with subagents (step 3).
 
 ---
 
@@ -248,7 +248,7 @@ One line: Documentation folder created in Basecamp with [N] docs and [M] diagram
 - **Rationale honesty.** Documented rationale = fact. Inferred = labeled. Unknown = flagged as an open question. Never invent a reason that sounds right.
 - **Read the truth.** Document what the code does now, from the source — not the PRD, a commit message, or a prior AI build's claims.
 - **Teach.** Explain *why* and *how it relates*, in plain language — say what concretely happens. No methodology jargon ("Examples," not "Exemplars").
-- **Cite the code.** Real paths, functions, types (`internal/scan/runner.go`, `Runner.Execute`) so the reader can jump to source. **Always repo-relative paths — never absolute local paths** (`internal/adapter/`, not `/Users/matt/Work/personal/.../internal/adapter/`). Absolute paths leak your home-dir layout into public/handoff docs and break for any other reader.
+- **Cite the code.** Real paths, functions, types (`internal/scan/runner.go`, `Runner.Execute`) so the reader can jump to source. **Always repo-relative paths — never absolute local paths** (`internal/adapter/`, not `/Users/matt/Work/safaii-studio/lab/.../internal/adapter/`). Absolute paths leak your home-dir layout into public/handoff docs and break for any other reader.
 
 **Sentence-level style** (borrows Simplified Technical English's best habits, not its full controlled-vocabulary standard):
 

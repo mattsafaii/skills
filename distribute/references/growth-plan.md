@@ -31,7 +31,7 @@ DHH (craft/opinion) · levelsio (build-in-public) · thdxr (edge). Blend registe
 - **Job:** `com.mattsafaii.content-ideas-weekly` (LaunchAgent, loaded). Fires **Fri 14:00** each week.
 - **Script:** `~/.config/opencode/scripts/content-ideas-weekly.sh` — runs `opencode run` headless (deepseek-v4-flash) invoking `/content-ideas` over the past 7 days, voice-drafting client-work (transferable only) + business-growth + build-in-public insights into Distribution Triage as clay, setting due dates, never posting, never drafting essay prose.
 - **Logs:** `~/.config/opencode/logs/content-ideas-weekly.log` (script), `launchd-content-ideas.{out,err}`.
-- **Why launchd, not Solo timer:** Solo timers deliver into a running agent session and don't survive session/quit; launchd fires regardless of Solo being open. This is the honest schedule mechanism.
+- **Why launchd:** it fires on schedule regardless of whether any agent session is open, and survives restarts — the honest schedule mechanism.
 - **Note:** the earlier recurring-check-in idea was dropped — check-in create endpoint is broken in CLI v0.8.1, and check-ins were the wrong tool for a solo reminder anyway (they collect team answers).
 
 **Pivot anchor post (one-off, outside the calendar):** "been quietly shipping for a while and need to start sharing" + GitHub contributions graph — posted 2026-08-20, url https://x.com/mattsafaii/status/2090905571084124439. Pinned (recommended). Establishes the account's craft pivot to the handful of existing followers. Not tracked in Done (calendar measures the queue); metrics can be folded into the monthly report if wanted.

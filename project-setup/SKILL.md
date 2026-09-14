@@ -15,7 +15,7 @@ Be direct, practical, and structured. Ask questions in small batches. Confirm in
 
 ## What does NOT go in this doc
 
-Search-only facts stay in the Search/SEO context doc (`Search — Project Context`, or the existing `SEO — Project Context` until that skill is migrated):
+Search-only facts stay in the SEO context doc (`SEO — Project Context`):
 
 - GSC plan / property
 - Foundation/Growth plan tier
@@ -38,7 +38,7 @@ Archive
 Uploads  /  Review  /  Handoff  /  Admin
 ```
 
-Rules: no `[DRAFT]` / `[Final]` in titles — Basecamp versions are the trail. One live file per artifact, prefix = phase for phase files in Working (`Inventory —`, `Structure —`, `Build —`, `Test —`, `Release —`, `Upkeep —`, `Search —`). Code and catalog data live in GitHub, not Basecamp.
+Rules: no `[DRAFT]` / `[Final]` in titles — Basecamp versions are the trail. One live file per artifact, prefix = phase for phase files in Working (`Inventory —`, `Structure —`, `Build —`, `Test —`, `Release —`, `Maintenance —`, `SEO —`). Code and catalog data live in GitHub, not Basecamp.
 
 **v1 scope:** this skill creates **Internal only** if missing. It does not build the rest of the skeleton — that is the template skill's job — and it does **not** dump a sitemap into Context; phase work belongs to Working via other skills.
 
@@ -81,8 +81,8 @@ How they sell today: <one short paragraph, their words, not a new framework>
 
 ## This engagement
 
-Main job: site + upkeep | site only | upkeep only
-Upkeep: monthly | none
+Main job: site + maintenance | site only | maintenance only
+Maintenance: monthly | none
 Secondary in scope: none | portal | integration | other: <name>
 Inquire path: <RFQ / contact / call / service ticket>
 Catalog in v1: <families / "none">
@@ -140,7 +140,7 @@ Shipped folder: Handoff
 Title: `Site report — Month Year`
 
 Scoreboard events: use the Fathom goals in Access.
-Search plan, brand terms, and rankings appendix live in the Search/SEO context doc. Do not duplicate them here.
+Search plan, brand terms, and rankings appendix live in `SEO — Project Context`. Do not duplicate them here.
 
 ## Log
 
@@ -160,7 +160,7 @@ Search plan, brand terms, and rankings appendix live in the Search/SEO context d
 
 ## Rules (from the studio process)
 
-- This skill is for Safaii Studio site work: **site + upkeep for B2B product-and-service companies** — an operating company that already sells, where the offer is usually clear. Not a brand-led world-building job. Not a single-location storefront (favor or referral only).
+- This skill is for Safaii Studio site work: **site + maintenance for B2B product-and-service companies** — an operating company that already sells, where the offer is usually clear. Not a brand-led world-building job. Not a single-location storefront (favor or referral only).
 - The doc is the **standing record**. Phase work is prefixed files in Working. Do not dump the sitemap, punch lists, or strategy artifacts into Context.
 - GSC property, plan tier, brand terms, scoreboard, rankings stay in the Search/SEO context doc — this skill never writes them here.
 
@@ -243,9 +243,9 @@ Ask how they sell today — one short paragraph in their words. Then set the gat
 
 Ask:
 
-- Main job: site + upkeep | site only | upkeep only
-- Upkeep: monthly | none
-- Secondary in scope: none | portal | integration | other: <name> — only what this brief includes; a portal is never hidden inside Upkeep
+- Main job: site + maintenance | site only | maintenance only
+- Maintenance: monthly | none
+- Secondary in scope: none | portal | integration | other: <name> — only what this brief includes; a portal is never hidden inside Maintenance
 - Inquire path: RFQ / contact / call / service ticket — what a stranger does today
 - Catalog in v1: which families, or "none"
 - Pricing on site: public | gated | mixed

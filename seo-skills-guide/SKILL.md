@@ -7,7 +7,7 @@ description: The map for Matt's SEO skill chain — which skill to run when, in 
 
 The map of Matt's SEO skill chain. This skill never produces a deliverable — it routes. It tells you which skill to run next and why; the individual skills carry their own rules, frozen contracts, and confirm gates.
 
-> For the whole studio site pipeline (project-setup → inventory-brief → structure-map → structure-copy, plus where search plugs in), see `SKILL-INDEX.md` at the repo root — it supersedes this guide for studio order. This guide still owns the SEO-only detail.
+> For the whole studio site pipeline (project-setup → inventory-brief → structure-map → structure-copy, plus where search plugs in), see `SKILL-INDEX-STUDIO.md` at `~/Work/safaii-studio/_config/` — it supersedes this guide for studio order. This guide still owns the SEO-only detail.
 
 ## The spine
 
@@ -102,7 +102,7 @@ Docs & Files
 | GSC | first-party search data (clicks, impressions, striking distance) | `~/Work/scripts/gsc-fetch/gsc-fetch.rb` (one shared script) | service-account JSON via `op read 'op://Secrets/GSC Service Account JSON/notesPlain'` |
 | Basecamp resolution | resolve a client + read its Context / Rank Tracker / Landscape docs in one pass | `~/Work/scripts/client-report-prep.rb` (client-report step 1) | none |
 | Fathom | analytics | direct API calls (client-report) | token via `op read 'op://Secrets/Fathom API Token/password'` |
-| tribunal | audit engine (technical, passive; incl. field CWV via the crux engine) | Docker image at `~/Work/personal/tribunal` | CrUX key via `GOOGLE_CrUX_API_KEY` (wired in `~/.zshrc`) |
+| tribunal | audit engine (technical, passive; incl. field CWV via the crux engine) | Docker image at `~/Work/safaii-studio/lab/tribunal` | CrUX key via `GOOGLE_CrUX_API_KEY` (wired in `~/.zshrc`) |
 | Browser-control | live Maps detail panel (review text, Q&A, posts) | browser-control skill / MCP | runs in Matt's browser |
 
 **Basecamp:** always `-a 6191443` (Safaii Studio), passed explicitly. Documents are markdown (Basecamp 5 renders GFM tables). `files doc create` takes content as an argument, never `-` stdin.

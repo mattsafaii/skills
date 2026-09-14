@@ -1,6 +1,6 @@
 ---
 name: inventory-brief
-description: Write or update a client's Inventory phase docs in Basecamp — two documents in the project's Working folder, "Inventory — Brief" (in scope, out of scope, finish line, access, status) and "Inventory — Current site" (what exists, what is broken, phone/email/PDF-only leaks) — by reading the master Project Context first, inspecting the live site, and confirming every inference with Matt. Never invents products, buyers, or scope; never writes a competitor file or a sitemap; never touches Project Context. Use when Matt says "inventory brief for [client]", "/inventory-brief", "start Inventory for [client]", "survey [client]'s site", or when Project Context exists and the work moves past setup.
+description: Write or update a client's Inventory phase docs in Basecamp — two documents in the project's Working folder, "Inventory — Brief" (in scope, out of scope, finish line, access, status) and "Inventory — Current site" (what exists, what is broken, phone/email/PDF-only leaks, and a Comparables section for 4–6 peer sites: page types and leaks only) — by reading the master Project Context first, inspecting the live site, and confirming every inference with Matt. Never invents products, buyers, or scope; the competitor pass is page types and leaks, never a brand teardown; never writes a separate competitor file or a sitemap; never touches Project Context. Use when Matt says "inventory brief for [client]", "/inventory-brief", "start Inventory for [client]", "survey [client]'s site", or when Project Context exists and the work moves past setup.
 ---
 
 # Inventory Brief
@@ -10,7 +10,7 @@ description: Write or update a client's Inventory phase docs in Basecamp — two
 Produce the two Inventory-phase documents for one client, in the project's **Working** folder:
 
 - **`Inventory — Brief`** — what this site job includes: in scope, out of scope, the finish line, access, status.
-- **`Inventory — Current site`** — what the live site is today: what exists, what is broken, and what only lives in phone calls, email, or PDFs.
+- **`Inventory — Current site`** — what the live site is today: what exists, what is broken, what only lives in phone calls, email, or PDFs, and how 4–6 peer sites compare (page types and leaks only).
 
 Inventory is the site survey: learn what is true and what this job is. It is not Structure, not a strategy artifact, and not a place to decide positioning. Read the master `Project Context` first; confirm every inference with Matt; reconcile only. Do not invent products, buyers, or scope.
 
@@ -25,7 +25,7 @@ Direct, practical, structured. Small batches. Confirm inferences — proposed fa
 3. **If it is missing, tell Matt to run `project-setup` and stop.**
 4. Read `## Offer` — **if `Clear: no`, stop.** The offer must be settled as a separate advisory job or walked away; Inventory does not start. Do not invent positioning to fill the gap.
 5. Read the live `Domain:` from `## Business` — that is the site to inspect.
-6. Read the rest for context and copy-don't-ask: what they sell, who buys, markets, `## Access` (Fathom, Search Console), `## Key pages` (existing), `## Writing` (audience, do-not-claim), `## This engagement` (main job, upkeep, secondary in scope, inquire path, catalog in v1, pricing, brief status).
+6. Read the rest for context and copy-don't-ask: what they sell, who buys, markets, `## Access` (Fathom, Search Console), `## Key pages` (existing), `## Writing` (audience, do-not-claim), `## This engagement` (main job, maintenance, secondary in scope, inquire path, catalog in v1, pricing, brief status).
 
 ## Where the answers go
 
@@ -90,20 +90,25 @@ Exact headings, in order. Do not rename.
 ## Phone / email / PDF only
 
 <what a buyer can only get by calling, emailing, or opening a PDF — the leaks: quotes in email, specs in PDFs, "call for pricing", no service request path>
+
+## Comparables (page types and leaks only)
+
+<4–6 peer sites: domain, name, page types present or absent, and their leaks — never a brand or design critique>
 ```
 
 Reading the contract:
 
 - **What exists** — grounded in an actual inspection of the live site and the facts in `Project Context`; no fabricated pages, products, or buyers.
 - **What is broken** — walk the site: broken links, missing files, orphan pages, dead forms, specs only in PDFs, no inquire/support path. Findings, not redesign proposals.
-- **Phone / email / PDF only** — the leak list: product or service information, pricing, quote flows, and support that exist outside the site. This is the raw material Upkeep and Structure later act on.
+- **Phone / email / PDF only** — the leak list: product or service information, pricing, quote flows, and support that exist outside the site. This is the raw material Maintenance and Structure later act on.
+- **Comparables** — 4–6 peer sites, page types and leaks only. Record the page types the peers have that this client lacks (and the reverse), and where the peers leak to phone, email, or PDF. Page types and leaks — not a brand teardown, not positioning. A separate `Inventory — Competitors` doc only when this section overflows.
 
 ## Inspecting the current site
 
 - `webfetch` the live `Domain:` and the `## Key pages` URLs; follow the primary navigation and the inquire/support path.
 - Note page types present (home, service, product index, product, proof, inquire, support) and which are absent.
 - Note where a product or service is only reachable by phone, email, or PDF.
-- Do **not** write a sitemap doc and do **not** write a competitor doc (competitors are a separate job and only on Matt's ask).
+- Do **not** write a sitemap doc, and do **not** write a separate competitor doc — the competitor pass is the Comparables section of `Inventory — Current site`, page types and leaks only. Escalate to `Inventory — Competitors` only when that section overflows.
 - If the site does not exist yet (`Production URL` / `Domain` empty or "not yet"), say so, ground the docs in how the business sells today from `Project Context`, and note the site is greenfield.
 
 ## The write loop (every write, every time)
@@ -149,7 +154,7 @@ basecamp -a 6191443 files update <file_id> --content "<full markdown>" --in <pro
 
 1. **Resolve the client and gate.** Project by exact name → master `Project Context` exists (else send Matt to `project-setup`) → `Offer: Clear` is yes (else stop).
 2. **Read what is already there.** Find both Inventory docs in Working first; summarize known vs missing; confirm or correct rather than re-ask. Read `Project Context` for everything it already answers.
-3. **Inspect the current site.** Fetch the live domain and key pages; record findings for `Inventory — Current site` (exists / broken / phone-email-PDF-only).
+3. **Inspect the current site.** Fetch the live domain and key pages; record findings for `Inventory — Current site` (exists / broken / phone-email-PDF-only / comparables).
 4. **Draft `Inventory — Current site`.** Propose it to Matt; on confirmation, write it.
 5. **Draft `Inventory — Brief`.** In scope (pages, catalog slice, inquire/support path — portal only if in Secondary in scope), Out of scope, Finish line (pages and paths), Access, Status `draft`.
 6. **Confirm before writing.** Inventory docs are research artifacts: write only after Matt confirms. Never invent products, buyers, or scope.
@@ -169,7 +174,7 @@ Then summarize: Offer gate result, site inspected, brief in/out of scope, finish
 
 - Confirm facts with Matt before writing. Inferences from the site are fine to propose; they get saved as agreed answers, not guesses.
 - Never invent products, buyers, or scope.
-- Do not write a competitor file unless Matt asks. Do not write a sitemap. Do not write anything into `Project Context`.
+- Write the competitor pass as the Comparables section of `Inventory — Current site` — page types and leaks only, never a brand teardown. A separate `Inventory — Competitors` doc only when that section overflows. Do not write a sitemap. Do not write anything into `Project Context`.
 - Do not create todos. Do not copy the brief to Review — Matt does that on approval.
 - One owner per doc: this skill owns only `Inventory — Brief` and `Inventory — Current site`.
 - Re-runs fill gaps and merge; they never discard.
@@ -184,7 +189,7 @@ Then summarize: Offer gate result, site inspected, brief in/out of scope, finish
 | Doc in the wrong folder | Created at project root or in Internal | Docs must live in Working; fix with `--vault <working_id>` |
 | Second doc with the same title | Created instead of found | Find by exact title in Working first; update that file id |
 | Sitemap written into Working | Overstepped into Structure | Inventory names pages and leaks; sitemaps belong to Structure |
-| Competitor doc written unasked | Assumed it belonged here | Competitors are a separate job; only on Matt's explicit ask |
+| Brand teardown instead of a comparables read | Treated the competitor pass as strategy | Comparables records page types and leaks only; no positioning, no brand critique |
 | Facts invented | Inferences saved as facts | Confirm with Matt before writing; keep proposals as proposals |
 | Brief copied to Review | Skill moved it | Matt moves it on approval; leave it in Working |
 | Empty doc after create | Used the `-` stdin form | Pass content as an argument; verify content length after create |

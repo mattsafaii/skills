@@ -22,7 +22,7 @@ Direct, practical, structured. Small batches. Confirm inferences. The map is a d
 
 1. **`Project Context`** — at the root of Internal (how `project-setup` resolves it). **Missing → stop; tell Matt to run `project-setup`.**
 2. **`Inventory — Brief`** — in Working (how `inventory-brief` resolves it). **Missing → stop** (run `inventory-brief`). If its `## Status` is not `approved YYYY-MM-DD`, **ask Matt before writing a map** — a draft brief is not a green light.
-3. **Saved keyword set** — the client's `Search — Keyword research` (phase-prefixed Working doc) or the existing `SEO — Keyword Research` (Internal → SEO), whichever exists. **Use the saved set only to assign terms to URLs.** Do not invent a new set; if no set exists, draw terms from the approved brief and say so.
+3. **Saved keyword set** — the client's `SEO — Keyword Research`. **Use the saved set only to assign terms to URLs.** Do not invent a new set; if no set exists, draw terms from the approved brief and say so.
 4. **`Inventory — Current site`** (Working) — read when it exists, for the redirects a later step will need. Do not write a redirect doc here.
 
 ## Where the answers go

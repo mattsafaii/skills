@@ -32,7 +32,7 @@ The document-web inversion of scroll-cinema (Emons, Apple, scroll-world): there,
 
 ## The exposure gate
 
-How much of the read a moment occupies sets how strict its test is — the document analog of the frequency gate in app-UI motion (adapted from Emil Kowalski's find-animation-opportunities):
+How much of the read a moment occupies sets how strict its test is — the document analog of the frequency gate in app-UI motion (adapted from Emil Kowalski's motion-restraint approach):
 
 | Exposure | Examples | Bar |
 |---|---|---|
@@ -81,4 +81,4 @@ When a project genuinely wants the cinematic tier — a scrubbed hero video, a c
 
 ## Examples / Status
 
-v1 (July 2026), validated on a demo document (Target 1, scratchpad). First real target: the sace6 album experience — expect it to surface pattern gaps; fold them back into `references/patterns.md` and this file (skill-crafting flywheel). Origin: shaped from the scroll-world skill teardown — Lab card 10096845881 holds the pitch + PRD. Gate mechanics (named purpose, exposure tiers, required rejections) adapted from Emil Kowalski's find-animation-opportunities skill (July 2026) — his covers app-UI interaction motion; this covers document reading motion. One deliberate divergence: his reduced-motion stance is "gentler, not zero"; here reduced-motion is fully static, because the static document is a complete success state.
+v1 (July 2026), validated on a demo document (Target 1, scratchpad). First real target: the sace6 album experience — expect it to surface pattern gaps; fold them back into `references/patterns.md` and this file (skill-crafting flywheel). Origin: shaped from the scroll-world skill teardown — Lab card 10096845881 holds the pitch + PRD. Gate mechanics (named purpose, exposure tiers, required rejections) adapted from Emil Kowalski's app-UI motion gate (July 2026) — his covers app-UI interaction motion; this covers document reading motion. One deliberate divergence: his reduced-motion stance is "gentler, not zero"; here reduced-motion is fully static, because the static document is a complete success state.

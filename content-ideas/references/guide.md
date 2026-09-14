@@ -13,7 +13,7 @@ Sweep a time window across everything Matt worked on, distill the insights, and 
 - **Content project:** `46824770` · card table `9768310845` · **Ideas column `9768310846`** (essays/videos land here, prefixed `[Essay]` / `[Video]`)
 - **Distribution table:** `10010006453` · **Triage column `10010006454`** (insights/tweets land here, prefixed `[💡 Insight]`)
 - **Lab project:** `46824335` (scrapped ideas live in its **Graveyard** column)
-- Personal repos: `~/Work/personal/*`
+- Matt's own repos: `~/Work/safaii-studio/lab/*` and `~/Work/safaii-studio/playground/*`
 
 ---
 
@@ -73,7 +73,7 @@ Gather raw material from the window across all of these. Verify exact CLI flags 
 
 - **Personal repos (git):** across every repo, commits (and diffs for the meaty ones) in the window. Includes scrapped/abandoned repos — a dead project often has the sharpest lesson.
   ```bash
-  for d in ~/Work/personal/*/; do
+  for d in ~/Work/safaii-studio/lab/*/ ~/Work/safaii-studio/playground/*/; do
     [ -d "$d/.git" ] || continue
     log=$(git -C "$d" log --since="<START>" --pretty='%h %s' 2>/dev/null)
     [ -n "$log" ] && printf '### %s\n%s\n\n' "$(basename "$d")" "$log"

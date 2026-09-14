@@ -12,9 +12,9 @@ Works out why a business does or does not show up in Google Maps and the local p
 Load the **dataforseo** skill for the full catalog and hard rules. The essentials:
 
 1. **Measurement, not observation.** Every observation carries a date: "as of <date>". **Market is US by default** (the DataForSEO `location_name` / coordinate). A bare rating, review count, or rank is never citable.
-2. **The local tools you have.** This skill uses **`business_data_business_listings_search`** (profile fields: category, rating + distribution, review count, photos, claimed, hours, services, `cid`/`place_id`) and **`serp_organic_live_advanced`** (local-pack position per keyword). **Review text, recency, owner replies, Q&A, and posts come from the live Google Maps detail panel via `browser-control`** — no API provides them. Where the browser isn't available or a page won't load, those sections sit out with a one-line note, never fabricated.
+2. **The local tools you have.** This skill uses **`business_data/business_listings/search/live`** (profile fields: category, rating + distribution, review count, photos, claimed, hours, services, `cid`/`place_id` — call it with `noAiMode: true` so the raw `cid`/`place_id` and full profile fields come back) and **`serp/google/organic/live/advanced`** (local-pack position per keyword). **Review text, recency, owner replies, Q&A, and posts come from the live Google Maps detail panel via `browser-control`** — no API provides them. Where the browser isn't available or a page won't load, those sections sit out with a one-line note, never fabricated.
 3. **Match by `cid` / `place_id`, never name alone.** Name matching collides with chains and similarly named businesses. Once a listing's `cid` is known, reuse it everywhere.
-4. **Spend is capped.** One `business_listings_search` for the business, one for competitors (or reuse `people_also_search` rows), and one `serp_organic_live_advanced` per keyword (1–3 keywords). Then ask before any further call. (Listings search ≈ $0.0x; SERP ≈ $0.002 each.)
+4. **Spend is capped.** One `business_data/business_listings/search/live` for the business, one for competitors (or reuse `people_also_search` rows), and one `serp/google/organic/live/advanced` per keyword (1–3 keywords). Then ask before any further call. (Listings search ≈ $0.0x; SERP ≈ $0.002 each.)
 5. **local_pack ≠ organic.** A Maps placement is a different game than a blue link — record which it is, never blur them.
 6. **A missing pack rank is not proof of invisibility.** The position checks cover the storefront, not a service-area sweep — there is no rank grid in this skill. Absence at the storefront means outranked nearby or a sparse SERP; read it against the result count, never as "they don't show up anywhere."
 7. **Never recommend review gating, fake reviews, or keyword-stuffed business names.**
@@ -39,14 +39,14 @@ Read `SEO — Project Context` — what the business does and where it operates 
 
 ### 2. Find the business
 
-`business_data_business_listings_search` with the business name as `title` (or its `cid`) and a wide radius around the coordinate. Yields the listing's `cid`, `place_id`, coordinate, category, rating, review count, claimed status, hours, and `people_also_search` (nearby competitors).
+`business_data/business_listings/search/live` with the business name as `title` (or its `cid`) and a wide radius around the coordinate. Yields the listing's `cid`, `place_id`, coordinate, category, rating, review count, claimed status, hours, and `people_also_search` (nearby competitors).
 
 - **Several locations returned → it's a chain.** Build the profile snapshot table for the whole chain from this one call; then decide the deep-dives (step 6).
 - **No match:** widen the radius, drop the category filter, try a variant of the name. If it's genuinely unclaimed/absent, that's a finding, not a failure — the one fix may be "claim/create the listing."
 
 ### 3. Run the local-pack position checks
 
-For each of the 1–3 customer keywords, one `serp_organic_live_advanced` call near the coordinate. Record:
+For each of the 1–3 customer keywords, one `serp/google/organic/live/advanced` call near the coordinate. Record:
 - The client's local-pack rank (or not present)
 - The top 3–5 competitors' `cid` / `place_id` (collect them once, reuse everywhere)
 - Whether the client appears in local_pack vs organic — never blur them
@@ -55,7 +55,7 @@ These are storefront checks, not a service-area grid. There is no rank grid in t
 
 ### 4. Compare against the top competitors
 
-For the top two competitors, pull their listings (via `business_listings_search` on their `cid`, or reuse the `people_also_search` rows which carry rating + review count). Compare, signal by signal:
+For the top two competitors, pull their listings (via `business_data/business_listings/search/live` on their `cid`, or reuse the `people_also_search` rows which carry rating + review count). Compare, signal by signal:
 - Primary category + additional categories
 - Review count and average rating
 - Claimed status

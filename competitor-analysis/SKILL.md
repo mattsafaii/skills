@@ -35,7 +35,7 @@ Matt names a client and a competitor domain. Match the client to a project by na
 
 Read `SEO — Project Context` — the `Domain:` line, `## Competitors` (is this domain already known? what was concluded?), target markets, positioning. If the context doc is missing, tell Matt to run `seo-project-setup` first and stop.
 
-**Confirm the domain is an SEO competitor before the expensive pass.** If the domain is already in `## Competitors` or the landscape table, proceed. If not, don't jump to overview + ranked keywords — ask Matt, or run one cheap `dataforseo_labs_google_serp_competitors` overlap check against the saved-keyword set to see whether this domain actually competes for the client's terms. Only after confirmation (or a positive overlap) do you spend on the full analysis.
+**Confirm the domain is an SEO competitor before the expensive pass.** If the domain is already in `## Competitors` or the landscape table, proceed. If not, don't jump to overview + ranked keywords — ask Matt, or run one cheap `dataforseo_labs/google/serp_competitors/live` overlap check against the saved-keyword set to see whether this domain actually competes for the client's terms. Only after confirmation (or a positive overlap) do you spend on the full analysis.
 
 ### 2. Check reuse
 
@@ -43,11 +43,11 @@ If the same competitor was analyzed within the last 30 days (same competitor dom
 
 ### 3. Baseline the footprint
 
-`dataforseo_labs_google_domain_rank_overview` for the competitor — estimated organic traffic, ranking keyword count, rank distribution. Market from the context doc. Label estimates as estimates.
+`dataforseo_labs/google/domain_rank_overview/live` for the competitor — estimated organic traffic, ranking keyword count, rank distribution. Market from the context doc. Label estimates as estimates.
 
 ### 4. Pull ranked keywords (filtered, capped)
 
-`dataforseo_labs_google_ranked_keywords` for the competitor. Filter to keep the rows relevant, then **cap the ingest**:
+`dataforseo_labs/google/ranked_keywords/live` for the competitor. Filter to keep the rows relevant, then **cap the ingest**:
 - **`maxRank`** — cap at the range that matters (e.g. top 50–100)
 - **`minSearchVolume`** — drop near-zero-volume noise
 - **`excludeBrandTerms`** — strip the competitor's own brand queries (not winnable)
@@ -69,15 +69,15 @@ Filter for business fit as you go — drop what the client shouldn't chase.
 
 ### 6. Compare against the client (default when `Domain:` exists)
 
-The gap is fake without the client row. **When Project Context has a `Domain:` line, run the comparison by default** — `dataforseo_labs_google_domain_rank_overview` for the client's domain too, and GSC-anchor the client's row with the existing fetch (no new paid call) — real clicks/impressions/position beat an estimated traffic number. Competitor-only only when the `Domain:` line is missing. If the client's domain isn't available, frame the analysis as competitor-only.
+The gap is fake without the client row. **When Project Context has a `Domain:` line, run the comparison by default** — `dataforseo_labs/google/domain_rank_overview/live` for the client's domain too, and GSC-anchor the client's row with the existing fetch (no new paid call) — real clicks/impressions/position beat an estimated traffic number. Competitor-only only when the `Domain:` line is missing. If the client's domain isn't available, frame the analysis as competitor-only.
 
 ### 7. Head-to-head SERPs
 
-For the important shared or target keywords, one `serp_organic_live_advanced` check each to compare positioning — who's on page one, where the client sits, what SERP features are present. Keep the batch small (the terms where the comparison would change the recommendation). Every observation carries date + location.
+For the important shared or target keywords, one `serp/google/organic/live/advanced` check each to compare positioning — who's on page one, where the client sits, what SERP features are present. Keep the batch small (the terms where the comparison would change the recommendation). Every observation carries date + location.
 
 ### 8. Authority (optional)
 
-`backlinks_summary` for the competitor — referring domains, backlinks, spam score — **when authority appears to explain rankings** (or Matt asks why they win). Compare against the client's profile if the client row is in scope. **Backlinks sit inside the spend ceiling** — like landscape, they need a yes after the default batch. If backlinks data is unavailable, continue on SERP/domain evidence and say so.
+`backlinks/summary/live` for the competitor — referring domains, backlinks, spam score — **when authority appears to explain rankings** (or Matt asks why they win). Compare against the client's profile if the client row is in scope. **Backlinks sit inside the spend ceiling** — like landscape, they need a yes after the default batch. If backlinks data is unavailable, continue on SERP/domain evidence and say so.
 
 ### 9. Produce the action plan
 
