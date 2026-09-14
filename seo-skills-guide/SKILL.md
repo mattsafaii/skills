@@ -105,7 +105,7 @@ Docs & Files
 | tribunal | audit engine (technical, passive; incl. field CWV via the crux engine) | Docker image at `~/Work/safaii-studio/lab/tribunal` | CrUX key via `GOOGLE_CrUX_API_KEY` (wired in `~/.zshrc`) |
 | Browser-control | live Maps detail panel (review text, Q&A, posts) | browser-control skill / MCP | runs in Matt's browser |
 
-**Basecamp:** always `-a 6191443` (Safaii Studio), passed explicitly. Documents are markdown (Basecamp 5 renders GFM tables). `files doc create` takes content as an argument, never `-` stdin.
+**Basecamp:** always `-a 6191443` (Safaii Studio), passed explicitly. Documents are markdown (Basecamp 5 renders GFM tables). `files doc create` takes the body as an argument, or `-` for stdin (CLI v0.10.0+).
 
 ## Rules that apply across the chain
 

@@ -116,7 +116,7 @@ On explicit approval, create the audit as a **document** in the client's **Inter
 basecamp -a 6191443 files doc create "SEO review — <Domain>" "<report body as Markdown>" --in <basecamp_project_id> --vault <internal_reports_id> --json
 ```
 
-**Content as an argument, never `-` stdin.** Verify content length after create.
+**Content as an argument, or `-` for stdin (CLI v0.10.0+).** Verify content length after create.
 
 Resolve the `Internal > Reports` folder id exactly as `seo-project-setup` resolves Internal > SEO (walk Internal, find/create Reports under it). Create the Reports folder if missing.
 
@@ -188,7 +188,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Backlink claim without evidence | Reported a summary number as fact | Verify the backlink read against the summary and the live context; drop what doesn't hold |
 | Wrote focus keywords into `SEO — Keyword Research` | Treated the starting direction as research | The focus area is a pointer, never a saved set — research lives in keyword-research's own doc |
 | Report doc landed client-visible | Created with `--visible-to-clients` or in Deliverables | Reports are born in Internal > Reports (team-only); the move to Deliverables is Matt's ship gate |
-| Report doc empty | Used the `-` stdin form | Pass content as an argument; verify content length after create |
+| Report doc empty | Content not passed (or `-` on a pre-v0.10.0 CLI) | Pass content as an argument or via stdin `-` (v0.10.0+); verify content length after create |
 | Handoff message sent before the move | Posted a link to a doc still in Internal | The handoff posts only after Matt confirms the doc is in Deliverables |
 | Handoff posted from scratch | Skipped the handoff draft doc | The message uses the drafted handoff doc's content — create it in step 9a, review, then post |
 | Draft posted without approval | Treated silence/ambiguity as a yes | Only an explicit yes publishes; anything else waits |

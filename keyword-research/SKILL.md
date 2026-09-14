@@ -143,7 +143,7 @@ Basecamp docs are full-document replace. On a re-run, create-or-replace-the-whol
 
 First create only if the exact title is missing in the SEO folder. Create: `basecamp -a 6191443 files doc create "SEO — Keyword Research" "<markdown>" --in <project_id> --vault <seo_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <seo_folder_id> --json`.
 
-**`files doc create` takes content as an argument, not stdin** — the `-` stdin form silently creates an empty doc. Verify content length after any write.
+**`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+)** — prefer `-` for large or multiline markdown to avoid shell quoting and argument-length limits. Verify content length after any write.
 
 After Matt confirms the saved set (step 9), offer a one-line merge of newly-discovered competitors into `SEO — Project Context`'s Competitors table — ask, don't silently edit; the context doc is setup-owned.
 
@@ -178,4 +178,4 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Branded terms in the saved set | Filter step skipped | Remove the client's own brand terms in step 6; they're not winnable targets |
 | Duplicate doc over time | Doc title recreated | Find by title first; update, never recreate. Titles are a stable contract |
 | Doc created without `--vault` | `--vault` dropped on create, landed at root | Move or delete the root copy; never write the saved set onto it |
-| Doc exists but is empty | Created with the `-` stdin form | Pass content as an argument; verify content length after create |
+| Doc exists but is empty | Content not passed (or `-` on a pre-v0.10.0 CLI) | Pass content as an argument or via stdin `-` (v0.10.0+); verify content length after create |

@@ -148,7 +148,7 @@ basecamp -a 6191443 files doc create "Inventory — Brief" "<full markdown>" --i
 basecamp -a 6191443 files update <file_id> --content "<full markdown>" --in <project_id> --vault <working_id> --json
 ```
 
-`files doc create` takes content as an argument, never `-` stdin — the stdin form silently creates an empty doc. Publish with `--content "$(cat file)"` from a written file, `test -s` the file before publish, and verify stored content == canonical after.
+`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+); prefer `-` for large markdown. Publish with `--content "$(cat file)"` from a written file, `test -s` the file before publish, and verify stored content == canonical after.
 
 ## Checklist
 
@@ -192,5 +192,5 @@ Then summarize: Offer gate result, site inspected, brief in/out of scope, finish
 | Brand teardown instead of a comparables read | Treated the competitor pass as strategy | Comparables records page types and leaks only; no positioning, no brand critique |
 | Facts invented | Inferences saved as facts | Confirm with Matt before writing; keep proposals as proposals |
 | Brief copied to Review | Skill moved it | Matt moves it on approval; leave it in Working |
-| Empty doc after create | Used the `-` stdin form | Pass content as an argument; verify content length after create |
+| Empty doc after create | Content not passed (or `-` on a pre-v0.10.0 CLI) | Pass content as an argument or via stdin `-` (v0.10.0+); verify content length after create |
 | Earlier sections clobbered | Full-doc replace without re-reading | Write loop: read → patch one heading → upload entire doc → re-read |

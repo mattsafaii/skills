@@ -132,7 +132,7 @@ Each write follows **the write loop (every write, every time):**
 
 First create only if the exact title is missing in the SEO folder. Create: `basecamp -a 6191443 files doc create "SEO — Content Opportunities" "<markdown>" --in <project_id> --vault <seo_folder_id> --json` (and same for `SEO — Entity Map & IA`). Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <seo_folder_id> --json`.
 
-**`files doc create` takes content as an argument, not stdin** — the `-` stdin form silently creates an empty doc. Verify content length after any write.
+**`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+)** — prefer `-` for large or multiline markdown to avoid shell quoting and argument-length limits. Verify content length after any write.
 
 ## Output format
 

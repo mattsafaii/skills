@@ -206,7 +206,7 @@ basecamp -a 6191443 files doc create "Project Context" "<full markdown>" --in <p
 basecamp -a 6191443 files update <file_id> --content "<full markdown>" --in <project_id> --vault <internal_vault_id> --json
 ```
 
-`files doc create` takes content as an argument, never `-` stdin — the stdin form silently creates an empty doc. Publish with `--content "$(cat file)"` from a written file, `test -s` the file before publish, and verify stored content == canonical after.
+`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+); prefer `-` for large markdown. Publish with `--content "$(cat file)"` from a written file, `test -s` the file before publish, and verify stored content == canonical after.
 
 ## Checklist
 
@@ -329,7 +329,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Create succeeded but vault is wrong | `--vault` dropped or wrong id | Delete the misplaced doc and re-create with `--vault <internal_vault_id>`; never start the write loop on that file id |
 | Second doc with the same title | Created instead of found | Find by exact title in Internal first; update that file id, never recreate |
 | 404 / wrong account | Relied on the CLI default account | Always pass `-a 6191443`; never another account |
-| Empty doc after create | Used the `-` stdin form | Pass content as an argument; verify content length after create |
+| Empty doc after create | Content not passed (or `-` on a pre-v0.10.0 CLI) | Pass content as an argument or via stdin `-` (v0.10.0+); verify content length after create |
 | Earlier sections clobbered | Full-doc replace without re-reading first | Write loop: read → patch one heading → upload entire doc → re-read and assert |
 | Headings drift between runs | Renamed a section | Follow the frozen heading contract; other skills parse these names |
 | Facts invented | Proposed inferences as facts without confirming | Ask Matt; placeholders stay "not set" until real |

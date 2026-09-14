@@ -133,7 +133,7 @@ basecamp -a 6191443 files doc create "Structure — Sitemap" "<full markdown>" -
 basecamp -a 6191443 files update <file_id> --content "<full markdown>" --in <project_id> --vault <working_id> --json
 ```
 
-`files doc create` takes content as an argument, never `-` stdin — the stdin form silently creates an empty doc. Publish with `--content "$(cat file)"` from a written file, `test -s` the file before publish, and verify stored content == canonical after.
+`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+); prefer `-` for large markdown. Publish with `--content "$(cat file)"` from a written file, `test -s` the file before publish, and verify stored content == canonical after.
 
 ## Checklist
 
@@ -176,5 +176,5 @@ Then summarize: brief status, keyword set source (saved set / brief), pages and 
 | Fields doc written for a no-catalog client | `Catalog in v1` is `none` | Skip `Structure — Fields` |
 | Doc in the wrong folder | Created at project root or in Internal | Docs must live in Working; fix with `--vault <working_id>` |
 | Second doc with the same title | Created instead of found | Find by exact title in Working first; update that file id |
-| Empty doc after create | Used the `-` stdin form | Pass content as an argument; verify content length |
+| Empty doc after create | Content not passed (or `-` on a pre-v0.10.0 CLI) | Pass content as an argument or via stdin `-` (v0.10.0+); verify content length |
 | Earlier sections clobbered | Full-doc replace without re-reading | Write loop: read → patch one heading → upload entire doc → re-read |

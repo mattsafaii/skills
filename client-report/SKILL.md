@@ -341,7 +341,7 @@ On explicit approval, create the report as a **document** in the client's **Inte
 basecamp -a 6191443 files doc create "Site report — <Month Year>" "<report body as Markdown>" --in <basecamp_project_id> --vault <internal_reports_id> --json
 ```
 
-**Content as an argument, never `-` stdin.** Verify content length after create. The chart rides in via `--attach` at create and is positioned inline by the step-4a update; assert one inline `<bc-attachment>` per chart on the re-read.
+**Content as an argument, or `-` for stdin (CLI v0.10.0+).** Verify content length after create. The chart rides in via `--attach` at create and is positioned inline by the step-4a update; assert one inline `<bc-attachment>` per chart on the re-read.
 
 Resolve the `Internal > Reports` folder id exactly as `seo-project-setup` resolves Internal > SEO (walk Internal, find/create Reports under it). Create the Reports folder if missing.
 
@@ -399,7 +399,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Report posted to the wrong project | Trusted a guessed project instead of matching by name | `basecamp_project_id` comes from `projects list --json` matching the client's name, nowhere else |
 | 404 / wrong account on publish | Relied on the CLI default account | Always pass `-a 6191443` (Safaii Studio) explicitly |
 | Report doc landed client-visible | Created with `--visible-to-clients` or in Deliverables | Reports are born in Internal > Reports (team-only); the move to Deliverables is Matt's ship gate |
-| Report doc empty | Used the `-` stdin form | Pass content as an argument; verify content length after create |
+| Report doc empty | Content not passed (or `-` on a pre-v0.10.0 CLI) | Pass content as an argument or via stdin `-` (v0.10.0+); verify content length after create |
 | Message sent before the move | Posted the handoff to a doc still in Internal | The handoff message posts only after Matt confirms the doc is in Deliverables |
 | Handoff posted from scratch | Skipped the handoff draft doc | The message uses the drafted handoff doc's content — create it in step 7a, review, then post |
 | Client A's numbers appear in client B's report | Reused /tmp scratch files across runs | Scratch files are per-client-per-run keyed by project id; re-fetch, never reuse |

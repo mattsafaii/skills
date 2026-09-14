@@ -106,7 +106,7 @@ basecamp -a 6191443 files doc create "SEO — Project Context" "<full markdown>"
 basecamp -a 6191443 files update <file_id> --content "<full markdown>" --in <project_id> --vault <seo_folder_id> --json
 ```
 
-`files doc create` takes content as an argument, not stdin — the `-` stdin form silently creates an empty doc.
+`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+); prefer `-` for large markdown.
 
 ### Sibling-doc titles are contracts too
 
@@ -261,7 +261,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Doc in the wrong folder | Created at project root or in a non-SEO vault | Doc must live in the Internal → SEO folder; move or update there, never treat a root copy as canonical |
 | Create succeeded but vault is wrong | `--vault` dropped or wrong id on create | Delete the misplaced doc and re-create with `--vault <seo_folder_id>`; never start the write loop on that file id |
 | 404 / wrong account | Relied on the CLI default account | Always pass `-a 6191443` (Safaii Studio) explicitly; this skill never runs on any other account |
-| Empty doc after create | Used the `-` stdin form | Pass content as an argument; verify content length after create |
+| Empty doc after create | Content not passed (or `-` on a pre-v0.10.0 CLI) | Pass content as an argument or via stdin `-` (v0.10.0+); verify content length after create |
 | Re-asked a question already answered | Skipped the read step | Read the existing doc (and research docs) before interviewing |
 | Earlier sections clobbered | Full-doc replace without re-reading first | Use the write loop: read → patch one heading → upload entire doc → re-read and assert |
 | Headings drift between runs | Renamed a section | Follow the frozen heading contract exactly; sibling skills parse these names |
