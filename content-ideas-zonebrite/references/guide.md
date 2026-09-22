@@ -11,6 +11,7 @@ This skill is governed by the **Content Playbook (Zonebrite)** (doc 10021739130)
 ## Fixed IDs (don't ask Matt)
 
 - **Zonebrite account:** `6060605`
+- **Zonebrite profile:** `zonebrite` — pass `--profile zonebrite` on every command below, alongside `-a 6060605`. Basecamp scopes each credential to one account and the CLI defaults to the Safaii profile, so `-a 6060605` alone returns "access denied".
 - **Marketing project:** `46771824`
 - Content boards (route ideas to the **Ideas** column of the matching board):
   - **GBP Posts** — table `9821916129`, Ideas column `9821916131`
@@ -77,16 +78,16 @@ Take the period from Matt (past week / month / since a date). Default: **past 2 
 ### 2. Sweep the sources (Basecamp only — no repos)
 Verify flags with `basecamp <cmd> --agent --help` if unsure. Both Matt's and Mike's activity.
 
-- **Chats / messages:** `basecamp chat messages` and `basecamp recordings messages -a 6060605` across projects — filter to the window. Customer questions and field notes live here.
-- **Timeline (activity):** `basecamp timeline -a 6060605 --json` — the cross-project catch-all.
+- **Chats / messages:** `basecamp chat messages` and `basecamp --profile zonebrite recordings messages -a 6060605` across projects — filter to the window. Customer questions and field notes live here.
+- **Timeline (activity):** `basecamp --profile zonebrite timeline -a 6060605 --json` — the cross-project catch-all.
 - **Client-job projects + Field Ops + Support:** the individual job projects, `Field Ops`, `Support` — what came up on real jobs (apply the confidentiality guardrail hard).
 - **Zonebrite.com dev logs / Sales & Biz Dev:** site dev logs and sales activity for site-content and FAQ-shaped material.
 
 ### 3. Dedupe against existing cards
 List what's already on the boards so you don't re-propose it:
 ```bash
-basecamp cards list --card-table 9821916129 --in 46771824 -a 6060605 --jq '.data[].title'    # GBP
-basecamp cards list --card-table 10022351438 --in 46771824 -a 6060605 --jq '.data[].title'   # Website Content
+basecamp --profile zonebrite cards list --card-table 9821916129 --in 46771824 -a 6060605 --jq '.data[].title'    # GBP
+basecamp --profile zonebrite cards list --card-table 10022351438 --in 46771824 -a 6060605 --jq '.data[].title'   # Website Content
 ```
 Skip anything substantially already captured.
 
@@ -101,7 +102,7 @@ Show Matt the list — title, one-line description, target board, source — gro
 
 ### 7. Create the cards
 ```bash
-basecamp cards create -a 6060605 "[<prefix>] <title>" "<HTML body: idea + angle + draft/outline + 🔗 Source + confidentiality-safe note>" \
+basecamp --profile zonebrite cards create -a 6060605 "[<prefix>] <title>" "<HTML body: idea + angle + draft/outline + 🔗 Source + confidentiality-safe note>" \
   --in 46771824 --card-table <board table id> --column <board Ideas column id> --jq '.data.app_url'
 ```
 Land in each board's **Ideas** column. Use a heredoc for the body (shell escaping; HTML sent as-is for cards). One card per idea.

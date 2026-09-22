@@ -8,8 +8,8 @@ Sweep a time window across everything Matt worked on, distill the insights, and 
 
 ## Fixed IDs (don't ask Matt)
 
-- **Safaii Studio account:** `6191443`
-- **Zonebrite account:** `6060605`
+- **Safaii Studio account:** `6191443` (default profile `safaii` — no profile flag needed)
+- **Zonebrite account:** `6060605` (profile `zonebrite` — every Zonebrite command needs `--profile zonebrite` alongside `-a 6060605`; the credential for 6191443 cannot reach this account)
 - **Content project:** `46824770` · card table `9768310845` · **Ideas column `9768310846`** (essays/videos land here, prefixed `[Essay]` / `[Video]`)
 - **Distribution table:** `10010006453` · **Triage column `10010006454`** (insights/tweets land here, prefixed `[💡 Insight]`)
 - **Lab project:** `46824335` (scrapped ideas live in its **Graveyard** column)
@@ -86,8 +86,8 @@ Gather raw material from the window across all of these. Verify exact CLI flags 
 - **Basecamp messages / cards / Graveyard:** broader board activity and scrapped ideas (Lab Graveyard) — catches decisions not in git.
 - **Latest Activity (timeline):** the cross-account catch-all — surfaces what git and dev logs miss. Run per account.
   ```bash
-  basecamp timeline -a 6191443 --json     # Safaii
-  basecamp timeline -a 6060605 --json     # Zonebrite
+  basecamp timeline -a 6191443 --json                              # Safaii (default profile)
+  basecamp --profile zonebrite timeline -a 6060605 --json          # Zonebrite (own credential)
   ```
 - **Client work:** Zonebrite + Safaii client projects — under the confidentiality guardrail above.
 
