@@ -120,8 +120,12 @@ A component with no empty, loading, or error state is unfinished.
 
 ## Images
 
-- **A page is a visual product.** A text-only page is not minimalism; it is unfinished work.
-- **Real images.** The client's own assets from `inventory-brief`, or clearly labelled placeholder slots with a TODO naming the placement and size. Never a fake screenshot built from divs, never a hand-rolled decorative SVG standing in for a photograph.
+- **A page is a visual product.** A page of nothing but type is not minimalism; it is unfinished work.
+- **Source real images, in this order:**
+  1. **An image-generation tool, if the environment has one** — generate section-specific assets at the aspect ratio each placement needs.
+  2. **The client's own assets** from `inventory-brief` — their photography, product shots, logo. Preferred whenever they exist.
+  3. **A labelled placeholder slot** — a TODO naming the placement and the size, so nothing ships with a silent gap.
+- **Never** a fake screenshot built from styled divs, and never a hand-rolled decorative SVG standing in for a photograph.
 - **Decorative or content.** Content images get meaningful alt text; decorative ones get `alt=""` (`safaii-html`).
 - **Reserve the space.** Set `width` and `height` so the ratio holds before load.
 
