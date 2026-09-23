@@ -1,6 +1,6 @@
 # Scroll-life patterns
 
-Four recipes, all pure CSS scroll-driven animations. Every recipe ships inside the double gate (`@supports` + `prefers-reduced-motion`) and follows safaii-css: `@layer components` (or `elements` where it styles a bare element), tokens not magic numbers, `@scope` for anything with descendant rules, keyframes at the top of the file.
+Four recipes, all pure CSS scroll-driven animations. Every recipe ships inside the double gate (`@supports` + `prefers-reduced-motion`) and follows safaii-css: `@layer block` (or `base` where it styles a bare element), tokens not magic numbers, `@scope` for anything with descendant rules, keyframes at the top of the file.
 
 Two timeline kinds, one mental model:
 
@@ -27,7 +27,7 @@ The element exists only for the enhancement, so it's hidden in base CSS and show
 	to { scale: 1 1; }
 }
 
-@layer components {
+@layer block {
 	.reading-progress {
 		display: none; /* enhancement-only element: hidden unless the enhancement runs */
 	}
@@ -69,7 +69,7 @@ Variant: to track one article rather than the whole page, give the article `view
 	}
 }
 
-@layer components {
+@layer block {
 	@supports (animation-timeline: view()) {
 		@media (prefers-reduced-motion: no-preference) {
 			.reveal {
@@ -107,7 +107,7 @@ The hidden start state (`opacity: 0`) exists **only inside the gates** — in ba
 	50% { opacity: 1; }
 }
 
-@layer components {
+@layer block {
 	@scope (.scrolly) {
 		:scope {
 			display: grid;
@@ -170,7 +170,7 @@ Works on any inline SVG with stroked paths. `pathLength="1"` normalizes every pa
 	to { stroke-dashoffset: 0; }
 }
 
-@layer components {
+@layer block {
 	@supports (animation-timeline: view()) {
 		@media (prefers-reduced-motion: no-preference) {
 			.figure-scrub .draw {

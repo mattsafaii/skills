@@ -49,7 +49,7 @@
 			"files": [],
 			"expectations": [
 				"Builds the chosen variation as a real component in the project, not by copying the prototype file's markup wholesale",
-				"Uses the project's actual CSS architecture (e.g. @layer config, reset, elements, components) instead of the prototype's inline styles",
+				"Uses the project's actual CSS architecture (e.g. the CUBE layers — reset, tokens, base, composition, block, utility, exception) instead of the prototype's inline styles",
 				"Wires the component to real state/data rather than the prototype's fake data",
 				"Leaves the original prototype file in place as a record unless told to delete it"
 			]

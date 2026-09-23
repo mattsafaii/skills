@@ -72,7 +72,7 @@ Every page starts from the same shell:
 - **Double-quote** every attribute value.
 - **Boolean attributes are bare** — `required`, `disabled`, `hidden`, not `required="required"`.
 - **Void elements aren't self-closed** — `<br>`, `<img …>`, `<meta …>`, not the XHTML `<br />`.
-- **Tabs for indentation**, matching the house style (the same as `safaii-css`'s `starter.css`).
+- **Tabs for indentation**, matching the house style (the same as `safaii-css`'s starter).
 - **Attribute order** (loose, don't over-police): `class`, `id`, `name`, `data-*`, `src`/`href`/`type`/`value`, `alt`/`title`, `aria-*`/`role`, then booleans. Keep `class`/`id` first.
 - **One attribute-heavy element per line;** wrap long attribute lists rather than running them off-screen.
 - **Comments:** ship-facing notes in `<!-- -->`, sparingly. Build-only notes go in the template engine's comment (`{% # … %}` in Liquid) so they never reach the browser.

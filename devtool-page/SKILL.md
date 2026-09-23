@@ -7,7 +7,7 @@ description: Build the small landing page for one of Matt's dev tools (scry, zen
 
 One small static page per tool. Same skeleton every time; only the accent changes. The page's job is one thing: get a developer from promise → install command in under ten seconds.
 
-**Delegates, never duplicates:** all CSS conventions come from [[safaii-css]] (starter.css, layers, oklch, `@scope`, Checks); markup conventions from [[safaii-html]]. This skill owns only what is specific to a dev-tool page: anatomy, the install-command CTA, and the terminal-artifact rule.
+**Delegates, never duplicates:** all CSS conventions come from [[safaii-css]] (the starter tree, layers, oklch, `@scope`, Checks); markup conventions from [[safaii-html]]. This skill owns only what is specific to a dev-tool page: anatomy, the install-command CTA, and the terminal-artifact rule.
 
 ## Workflow
 
@@ -17,7 +17,7 @@ One small static page per tool. Same skeleton every time; only the accent change
    - Accent hue for this tool (one oklch hue; each tool gets its own)
    - Repo URL, public or private (private → GitHub link becomes "source available on request" or is dropped; never link to a 404)
 2. **Capture real output.** Run the actual tool once and paste its real output into the terminal block. Never invent output, metrics, star counts, or testimonials. If the tool errors when you run it, show the error path to Matt instead of fabricating a happy path.
-3. **Scaffold** — `index.html` + `css/style.css` in the tool repo's `site/` dir (or a standalone repo if Matt says so). Copy `references/starter.css` as the stylesheet.
+3. **Scaffold** — `index.html` + `css/style.css` in the tool repo's `site/` dir (or a standalone repo if Matt says so). Copy the `safaii-css` starter, flattened into that one file — there is no Lightning CSS step here to resolve its `@import`s.
 4. **Config** — fill starter tokens: `--color-accent` set to the tool's hue (P3 boost per [[safaii-css]] where it earns it), `--font-body: var(--font-sans)` (sans, not the serif document default — these are product pages, not essays).
 5. **Build the sections** per `references/page-anatomy.md`.
 6. **Run both Checks tables** — this skill's below, then [[safaii-css]]'s.

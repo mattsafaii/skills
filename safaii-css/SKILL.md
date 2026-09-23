@@ -305,8 +305,9 @@ This skill uses recent CSS (`@scope`, `cqi`, `oklch`, relative color, `@view-tra
 
 These materialize the conventions; when this skill or `references/starter/` changes, refresh each — none auto-update:
 
-- **11ty sites** — copy `references/starter/` to `src/assets/css/`. In the client template it is processed by Lightning CSS; see the Process section.
+- **11ty sites** — the client starter is `~/Work/safaii-studio/templates/safaii-starter/` (private repo `mattsafaii/safaii-starter`), and its `src/assets/css/` is a verbatim copy of `references/starter/`. A change here is a change there. It is processed by Lightning CSS; see the Process section.
 - **Rails apps** — split the starter by concern into `app/assets/stylesheets/`, one file per layer plus one per component.
+- **Skills that delegate to this one** — `safaii-html`, `devtool-page`, `scroll-driven-animation`, `ui-mockup`. They restate the layer names and the starter path in prose and in eval fixtures, so a rename here leaves them quietly wrong. Grep them for the old names and paths after any change to the layers, the starter's location, or the token set. This list is the only thing that catches it; nothing else does.
 - **garp** (`~/Work/safaii-studio/lab/garp`) — `new.go` embeds a real `scaffold/` tree (`//go:embed all:scaffold`) and stamps it into a new project. `scaffold/static/style.css` is the starter flattened into one file, because garp doesn't bundle CSS. A *snapshot*: it ships with `garp new` and silently drifts when the conventions move. Refresh it from the starter tree and rebuild. `sink.go` parses the `@layer tokens` block for the kitchen-sink token list, so a layer rename here also breaks that page. Canonical token names here win over the scaffold's.
 
 ### Derived human-readable views
