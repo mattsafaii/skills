@@ -1,420 +1,433 @@
 {
-  "skill_name": "safaii-css",
-  "notes": "Behavioral evals for the safaii-css conventions. These complement the grep-based Checks table in SKILL.md (which validates a finished stylesheet) by testing whether the skill steers an agent to the RIGHT defaults — especially the places a generic CSS agent would default the wrong way: BEM/prefixed classes instead of @scope, media-query breakpoints instead of intrinsic layout, dark-by-default instead of deliberate light-only. Expectations encode safaii-css conventions, which deliberately diverge from component-system/BEM CSS.",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Set up the color tokens for a personal/document site. I need a background, a text color, and an accent, with a muted text variant.",
-      "expected_output": "Tokens in @layer config, all oklch. Small-palette semantic tokens (--color-bg, --color-text, --color-accent); muted variant derived via color-mix(in oklch, ...). color-scheme: light (light-only is the deliberate default). accent-color set from --color-accent. No hex/rgb/hsl, no light-dark() or color-scheme: light dark unless dark mode was asked for.",
-      "files": [],
-      "expectations": [
-        "Defines the tokens inside @layer config",
-        "Uses oklch for every color value — no hex, rgb, or hsl",
-        "Uses semantic names --color-bg / --color-text / --color-accent (small palette), not a primitive ramp",
-        "Derives the muted variant with color-mix(in oklch, ...), not a new literal or opacity",
-        "Sets color-scheme: light — does NOT add `light dark` or dark-mode tokens, since dark mode wasn't requested",
-        "Wires accent-color: var(--color-accent) for native form controls"
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Style a card component that has a header, a body, and an image. Give the card a border and rounded corners.",
-      "expected_output": "Styles inside @layer components, wrapped in @scope (.card) because the component has descendants. Root styled via :scope. Sub-parts targeted by element or simple scoped class within the @scope block — NOT BEM (.card__header) and NOT a c- prefix. References tokens (--radius, --color-border, --gutter/--space-*). Uses `to (...)` only if a nested component boundary needs protecting.",
-      "files": [],
-      "expectations": [
-        "Places styles in @layer components",
-        "Uses @scope (.card) to scope the component (it has descendants, so a plain rule is not enough)",
-        "Styles the card root via :scope, not by repeating the .card class",
-        "Does NOT use BEM double-underscore element naming (.card__header) or a c- prefix",
-        "References tokens for radius, border color, and spacing — no hardcoded values",
-        "Uses logical properties (padding-block/padding-inline, inline-size) rather than physical ones"
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Style a simple article page — a main heading, some paragraphs, and links. Nothing fancy.",
-      "expected_output": "Element-first: styles bare h1/p/a in @layer elements, NOT invented component classes. The page reads as a styled document. text-wrap: balance on headings, pretty on paragraphs. Tokens for color and rhythm (--stack). No classes invented for plain content.",
-      "files": [],
-      "expectations": [
-        "Styles bare elements (h1, p, a) in @layer elements — does not invent .c-article / .heading / wrapper classes for plain content",
-        "Applies text-wrap: balance to headings and text-wrap: pretty to paragraphs",
-        "Block rhythm comes from a spacing token (--stack), not magic numbers",
-        "Uses logical properties (margin-block) over physical ones",
-        "Does not reach for @scope or components for content that bare elements can carry"
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Build a feature card grid for a marketing site. Cards should wrap into as many columns as fit with NO media queries — each at least 20 characters wide. Inside each card the heading should scale fluidly with the card's width, between 1.25rem and 3rem.",
-      "expected_output": "Grid uses repeat(auto-fit, minmax(20ch, 1fr)) — no @media breakpoints. The 20ch min is exposed as a scoped custom property so it's overridable per instance. Heading uses clamp() with a cqi ideal value and a rem minimum; the card sets container-type: inline-size so cqi resolves against the card. Gap from a spacing token. No px except border/outline width.",
-      "files": [],
-      "expectations": [
-        "Grid uses repeat(auto-fit, minmax()) with NO @media breakpoints for column count",
-        "The minmax minimum uses ch (e.g. 20ch), ideally via a scoped --*-col-min custom property",
-        "Heading font-size uses clamp() with a cqi ideal value and a rem minimum (not vw, not em)",
-        "The card establishes container-type: inline-size so cqi resolves against the card, not the viewport",
-        "Gap references a spacing token (--gutter or --space-*) — no hardcoded px",
-        "No hardcoded px except on border-width / outline-width"
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "I have a row of tag chips that should wrap naturally. Each chip should be at least 10 characters wide but grow to fill space, and chips should wrap to new rows independently rather than all breaking at once.",
-      "expected_output": "Deconstructed-pancake flex: container display: flex + flex-wrap: wrap; items flex: 1 1 10ch. ch flex-basis, no media queries, no fixed width / min-width hack.",
-      "files": [],
-      "expectations": [
-        "Container uses display: flex with flex-wrap: wrap",
-        "Chips use the flex shorthand (flex: 1 1 <value>), not separate flex-grow/shrink/basis or a width/min-width hack",
-        "The flex-basis uses ch units (e.g. 10ch), not px",
-        "No media queries control the wrapping"
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "Set up the spacing tokens for a new site.",
-      "expected_output": "Fixed rem scale on a 4px grid: --space-1 … --space-16 (number is px÷4). Semantic --gutter (inline) and --stack (block) as fluid clamps bounded by scale steps, e.g. clamp(var(--space-4), 2.5vmax, var(--space-6)). Relative units; derived sizes via calc(), not magic numbers. px only on border/outline. (--measure is a typography token, not expected from a spacing-only prompt.)",
-      "files": [],
-      "expectations": [
-        "Defines a fixed rem spacing scale on a 4px grid (--space-1 … --space-16, e.g. --space-4: 1rem)",
-        "Provides semantic --gutter (inline) and --stack (block) tokens",
-        "--gutter/--stack are fluid clamps bounded by scale steps — clamp(var(--space-*), <fluid>, var(--space-*)) — not raw clamp(ch/ex...) and not fixed-only",
-        "All spacing is relative units; any derived size uses calc() on a token, not a magic number",
-        "No px except border-width / outline-width"
-      ]
-    },
-    {
-      "id": 7,
-      "prompt": "Add user-toggleable light and dark themes to a site that's currently light-only. The OS preference should be the initial default and a button flips it.",
-      "expected_output": "Each theme-aware token defined once with light-dark(lightval, darkval) in @layer config. Theme switched by flipping color-scheme: color-scheme: light dark on :root to follow the OS, then [data-theme='dark'] { color-scheme: dark } / [data-theme='light'] { color-scheme: light } for the explicit toggle. No token values repeated for dark mode; no @media (prefers-color-scheme) used to redefine tokens. All colors oklch — flip lightness, keep chroma/hue.",
-      "files": [],
-      "expectations": [
-        "Theme-aware tokens are defined once with light-dark() — values are NOT repeated for dark mode",
-        "color-scheme: light dark on :root provides the OS-default following behavior",
-        "Explicit toggle flips color-scheme via [data-theme='dark'] / [data-theme='light'], not by redefining tokens",
-        "Does NOT use @media (prefers-color-scheme) as the mechanism for redefining token values",
-        "All color values are oklch"
-      ]
-    },
-    {
-      "id": 8,
-      "prompt": "Refactor this inherited CSS to follow our conventions:\n\n```css\n.button {\n  display: inline-flex;\n  padding: 8px 16px;\n  background-color: #0066cc;\n  color: #ffffff;\n  border-radius: 4px;\n  font-size: 14px;\n  font-weight: 500;\n  border: none;\n  cursor: pointer;\n}\n\n.button:hover {\n  background-color: #0052a3;\n}\n\n.button:focus {\n  outline: 2px solid #0066cc;\n}\n```",
-      "expected_output": "Hex values become oklch tokens in @layer config (hover derived by lowering L, or via color-mix/relative color). Stays a .button class rule in @layer components (opt-in visual variant — preserve the selector contract; do NOT elementize to bare `button`). Because .button is root-only (no descendant rules), it stays a PLAIN rule — not wrapped in @scope and NOT renamed to .c-button or BEM. px replaced with token references (spacing/radius); border-width may stay px. no bare :focus left — converted to :focus-visible with a token'd outline, or dropped when the starter's global :where(:focus-visible) ring already covers it. Padding uses the logical longhands padding-block/padding-inline, not the 2-value padding shorthand.",
-      "files": [],
-      "expectations": [
-        "Hex colors (#0066cc, #0052a3, #ffffff) are replaced with oklch tokens defined in @layer config",
-        "Stays a `.button` class rule (preserve the original selector contract) — NOT renamed to .c-button, NOT BEM, NOT dissolved into a bare `button` element selector, and NOT wrapped in @scope (root-only stays a plain rule)",
-        "Lives in @layer components (it is an opt-in visual variant, not a default document element)",
-        "Hardcoded px (8px, 16px, 14px, 4px) are replaced with spacing/radius token references; border-width may remain px",
-        "Leaves no bare :focus rule — either converts it to :focus-visible with a token'd outline, or drops it as redundant when the starter's global :where(:focus-visible) ring already covers the element",
-        "Replaces physical padding with logical properties (padding-block, padding-inline)"
-      ]
-    },
-    {
-      "id": 9,
-      "prompt": "Add a fade-and-slide-in animation to the hero section and a frosted-glass (translucent, blurred) background to the nav bar.",
-      "expected_output": "Motion gated behind @media (prefers-reduced-motion: no-preference); translucent/backdrop-blur gated behind @media (prefers-reduced-transparency: no-preference) with an opaque fallback. Both judged against 'no animation unless functional' — purely decorative motion is questioned, not added reflexively. Durations/easings reference motion tokens if present.",
-      "files": [],
-      "expectations": [
-        "Wraps the animation in @media (prefers-reduced-motion: no-preference)",
-        "Wraps the translucent/backdrop-blur styling in @media (prefers-reduced-transparency: no-preference), with an opaque fallback outside it",
-        "Surfaces the 'no animation unless functional' judgment rather than adding decorative motion uncritically",
-        "Uses logical properties and token-based values for the effect"
-      ]
-    },
-    {
-      "id": 10,
-      "prompt": "On the primary button the background is var(--color-accent), and the accent changes per project. Set the text color so it's always readable against whatever the accent is — automatically.",
-      "expected_output": "BEHAVIORAL eval. contrast-color() is the obvious tool, but it's an ask-first feature — the agent should NOT silently emit it. Instead it pauses, surfaces the caveats (returns only black/white; does NOT guarantee WCAG AA; mid-tone accents can fail; Baseline 2026, very new), offers the @supports fallback and a hand-set --color-text-on-accent alternative, and asks Matt to confirm before using contrast-color(). Silently shipping contrast-color() as the answer is a FAIL.",
-      "files": [],
-      "expectations": [
-        "Identifies contrast-color() as the feature that fits 'auto-pick readable text on a dynamic background'",
-        "Does NOT silently emit contrast-color() as the final answer — it pauses and asks for confirmation first (ask-first gate)",
-        "Surfaces the key caveat: contrast-color() returns only black/white and does NOT guarantee WCAG AA (fails on mid-tone backgrounds)",
-        "Notes its recency / limited support (Baseline 2026) and that it needs an @supports fallback",
-        "Offers a conservative alternative (a hand-set --color-text-on-accent token, contrast-verified) and lets Matt decide"
-      ]
-    },
-    {
-      "id": 11,
-      "prompt": "Style the open state of a <details> accordion — give the summary a different background when it's expanded.",
-      "expected_output": "BEHAVIORAL eval (the graceful flavor of ask-first). Reaches for the native :open pseudo-class (details:open > summary) — not a modifier class or JS. Because :open is Baseline 2026, gives a LIGHT heads-up (it's recent, ask-first) and offers/includes a wider-support fallback (details[open] selector, or @supports selector(:open)) — but a short 'this is new, OK to use with fallback?' is enough; it should NOT sound as alarming as a risky feature like contrast-color().",
-      "files": [],
-      "expectations": [
-        "Reaches for :open (e.g. details:open > summary) as the open-state hook — not a .is-open/.expanded modifier class and not JS state tracking",
-        "Surfaces that :open is recent / Baseline 2026 (ask-first) with a LIGHT heads-up — does not silently ship it with no mention of its newness",
-        "Provides or offers a wider-support fallback: a details[open] attribute selector or @supports selector(:open)",
-        "The heads-up is proportionate — a brief 'it's new, OK with a fallback?' rather than a heavy WCAG-style warning",
-        "Does not invent a modifier class or JavaScript to track the open state"
-      ]
-    },
-    {
-      "id": 12,
-      "prompt": "Build a Pinterest-style masonry gallery — image cards of varying heights that pack together without gaps below the short ones.",
-      "expected_output": "PROTECTIVE eval (not-ready tier). Must NOT emit experimental masonry syntax (grid-template-rows: masonry / display: masonry / grid-lanes) — it's pre-Baseline with unsettled syntax and falls back to a plain grid everywhere. Instead: say true native masonry isn't production-ready, and offer the stopgap — the auto-fit grid (predictable, accessible) by default, or a `columns` approximation ONLY for non-sequential galleries with the reading-order caveat flagged.",
-      "files": [],
-      "expectations": [
-        "Does NOT write experimental masonry syntax (no grid-template-rows: masonry, display: masonry, or grid-lanes)",
-        "States that native CSS masonry is not production-ready (experimental / not Baseline / unsettled syntax)",
-        "Offers a stopgap: the auto-fit grid, and/or a columns (multicol) approximation",
-        "If it offers columns, flags the reading-order caveat (flows top-to-bottom per column) and limits it to non-sequential galleries",
-        "Does not silently ship a broken masonry layout as if it works today"
-      ]
-    },
-    {
-      "id": 13,
-      "prompt": "On my multi-page site I want different page transitions for forward vs back navigation — slide left when going forward, slide right when going back.",
-      "expected_output": "BEHAVIORAL eval (ask-first graceful + motion rules). Uses view-transition TYPES — sets forward/back types via pageswap/pagereveal and styles them with :active-view-transition-type() over ::view-transition-old/new, building on the starter's @view-transition. NOT a JS animation library. Gives a light heads-up (Baseline 2026, ask-first, degrades to instant nav). Motion-gates the typed animation (prefers-reduced-motion). Treats directional transitions as functional/orientation, not decoration.",
-      "files": [],
-      "expectations": [
-        "Uses view-transition types: :active-view-transition-type(forward/back) styling ::view-transition-old/new, building on @view-transition",
-        "Sets the forward/back type via the pageswap/pagereveal events (cross-document), not a class or framework",
-        "Does NOT reach for a JS animation library or hand-rolled fetch+animate — stays on the native view-transition platform",
-        "Gives a light ask-first heads-up (Baseline 2026, recent, degrades to instant navigation) before adding",
-        "Motion-gates the typed animation (zeroes/disables it under prefers-reduced-motion)",
-        "Frames directional transitions as functional orientation rather than decorative flair"
-      ]
-    },
-    {
-      "id": 14,
-      "prompt": "Tint a card's background with color-mix(), but fall back to a solid color for browsers that don't support color-mix.",
-      "expected_output": "A single-property override, so NO @supports needed — the plain cascade handles it: write the solid fallback `background` first, then the `color-mix()` background in the same rule; unsupported browsers ignore the second and keep the fallback. Using @supports here is over-wrapping. Tokens + oklch throughout.",
-      "files": [],
-      "expectations": [
-        "Provides the fallback as a plain earlier `background:` declaration, followed by the color-mix() `background:` in the SAME rule",
-        "Does NOT wrap the color-mix() in an @supports feature query — a single property-value override is handled by the cascade",
-        "Relies on / explains that browsers ignore the unsupported declaration and keep the earlier fallback",
-        "Uses tokens and oklch (color-mix(in oklch, ...) off a token, solid fallback from a token)",
-        "Does not introduce @supports not(...) or other needless machinery for what the cascade already does"
-      ]
-    },
-    {
-      "id": 15,
-      "prompt": "When my popover opens, I want it to fade and scale in instead of just appearing.",
-      "expected_output": "Native entry animation via @starting-style: define the from-state (opacity 0, scaled) in an @starting-style block placed AFTER the :popover-open rule; transition opacity/transform plus display/overlay with allow-discrete. Gate under prefers-reduced-motion. No JS show/hide animation.",
-      "files": [],
-      "expectations": [
-        "Uses @starting-style to define the entry from-state (e.g. opacity:0, transform scaled)",
-        "Places @starting-style after the open-state rule (equal specificity, so order matters)",
-        "Transitions display and/or overlay with allow-discrete so the top-layer element animates in",
-        "Gates the animation under @media (prefers-reduced-motion: no-preference)",
-        "No JS animation library or manual class-toggled show/hide animation — stays on the native popover + CSS"
-      ]
-    },
-    {
-      "id": 16,
-      "prompt": "Give my blog post cards a 3-line excerpt that cuts off with an ellipsis if the summary is too long.",
-      "expected_output": "The -webkit-box line-clamp trio: display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden. Not a JS truncation script, not a hard character cut. Note the full text stays in the DOM (SR reads all).",
-      "files": [],
-      "expectations": [
-        "Uses the -webkit-line-clamp set: display:-webkit-box + -webkit-box-orient:vertical + -webkit-line-clamp:3 + overflow:hidden",
-        "Does NOT hand-roll JS truncation or a character-count cut",
-        "Keeps the full text in the markup (truncation is visual only) — doesn't trim the actual content",
-        "Tokens/relative units where applicable; lives in the components layer"
-      ]
-    },
-    {
-      "id": 17,
-      "prompt": "My page has a fixed header, and when I click an in-page anchor link the section title gets hidden behind it. Fix it.",
-      "expected_output": "CSS scroll-padding-block-start (or scroll-padding-top) on :root/html equal to the header height, so anchor targets land below the fixed header — no JS scroll offset. Optionally scroll-margin on the targets.",
-      "files": [],
-      "expectations": [
-        "Sets scroll-padding-block-start / scroll-padding-top on :root (or html) to offset for the fixed header",
-        "Does NOT solve it with a JS scroll handler / scrollIntoView offset hack",
-        "Uses a relative unit or the header-height token, not a magic px (px acceptable only if tied to a real fixed measure)",
-        "May also mention scroll-margin on the targets as the per-element form"
-      ]
-    },
-    {
-      "id": 18,
-      "prompt": "Add a drop cap to the first letter of my article's opening paragraph — big initial that sinks into the first few lines.",
-      "expected_output": "Native initial-letter on ::first-letter, with the -webkit-initial-letter prefix, AND a plain ::first-letter font-size/weight fallback (Firefox lacks initial-letter, so it should still get an enlarged — if not sunk — letter). Experimental-graceful, pure enhancement.",
-      "files": [],
-      "expectations": [
-        "Uses initial-letter on ::first-letter (e.g. p:first-of-type::first-letter)",
-        "Includes the -webkit-initial-letter prefixed version alongside the standard one",
-        "Provides a plain ::first-letter fallback (font-size/weight) so Firefox still shows an enlarged letter",
-        "Flags it as experimental/graceful (Firefox lacks initial-letter) — pure enhancement, no JS"
-      ]
-    },
-    {
-      "id": 19,
-      "prompt": "I have a card that should stack its image above the text when it's narrow, but sit image-beside-text once it has enough room — and it appears in both a wide main column and a narrow sidebar, so it can't just key off screen width.",
-      "expected_output": "A container query: set container-type: inline-size on the card wrapper, then @container (inline-size > ~30rem) switches the card from stacked to side-by-side. NOT a @media viewport breakpoint (the card is in two different-width places, so viewport width is wrong). Intrinsic-first is acknowledged but a discrete switch genuinely needs a query here.",
-      "files": [],
-      "expectations": [
-        "Uses @container (container query), NOT a @media viewport breakpoint — the card is placed in two different-width contexts",
-        "Sets container-type: inline-size (or container shorthand) on the card's wrapper to establish the query container",
-        "Queries the container's inline-size (e.g. @container (inline-size > 30rem)) to switch layout",
-        "The default/baseline layout is the stacked (narrow) one, enhanced to side-by-side when there's room",
-        "Uses tokens/relative units and lives in the components layer (scoped appropriately)"
-      ]
-    },
-    {
-      "id": 20,
-      "prompt": "I have a really long page with lots of repeated content sections — improve render/scroll performance by not rendering the ones that are off-screen.",
-      "expected_output": "content-visibility: auto on the repeated section, PAIRED with contain-intrinsic-size: auto <length> so off-screen sections don't collapse and the scrollbar doesn't jump (CLS). Not content-visibility alone. Relative length estimate (rem), auto remembers the real size after first render.",
-      "files": [],
-      "expectations": [
-        "Uses content-visibility: auto to skip off-screen rendering",
-        "PAIRS it with contain-intrinsic-size (auto <length>) — does NOT ship content-visibility: auto alone",
-        "Justifies the pairing (off-screen collapse → scrollbar jump / CLS) or at least includes it as required",
-        "Uses a relative length estimate (rem) for the intrinsic size (or auto none for grid/multicol), not a magic px",
-        "Applies it to the repeating section, in an appropriate layer"
-      ]
-    },
-    {
-      "id": 21,
-      "prompt": "My card grid has thumbnail images of all different shapes and sizes — I want them all to display at the same uniform size without getting squashed or stretched.",
-      "expected_output": "Give the thumbnail a fixed aspect-ratio and set the <img> object-fit: cover (so it crops to fill instead of distorting), object-position to steer the crop if needed. Keep the img width/height attributes for the intrinsic ratio. Tokens/relative units, component layer. No JS cropping, no fixed width+height stretch.",
-      "files": [],
-      "expectations": [
-        "Gives the thumbnail a fixed aspect-ratio (e.g. aspect-ratio: 4 / 3)",
-        "Sets object-fit: cover on the <img> so it crops to fill rather than squashing/stretching",
-        "Does NOT distort the image (no fixed width AND height forcing a stretch) and does not hand-crop in JS",
-        "Mentions/keeps the img width/height attributes (intrinsic ratio reserves space) and/or object-position for the crop focus",
-        "Tokens/relative units, in the components layer, scoped appropriately"
-      ]
-    },
-    {
-      "id": 22,
-      "prompt": "Build a full neutral color ramp (50 through 950) for a client's design system, plus a step ramp for their brand accent color.",
-      "expected_output": "Two ramps with different chroma taper shapes, same lightness/hue rules. Neutral ramp: chroma stays low throughout (inside the neutral band) and gently INCREASES toward the dark end — does not peak mid-ramp, does not go flat C:0. Accent ramp: chroma peaks mid-ramp (inside the sRGB-safe ~0.20-0.32 band) and tapers down at BOTH the light and dark extremes. Both ramps hold hue constant across all 11 steps and use oklch throughout — no hex/hsl.",
-      "files": [],
-      "expectations": [
-        "Both ramps have 11 steps (50/100/200/300/400/500/600/700/800/900/950) with lightness decreasing across them",
-        "The neutral ramp's chroma stays low and gently increases toward the dark end — it does NOT peak in the middle like an accent ramp, and is not flat zero throughout",
-        "The accent ramp's chroma peaks at the middle steps (roughly 400-600) inside the sRGB-safe band and tapers down at both the light and dark extremes",
-        "Hue is held constant across every step within each ramp — only lightness (and for the accent ramp, chroma) changes",
-        "Every value is oklch — no hex, rgb, or hsl"
-      ]
-    },
-    {
-      "id": 23,
-      "prompt": "This project already has a full --base-50 through --base-950 primitive ramp. Add dark mode.",
-      "expected_output": "BEHAVIORAL eval. Because a full ramp already exists, the agent should reach for the mirrored-step trick — point dark-mode semantic tokens at a DIFFERENT already-tuned step from the same ramp (e.g. --color-text: light-dark(var(--base-800), var(--base-100))) — rather than hand-computing a fresh +0.10-0.15 L-offset value from scratch. Since --base-* steps are already complete oklch() colors, they must NOT be wrapped in oklch(from ...) (that would double-nest and produce invalid CSS) — light-dark() references the ramp tokens directly.",
-      "files": [],
-      "expectations": [
-        "Recognizes the existing ramp and picks a DIFFERENT existing --base-* step for dark mode rather than computing a brand-new L value from scratch",
-        "Uses light-dark() referencing the ramp tokens directly (e.g. light-dark(var(--base-800), var(--base-100))) — not oklch(from var(--base-N) ...), which would double-nest an already-complete color and be invalid",
-        "Does not repeat/redeclare literal oklch() values for the dark variant when an existing ramp step already serves the purpose",
-        "Justifies the choice as reusing already-tuned perceptual lightness steps rather than reinventing them"
-      ]
-    },
-    {
-      "id": 24,
-      "prompt": "I need three status colors (success, warning, error) that all feel equally weighted and consistent — none should look more or less vivid than the others.",
-      "expected_output": "The multi-brand technique, CORRECTED form: hold L fixed and vary only H, but hold chroma as a PERCENTAGE of each hue's own max chroma, not a flat absolute number — different hues have very different max chroma at the same lightness (e.g. purple's ceiling is roughly 3x cyan's at L 0.5), so a flat absolute C reads inconsistent across hues even though the lightness is the same. NOT HSL. NOT three independently hand-tuned colors by eye. A naive flat-C answer (e.g. oklch(0.55 0.14 145)/oklch(0.55 0.14 70)/oklch(0.55 0.14 25) with no acknowledgment that chroma should track each hue's ceiling) is an outdated/incomplete answer per the skill's own corrected guidance.",
-      "files": [],
-      "expectations": [
-        "Uses oklch with the SAME lightness across all three status colors — hue is what varies",
-        "Does NOT simply use a flat absolute chroma value across all three hues without qualification — recognizes that different hues have different max chroma at the same lightness, and chroma should be set as a percentage of each hue's own ceiling for consistent vividness",
-        "Does not use HSL for this (or if HSL is mentioned, explains why it fails — identical L/S reads inconsistent across hue)",
-        "Does not hand-tune wildly different lightness per status color to 'make them look right' individually",
-        "The result is justified as consistent visual weight because oklch lightness is perceptual — with chroma calibrated per-hue rather than assumed identical"
-      ]
-    },
-    {
-      "id": 25,
-      "prompt": "Can we add a subtle hover color-shift micro-interaction on the site's logo mark using @property, for branding? I think it'd reinforce the identity nicely. The logo currently just has `color: var(--color-text)` swapping to `color: var(--color-accent)` on hover via a plain `transition: color 0.2s ease`.",
-      "expected_output": "BEHAVIORAL eval testing BOTH the animation-philosophy exception AND the @property-vs-plain-transition judgment (a real production lesson: this exact scenario was built, measured, and reverted on mattsafaii.com — the @property version's only actual delta over the existing plain crossfade was an invisible ~0.4 degree hue overshoot and 3x the duration). The agent should engage with the branding idea on its merits (not a blanket refusal, not a silent yes) AND, critically, recognize that a plain two-color oklch transition already interpolates hue/lightness/chroma natively — so it should question whether @property adds anything beyond what's already there, not implement it reflexively just because the user named the technique. A correct answer either (a) points out the existing transition already achieves a smooth color shift and asks what @property is meant to add beyond it before building anything, or (b) if a genuine reason exists (a visible multi-stop hue arc, not a two-endpoint swap), implements it AND explicitly measures/describes the actual behavioral delta over the plain-transition baseline rather than assuming @property is automatically better.",
-      "files": [],
-      "expectations": [
-        "Does NOT refuse outright with a blanket 'no animation' — recognizes branding-reinforcement as a legitimate named exception category",
-        "Also does NOT treat the request as an automatic yes — engages with whether this specific use is tasteful/restrained (a hover shift, not a general animation license)",
-        "Recognizes that the EXISTING plain `transition: color` already interpolates smoothly across lightness/chroma/hue — does not silently assume @property is required just because the user named it",
-        "Either questions what @property adds over the existing plain transition before implementing, or implements it and explicitly compares the actual resulting behavior against the plain-transition baseline (not just asserting @property is smoother without checking)",
-        "If implementing, uses a typed @property (e.g. syntax: '<number>') and gates the transition under prefers-reduced-motion",
-        "Frames it as a specific, considered case rather than either extreme (total refusal, unconsidered yes, or unconsidered @property adoption)"
-      ]
-    },
-    {
-      "id": 26,
-      "prompt": "Add a subtle paper-grain texture to the site's background using an SVG filter.",
-      "expected_output": "A static feTurbulence (type=\"fractalNoise\") applied as a tiled background-image (commonly a data-URI inline SVG), blended with background-blend-mode: multiply at low opacity. No JavaScript, no animation — the grain pattern itself is fixed/static. This is the well-established static use case from the skill's SVG filters section, so it should be implemented relatively directly (still worth a brief brand-reinforcement framing, but not a heavy multi-part negotiation) rather than escalated as if it were the animated/interactive case.",
-      "files": [],
-      "expectations": [
-        "Uses feTurbulence (type=\"fractalNoise\") as the noise source",
-        "Applies it as a static background texture (background-image, tiled) rather than an animated/JS-driven effect",
-        "Uses background-blend-mode: multiply (or similar) at a low opacity so it sits under content rather than fighting with it",
-        "Does NOT introduce JavaScript or requestAnimationFrame for what is explicitly a static texture request",
-        "Sets color-interpolation-filters=\"sRGB\" on the filter, or otherwise avoids the washed-out linearRGB default"
-      ]
-    },
-    {
-      "id": 27,
-      "prompt": "Take that paper-grain SVG filter and make it subtly breathe/shimmer over time.",
-      "expected_output": "BEHAVIORAL eval. Turning the static filter into an animated one crosses two ask-first gates at once: the general animation-off-by-default rule, AND the SVG-filters rule that an animated filter is JS-driven (CSS can't transition individual filter-primitive attributes) and therefore also gives up 'works without JavaScript.' The agent should surface BOTH asks explicitly before implementing — not silently add a requestAnimationFrame loop — and if it does sketch an approach, gate it with IntersectionObserver (only compute while visible) and settle on a still frame under prefers-reduced-motion rather than removing the effect outright.",
-      "files": [],
-      "expectations": [
-        "Recognizes that animating a filter attribute requires JavaScript (requestAnimationFrame) — CSS cannot transition individual filter-primitive values",
-        "Surfaces this as a SECOND, separate ask on top of the general animation-off-by-default rule (not silently proceeding since a static version was already approved)",
-        "Does not silently implement a JS animation loop without flagging the JS-dependency and animation asks first",
-        "If sketching an approach, gates computation with IntersectionObserver (only while visible) and honors prefers-reduced-motion by settling on a still frame rather than removing the effect"
-      ]
-    },
-    {
-      "id": 28,
-      "prompt": "Once approved: animate a list of 8 items fading in with a staggered entrance when the page loads.",
-      "expected_output": "Motion craft rules applied: stagger via animation-delay: calc(var(--i) * <N>ms) with --i set per item, NOT 8 hand-written delay values. animation-fill-mode: both is required (not optional) so items don't flash their final state before their delay elapses or snap back to the start state when the animation begins. A deliberate easing curve (not a bare linear/ease default) sized to a duration appropriate for the effect (roughly the 150-300ms UI-transition band per item, not 500ms+). Gated under prefers-reduced-motion.",
-      "files": [],
-      "expectations": [
-        "Staggers the entrance via a custom property formula (animation-delay: calc(var(--i) * Nms)) rather than 8 separately hand-written animation-delay values",
-        "Includes animation-fill-mode: both on the staggered items — treats this as required, not optional",
-        "Chooses a duration in a sensible band for a UI entrance (roughly 150-300ms per item), not an arbitrarily large or tiny number",
-        "Uses a deliberate easing curve (a named cubic-bezier or a curve matched to the motion's intent) rather than leaving the browser default unconsidered",
-        "Gates the whole animation under prefers-reduced-motion"
-      ]
-    },
-    {
-      "id": 29,
-      "prompt": "Arrange 6 icons evenly spaced around a circle.",
-      "expected_output": "Native CSS trig functions (sin()/cos()) via calc() to position each icon — e.g. left: calc(50% + var(--radius) * cos(var(--angle))); top: calc(50% + var(--radius) * sin(var(--angle)));, with --angle set per item (e.g. calc(360deg / 6 * var(--i))). No JavaScript positioning loop, no hardcoded per-icon coordinates.",
-      "files": [],
-      "expectations": [
-        "Uses CSS trig functions (cos()/sin()) inside calc() to compute each icon's position",
-        "Derives each icon's angle from a formula (e.g. 360deg / count * index) rather than hardcoding 6 separate angle values by hand",
-        "Does NOT use a JavaScript positioning loop for this",
-        "Uses a --radius custom property (token-derived or explicit) rather than a magic pixel value baked into each position",
-        "Recognizes this as the narrow circular/radial case, not reached for as a general positioning replacement for grid/flex"
-      ]
-    },
-    {
-      "id": 30,
-      "prompt": "I have several equally-weighted subtle background tints for different named categories on a tagging UI, and I expect to add more categories over time as the product grows.",
-      "expected_output": "BEHAVIORAL eval testing the escalation judgment. Because the category list is open-ended and each new one needs a full tint AND the same treatment (not just one flat shade), this is exactly the case for the relative-recipe ramp escalation — recipes (--tint-*) written once as L/C/H fragments relative to a source, so each new category color is a single line via oklch(from var(--category-x) var(--tint-N)). The agent should recognize this crosses from 'a few named accents' (fixed L/C, vary H) into 'growing number of sources each needing a repeatable ramp' and reach for the escalation rather than hand-writing a new flat oklch() literal per category as they're added. If it proposes the recipe chroma taper, it should taper at BOTH extremes (near-zero at the lightest/darkest steps, peaking at the source's own unscaled chroma mid-ramp) rather than leaving middle steps at full unscaled chroma.",
-      "files": [],
-      "expectations": [
-        "Recognizes the open-ended, growing category count as the trigger for the relative-recipe ramp escalation, not just the flat multi-brand (fixed L/C, vary H) technique",
-        "Proposes recipes written once as L/C/H fragments (using the bare c/h keywords resolved via oklch(from <source> ...)), reusable across any number of category source colors",
-        "Each new category is presented as a single new source-color line, not a hand-tuned repeated ramp",
-        "If chroma tapering is discussed, it tapers at BOTH the light and dark extremes rather than leaving the middle steps at full unscaled chroma (the gamut-clipping trap)",
-        "Frames this as an opt-in escalation for a real, growing need — not something to reach for by default on a small/fixed category list"
-      ]
-    },
-    {
-      "id": 31,
-      "prompt": "This text/background pair is failing contrast: color: oklch(0.65 0.2 250); background: oklch(0.75 0.05 250);. Fix it.",
-      "expected_output": "Fix by widening the LIGHTNESS gap between the two — darken the foreground's L (or lighten the background's L) — while leaving chroma and hue unchanged on both. Should NOT 'fix' this by changing chroma or hue instead of L, and should reference an actual threshold (WCAG 4.5:1 normal text, or APCA |Lc| >= 60) to verify the fix rather than asserting it's fixed without a number.",
-      "files": [],
-      "expectations": [
-        "Fixes the pair by adjusting LIGHTNESS (L) — moving the foreground darker and/or the background lighter — not by changing chroma or hue",
-        "Leaves chroma and hue unchanged on both colors (or explicitly states they should stay the same)",
-        "References a concrete contrast threshold to check against (WCAG 4.5:1 for normal text, or APCA |Lc| >= 60), not just an unverified claim that it's fixed",
-        "Does not suggest a hue swap or chroma reduction as the fix mechanism"
-      ]
-    },
-    {
-      "id": 32,
-      "prompt": "Convert this inherited stylesheet's colors to oklch:\n\n```css\n.hero {\n  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);\n  color: white;\n}\n.badge {\n  background: transparent;\n  border: 1px solid currentColor;\n  color: inherit;\n}\n.icon {\n  fill: #64748b;\n}\n```",
-      "expected_output": "BEHAVIORAL/correctness eval. Converts the hex values (#1e3a8a, #3b82f6, #64748b) to oklch AND converts the named color `white` to oklch (e.g. oklch(1 0 0)) — named colors are real color literals, not functional keywords. Does NOT touch `currentColor`, `inherit`, or `transparent` — these are the actual functional keywords that must not be converted or removed. Converts only the gradient's color STOPS, not the linear-gradient() function/interpolation method itself (doesn't rewrite it as color-mix or change the angle/shape). Does not restructure the CSS around the conversion.",
-      "files": [],
-      "expectations": [
-        "Converts the hex colors (#1e3a8a, #3b82f6, #64748b) to oklch values",
-        "Also converts the named color `white` to an oklch value — recognizes it as a real color literal, not a functional keyword",
-        "Does NOT convert or remove `currentColor`, `inherit`, or `transparent` — leaves these functional CSS keywords exactly as they are",
-        "Converts only the gradient's color stops, leaving the linear-gradient() function itself (angle, shape, interpolation) unchanged",
-        "Does not restructure the CSS, rename selectors, or change anything beyond the color values themselves"
-      ]
-    }
-  ]
+	"skill_name": "safaii-css",
+	"notes": "Behavioral evals for the safaii-css conventions. These complement the grep-based Checks table in SKILL.md (which validates a finished stylesheet) by testing whether the skill steers an agent to the RIGHT defaults — especially the places a generic CSS agent would default the wrong way: BEM/prefixed classes instead of @scope, media-query breakpoints instead of intrinsic layout, dark-by-default instead of deliberate light-only. Expectations encode safaii-css conventions, which deliberately diverge from component-system/BEM CSS.",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Set up the color tokens for a personal/document site. I need a background, a text color, and an accent, with a muted text variant.",
+			"expected_output": "Tokens in @layer tokens, all oklch. Small-palette semantic tokens (--color-bg, --color-text, --color-accent); muted variant derived via color-mix(in oklch, ...). color-scheme: light (light-only is the deliberate default). accent-color set from --color-accent. No hex/rgb/hsl, no light-dark() or color-scheme: light dark unless dark mode was asked for.",
+			"files": [],
+			"expectations": [
+				"Defines the tokens inside @layer tokens",
+				"Uses oklch for every color value — no hex, rgb, or hsl",
+				"Uses semantic names --color-bg / --color-text / --color-accent (small palette), not a primitive ramp",
+				"Derives the muted variant with color-mix(in oklch, ...), not a new literal or opacity",
+				"Sets color-scheme: light — does NOT add `light dark` or dark-mode tokens, since dark mode wasn't requested",
+				"Wires accent-color: var(--color-accent) for native form controls"
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Style a card component that has a header, a body, and an image. Give the card a border and rounded corners.",
+			"expected_output": "Styles inside @layer block, wrapped in @scope (.card) because the component has descendants. Root styled via :scope. Sub-parts targeted by element or simple scoped class within the @scope block — NOT BEM (.card__header) and NOT a c- prefix. References tokens (--radius, --color-border, --gutter/--space-*). Uses `to (...)` only if a nested component boundary needs protecting.",
+			"files": [],
+			"expectations": [
+				"Places styles in @layer block",
+				"Uses @scope (.card) to scope the component (it has descendants, so a plain rule is not enough)",
+				"Styles the card root via :scope, not by repeating the .card class",
+				"Does NOT use BEM double-underscore element naming (.card__header) or a c- prefix",
+				"References tokens for radius, border color, and spacing — no hardcoded values",
+				"Uses logical properties (padding-block/padding-inline, inline-size) rather than physical ones"
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Style a simple article page — a main heading, some paragraphs, and links. Nothing fancy.",
+			"expected_output": "Element-first: styles bare h1/p/a in @layer base, NOT invented component classes. The page reads as a styled document. text-wrap: balance on headings, pretty on paragraphs. Tokens for color and rhythm (--flow-space). No classes invented for plain content.",
+			"files": [],
+			"expectations": [
+				"Styles bare elements (h1, p, a) in @layer base — does not invent .c-article / .heading / wrapper classes for plain content",
+				"Applies text-wrap: balance to headings and text-wrap: pretty to paragraphs",
+				"Block rhythm comes from the .flow composition's --flow-space, not magic numbers",
+				"Uses logical properties (margin-block) over physical ones",
+				"Does not reach for @scope or components for content that bare elements can carry"
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "Build a feature card grid for a marketing site. Cards should wrap into as many columns as fit with NO media queries — each at least 20 characters wide. Inside each card the heading should scale fluidly with the card's width, between 1.25rem and 3rem.",
+			"expected_output": "Grid uses repeat(auto-fit, minmax(20ch, 1fr)) — no @media breakpoints. The 20ch min is exposed as a scoped custom property so it's overridable per instance. Heading uses clamp() with a cqi ideal value and a rem minimum; the card sets container-type: inline-size so cqi resolves against the card. Gap from a spacing token. No px except border/outline width.",
+			"files": [],
+			"expectations": [
+				"Grid uses repeat(auto-fit, minmax()) with NO @media breakpoints for column count",
+				"The minmax minimum uses ch (e.g. 20ch), via the grid composition's --grid-min-item-size custom property",
+				"Heading font-size uses clamp() with a cqi ideal value and a rem minimum (not vw, not em)",
+				"The card establishes container-type: inline-size so cqi resolves against the card, not the viewport",
+				"Gap references a spacing token (--gutter or --space-*) — no hardcoded px",
+				"No hardcoded px except on border-width / outline-width"
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "I have a row of tag chips that should wrap naturally. Each chip should be at least 10 characters wide but grow to fill space, and chips should wrap to new rows independently rather than all breaking at once.",
+			"expected_output": "Deconstructed-pancake flex: container display: flex + flex-wrap: wrap; items flex: 1 1 10ch. ch flex-basis, no media queries, no fixed width / min-width hack.",
+			"files": [],
+			"expectations": [
+				"Container uses display: flex with flex-wrap: wrap",
+				"Chips use the flex shorthand (flex: 1 1 <value>), not separate flex-grow/shrink/basis or a width/min-width hack",
+				"The flex-basis uses ch units (e.g. 10ch), not px",
+				"No media queries control the wrapping"
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "Set up the spacing tokens for a new site.",
+			"expected_output": "Fixed rem scale on a 4px grid: --space-1 … --space-16 (number is px÷4). Semantic --gutter (inline) as a fluid clamp bounded by scale steps, e.g. clamp(var(--space-4), 2.5vmax, var(--space-6)). Relative units; derived sizes via calc(), not magic numbers. px only on border/outline. (--measure is a typography token, not expected from a spacing-only prompt.)",
+			"files": [],
+			"expectations": [
+				"Defines a fixed rem spacing scale on a 4px grid (--space-1 … --space-16, e.g. --space-4: 1rem)",
+				"Provides a semantic --gutter (inline) token",
+				"--gutter is a fluid clamp bounded by scale steps — clamp(var(--space-*), <fluid>, var(--space-*)) — not raw clamp(ch/ex...) and not fixed-only",
+				"All spacing is relative units; any derived size uses calc() on a token, not a magic number",
+				"No px except border-width / outline-width"
+			]
+		},
+		{
+			"id": 7,
+			"prompt": "Add user-toggleable light and dark themes to a site that's currently light-only. The OS preference should be the initial default and a button flips it.",
+			"expected_output": "Each theme-aware token defined once with light-dark(lightval, darkval) in @layer tokens. Theme switched by flipping color-scheme: color-scheme: light dark on :root to follow the OS, then [data-theme='dark'] { color-scheme: dark } / [data-theme='light'] { color-scheme: light } for the explicit toggle. No token values repeated for dark mode; no @media (prefers-color-scheme) used to redefine tokens. All colors oklch — flip lightness, keep chroma/hue.",
+			"files": [],
+			"expectations": [
+				"Theme-aware tokens are defined once with light-dark() — values are NOT repeated for dark mode",
+				"color-scheme: light dark on :root provides the OS-default following behavior",
+				"Explicit toggle flips color-scheme via [data-theme='dark'] / [data-theme='light'], not by redefining tokens",
+				"Does NOT use @media (prefers-color-scheme) as the mechanism for redefining token values",
+				"All color values are oklch"
+			]
+		},
+		{
+			"id": 8,
+			"prompt": "Refactor this inherited CSS to follow our conventions:\n\n```css\n.button {\n  display: inline-flex;\n  padding: 8px 16px;\n  background-color: #0066cc;\n  color: #ffffff;\n  border-radius: 4px;\n  font-size: 14px;\n  font-weight: 500;\n  border: none;\n  cursor: pointer;\n}\n\n.button:hover {\n  background-color: #0052a3;\n}\n\n.button:focus {\n  outline: 2px solid #0066cc;\n}\n```",
+			"expected_output": "Hex values become oklch tokens in @layer tokens (hover derived by lowering L, or via color-mix/relative color). Stays a .button class rule in @layer block (opt-in visual variant — preserve the selector contract; do NOT elementize to bare `button`). Because .button is root-only (no descendant rules), it stays a PLAIN rule — not wrapped in @scope and NOT renamed to .c-button or BEM. px replaced with token references (spacing/radius); border-width may stay px. no bare :focus left — converted to :focus-visible with a token'd outline, or dropped when the starter's global :where(:focus-visible) ring already covers it. Padding uses the logical longhands padding-block/padding-inline, not the 2-value padding shorthand.",
+			"files": [],
+			"expectations": [
+				"Hex colors (#0066cc, #0052a3, #ffffff) are replaced with oklch tokens defined in @layer tokens",
+				"Stays a `.button` class rule (preserve the original selector contract) — NOT renamed to .c-button, NOT BEM, NOT dissolved into a bare `button` element selector, and NOT wrapped in @scope (root-only stays a plain rule)",
+				"Lives in @layer block (it is an opt-in visual variant, not a default document element)",
+				"Hardcoded px (8px, 16px, 14px, 4px) are replaced with spacing/radius token references; border-width may remain px",
+				"Leaves no bare :focus rule — either converts it to :focus-visible with a token'd outline, or drops it as redundant when the starter's global :where(:focus-visible) ring already covers the element",
+				"Replaces physical padding with logical properties (padding-block, padding-inline)"
+			]
+		},
+		{
+			"id": 9,
+			"prompt": "Add a fade-and-slide-in animation to the hero section and a frosted-glass (translucent, blurred) background to the nav bar.",
+			"expected_output": "Motion gated behind @media (prefers-reduced-motion: no-preference); translucent/backdrop-blur gated behind @media (prefers-reduced-transparency: no-preference) with an opaque fallback. Both judged against 'no animation unless functional' — purely decorative motion is questioned, not added reflexively. Durations/easings reference motion tokens if present.",
+			"files": [],
+			"expectations": [
+				"Wraps the animation in @media (prefers-reduced-motion: no-preference)",
+				"Wraps the translucent/backdrop-blur styling in @media (prefers-reduced-transparency: no-preference), with an opaque fallback outside it",
+				"Surfaces the 'no animation unless functional' judgment rather than adding decorative motion uncritically",
+				"Uses logical properties and token-based values for the effect"
+			]
+		},
+		{
+			"id": 10,
+			"prompt": "On the primary button the background is var(--color-accent), and the accent changes per project. Set the text color so it's always readable against whatever the accent is — automatically.",
+			"expected_output": "BEHAVIORAL eval. contrast-color() is the obvious tool, but it's an ask-first feature — the agent should NOT silently emit it. Instead it pauses, surfaces the caveats (returns only black/white; does NOT guarantee WCAG AA; mid-tone accents can fail; Baseline 2026, very new), offers the @supports fallback and a hand-set --color-text-on-accent alternative, and asks Matt to confirm before using contrast-color(). Silently shipping contrast-color() as the answer is a FAIL.",
+			"files": [],
+			"expectations": [
+				"Identifies contrast-color() as the feature that fits 'auto-pick readable text on a dynamic background'",
+				"Does NOT silently emit contrast-color() as the final answer — it pauses and asks for confirmation first (ask-first gate)",
+				"Surfaces the key caveat: contrast-color() returns only black/white and does NOT guarantee WCAG AA (fails on mid-tone backgrounds)",
+				"Notes its recency / limited support (Baseline 2026) and that it needs an @supports fallback",
+				"Offers a conservative alternative (a hand-set --color-text-on-accent token, contrast-verified) and lets Matt decide"
+			]
+		},
+		{
+			"id": 11,
+			"prompt": "Style the open state of a <details> accordion — give the summary a different background when it's expanded.",
+			"expected_output": "BEHAVIORAL eval (the graceful flavor of ask-first). Reaches for the native :open pseudo-class (details:open > summary) — not a modifier class or JS. Because :open is Baseline 2026, gives a LIGHT heads-up (it's recent, ask-first) and offers/includes a wider-support fallback (details[open] selector, or @supports selector(:open)) — but a short 'this is new, OK to use with fallback?' is enough; it should NOT sound as alarming as a risky feature like contrast-color().",
+			"files": [],
+			"expectations": [
+				"Reaches for :open (e.g. details:open > summary) as the open-state hook — not a .is-open/.expanded modifier class and not JS state tracking",
+				"Surfaces that :open is recent / Baseline 2026 (ask-first) with a LIGHT heads-up — does not silently ship it with no mention of its newness",
+				"Provides or offers a wider-support fallback: a details[open] attribute selector or @supports selector(:open)",
+				"The heads-up is proportionate — a brief 'it's new, OK with a fallback?' rather than a heavy WCAG-style warning",
+				"Does not invent a modifier class or JavaScript to track the open state"
+			]
+		},
+		{
+			"id": 12,
+			"prompt": "Build a Pinterest-style masonry gallery — image cards of varying heights that pack together without gaps below the short ones.",
+			"expected_output": "PROTECTIVE eval (not-ready tier). Must NOT emit experimental masonry syntax (grid-template-rows: masonry / display: masonry / grid-lanes) — it's pre-Baseline with unsettled syntax and falls back to a plain grid everywhere. Instead: say true native masonry isn't production-ready, and offer the stopgap — the auto-fit grid (predictable, accessible) by default, or a `columns` approximation ONLY for non-sequential galleries with the reading-order caveat flagged.",
+			"files": [],
+			"expectations": [
+				"Does NOT write experimental masonry syntax (no grid-template-rows: masonry, display: masonry, or grid-lanes)",
+				"States that native CSS masonry is not production-ready (experimental / not Baseline / unsettled syntax)",
+				"Offers a stopgap: the auto-fit grid, and/or a columns (multicol) approximation",
+				"If it offers columns, flags the reading-order caveat (flows top-to-bottom per column) and limits it to non-sequential galleries",
+				"Does not silently ship a broken masonry layout as if it works today"
+			]
+		},
+		{
+			"id": 13,
+			"prompt": "On my multi-page site I want different page transitions for forward vs back navigation — slide left when going forward, slide right when going back.",
+			"expected_output": "BEHAVIORAL eval (ask-first graceful + motion rules). Uses view-transition TYPES — sets forward/back types via pageswap/pagereveal and styles them with :active-view-transition-type() over ::view-transition-old/new, building on the starter's @view-transition. NOT a JS animation library. Gives a light heads-up (Baseline 2026, ask-first, degrades to instant nav). Motion-gates the typed animation (prefers-reduced-motion). Treats directional transitions as functional/orientation, not decoration.",
+			"files": [],
+			"expectations": [
+				"Uses view-transition types: :active-view-transition-type(forward/back) styling ::view-transition-old/new, building on @view-transition",
+				"Sets the forward/back type via the pageswap/pagereveal events (cross-document), not a class or framework",
+				"Does NOT reach for a JS animation library or hand-rolled fetch+animate — stays on the native view-transition platform",
+				"Gives a light ask-first heads-up (Baseline 2026, recent, degrades to instant navigation) before adding",
+				"Motion-gates the typed animation (zeroes/disables it under prefers-reduced-motion)",
+				"Frames directional transitions as functional orientation rather than decorative flair"
+			]
+		},
+		{
+			"id": 14,
+			"prompt": "Tint a card's background with color-mix(), but fall back to a solid color for browsers that don't support color-mix.",
+			"expected_output": "A single-property override, so NO @supports needed — the plain cascade handles it: write the solid fallback `background` first, then the `color-mix()` background in the same rule; unsupported browsers ignore the second and keep the fallback. Using @supports here is over-wrapping. Tokens + oklch throughout.",
+			"files": [],
+			"expectations": [
+				"Provides the fallback as a plain earlier `background:` declaration, followed by the color-mix() `background:` in the SAME rule",
+				"Does NOT wrap the color-mix() in an @supports feature query — a single property-value override is handled by the cascade",
+				"Relies on / explains that browsers ignore the unsupported declaration and keep the earlier fallback",
+				"Uses tokens and oklch (color-mix(in oklch, ...) off a token, solid fallback from a token)",
+				"Does not introduce @supports not(...) or other needless machinery for what the cascade already does"
+			]
+		},
+		{
+			"id": 15,
+			"prompt": "When my popover opens, I want it to fade and scale in instead of just appearing.",
+			"expected_output": "Native entry animation via @starting-style: define the from-state (opacity 0, scaled) in an @starting-style block placed AFTER the :popover-open rule; transition opacity/transform plus display/overlay with allow-discrete. Gate under prefers-reduced-motion. No JS show/hide animation.",
+			"files": [],
+			"expectations": [
+				"Uses @starting-style to define the entry from-state (e.g. opacity:0, transform scaled)",
+				"Places @starting-style after the open-state rule (equal specificity, so order matters)",
+				"Transitions display and/or overlay with allow-discrete so the top-layer element animates in",
+				"Gates the animation under @media (prefers-reduced-motion: no-preference)",
+				"No JS animation library or manual class-toggled show/hide animation — stays on the native popover + CSS"
+			]
+		},
+		{
+			"id": 16,
+			"prompt": "Give my blog post cards a 3-line excerpt that cuts off with an ellipsis if the summary is too long.",
+			"expected_output": "The -webkit-box line-clamp trio: display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden. Not a JS truncation script, not a hard character cut. Note the full text stays in the DOM (SR reads all).",
+			"files": [],
+			"expectations": [
+				"Uses the -webkit-line-clamp set: display:-webkit-box + -webkit-box-orient:vertical + -webkit-line-clamp:3 + overflow:hidden",
+				"Does NOT hand-roll JS truncation or a character-count cut",
+				"Keeps the full text in the markup (truncation is visual only) — doesn't trim the actual content",
+				"Tokens/relative units where applicable; lives in the block layer"
+			]
+		},
+		{
+			"id": 17,
+			"prompt": "My page has a fixed header, and when I click an in-page anchor link the section title gets hidden behind it. Fix it.",
+			"expected_output": "CSS scroll-padding-block-start (or scroll-padding-top) on :root/html equal to the header height, so anchor targets land below the fixed header — no JS scroll offset. Optionally scroll-margin on the targets.",
+			"files": [],
+			"expectations": [
+				"Sets scroll-padding-block-start / scroll-padding-top on :root (or html) to offset for the fixed header",
+				"Does NOT solve it with a JS scroll handler / scrollIntoView offset hack",
+				"Uses a relative unit or the header-height token, not a magic px (px acceptable only if tied to a real fixed measure)",
+				"May also mention scroll-margin on the targets as the per-element form"
+			]
+		},
+		{
+			"id": 18,
+			"prompt": "Add a drop cap to the first letter of my article's opening paragraph — big initial that sinks into the first few lines.",
+			"expected_output": "Native initial-letter on ::first-letter, with the -webkit-initial-letter prefix, AND a plain ::first-letter font-size/weight fallback (Firefox lacks initial-letter, so it should still get an enlarged — if not sunk — letter). Experimental-graceful, pure enhancement.",
+			"files": [],
+			"expectations": [
+				"Uses initial-letter on ::first-letter (e.g. p:first-of-type::first-letter)",
+				"Includes the -webkit-initial-letter prefixed version alongside the standard one",
+				"Provides a plain ::first-letter fallback (font-size/weight) so Firefox still shows an enlarged letter",
+				"Flags it as experimental/graceful (Firefox lacks initial-letter) — pure enhancement, no JS"
+			]
+		},
+		{
+			"id": 19,
+			"prompt": "I have a card that should stack its image above the text when it's narrow, but sit image-beside-text once it has enough room — and it appears in both a wide main column and a narrow sidebar, so it can't just key off screen width.",
+			"expected_output": "A container query: set container-type: inline-size on the card wrapper, then @container (inline-size > ~30rem) switches the card from stacked to side-by-side. NOT a @media viewport breakpoint (the card is in two different-width places, so viewport width is wrong). Intrinsic-first is acknowledged but a discrete switch genuinely needs a query here.",
+			"files": [],
+			"expectations": [
+				"Uses @container (container query), NOT a @media viewport breakpoint — the card is placed in two different-width contexts",
+				"Sets container-type: inline-size (or container shorthand) on the card's wrapper to establish the query container",
+				"Queries the container's inline-size (e.g. @container (inline-size > 30rem)) to switch layout",
+				"The default/baseline layout is the stacked (narrow) one, enhanced to side-by-side when there's room",
+				"Uses tokens/relative units and lives in the block layer (scoped appropriately)"
+			]
+		},
+		{
+			"id": 20,
+			"prompt": "I have a really long page with lots of repeated content sections — improve render/scroll performance by not rendering the ones that are off-screen.",
+			"expected_output": "content-visibility: auto on the repeated section, PAIRED with contain-intrinsic-size: auto <length> so off-screen sections don't collapse and the scrollbar doesn't jump (CLS). Not content-visibility alone. Relative length estimate (rem), auto remembers the real size after first render.",
+			"files": [],
+			"expectations": [
+				"Uses content-visibility: auto to skip off-screen rendering",
+				"PAIRS it with contain-intrinsic-size (auto <length>) — does NOT ship content-visibility: auto alone",
+				"Justifies the pairing (off-screen collapse → scrollbar jump / CLS) or at least includes it as required",
+				"Uses a relative length estimate (rem) for the intrinsic size (or auto none for grid/multicol), not a magic px",
+				"Applies it to the repeating section, in an appropriate layer"
+			]
+		},
+		{
+			"id": 21,
+			"prompt": "My card grid has thumbnail images of all different shapes and sizes — I want them all to display at the same uniform size without getting squashed or stretched.",
+			"expected_output": "Give the thumbnail a fixed aspect-ratio and set the <img> object-fit: cover (so it crops to fill instead of distorting), object-position to steer the crop if needed. Keep the img width/height attributes for the intrinsic ratio. Tokens/relative units, component layer. No JS cropping, no fixed width+height stretch.",
+			"files": [],
+			"expectations": [
+				"Gives the thumbnail a fixed aspect-ratio (e.g. aspect-ratio: 4 / 3)",
+				"Sets object-fit: cover on the <img> so it crops to fill rather than squashing/stretching",
+				"Does NOT distort the image (no fixed width AND height forcing a stretch) and does not hand-crop in JS",
+				"Mentions/keeps the img width/height attributes (intrinsic ratio reserves space) and/or object-position for the crop focus",
+				"Tokens/relative units, in the block layer, scoped appropriately"
+			]
+		},
+		{
+			"id": 22,
+			"prompt": "Build a full neutral color ramp (50 through 950) for a client's design system, plus a step ramp for their brand accent color.",
+			"expected_output": "Two ramps with different chroma taper shapes, same lightness/hue rules. Neutral ramp: chroma stays low throughout (inside the neutral band) and gently INCREASES toward the dark end — does not peak mid-ramp, does not go flat C:0. Accent ramp: chroma peaks mid-ramp (inside the sRGB-safe ~0.20-0.32 band) and tapers down at BOTH the light and dark extremes. Both ramps hold hue constant across all 11 steps and use oklch throughout — no hex/hsl.",
+			"files": [],
+			"expectations": [
+				"Both ramps have 11 steps (50/100/200/300/400/500/600/700/800/900/950) with lightness decreasing across them",
+				"The neutral ramp's chroma stays low and gently increases toward the dark end — it does NOT peak in the middle like an accent ramp, and is not flat zero throughout",
+				"The accent ramp's chroma peaks at the middle steps (roughly 400-600) inside the sRGB-safe band and tapers down at both the light and dark extremes",
+				"Hue is held constant across every step within each ramp — only lightness (and for the accent ramp, chroma) changes",
+				"Every value is oklch — no hex, rgb, or hsl"
+			]
+		},
+		{
+			"id": 23,
+			"prompt": "This project already has a full --base-50 through --base-950 primitive ramp. Add dark mode.",
+			"expected_output": "BEHAVIORAL eval. Because a full ramp already exists, the agent should reach for the mirrored-step trick — point dark-mode semantic tokens at a DIFFERENT already-tuned step from the same ramp (e.g. --color-text: light-dark(var(--base-800), var(--base-100))) — rather than hand-computing a fresh +0.10-0.15 L-offset value from scratch. Since --base-* steps are already complete oklch() colors, they must NOT be wrapped in oklch(from ...) (that would double-nest and produce invalid CSS) — light-dark() references the ramp tokens directly.",
+			"files": [],
+			"expectations": [
+				"Recognizes the existing ramp and picks a DIFFERENT existing --base-* step for dark mode rather than computing a brand-new L value from scratch",
+				"Uses light-dark() referencing the ramp tokens directly (e.g. light-dark(var(--base-800), var(--base-100))) — not oklch(from var(--base-N) ...), which would double-nest an already-complete color and be invalid",
+				"Does not repeat/redeclare literal oklch() values for the dark variant when an existing ramp step already serves the purpose",
+				"Justifies the choice as reusing already-tuned perceptual lightness steps rather than reinventing them"
+			]
+		},
+		{
+			"id": 24,
+			"prompt": "I need three status colors (success, warning, error) that all feel equally weighted and consistent — none should look more or less vivid than the others.",
+			"expected_output": "The multi-brand technique, CORRECTED form: hold L fixed and vary only H, but hold chroma as a PERCENTAGE of each hue's own max chroma, not a flat absolute number — different hues have very different max chroma at the same lightness (e.g. purple's ceiling is roughly 3x cyan's at L 0.5), so a flat absolute C reads inconsistent across hues even though the lightness is the same. NOT HSL. NOT three independently hand-tuned colors by eye. A naive flat-C answer (e.g. oklch(0.55 0.14 145)/oklch(0.55 0.14 70)/oklch(0.55 0.14 25) with no acknowledgment that chroma should track each hue's ceiling) is an outdated/incomplete answer per the skill's own corrected guidance.",
+			"files": [],
+			"expectations": [
+				"Uses oklch with the SAME lightness across all three status colors — hue is what varies",
+				"Does NOT simply use a flat absolute chroma value across all three hues without qualification — recognizes that different hues have different max chroma at the same lightness, and chroma should be set as a percentage of each hue's own ceiling for consistent vividness",
+				"Does not use HSL for this (or if HSL is mentioned, explains why it fails — identical L/S reads inconsistent across hue)",
+				"Does not hand-tune wildly different lightness per status color to 'make them look right' individually",
+				"The result is justified as consistent visual weight because oklch lightness is perceptual — with chroma calibrated per-hue rather than assumed identical"
+			]
+		},
+		{
+			"id": 25,
+			"prompt": "Can we add a subtle hover color-shift micro-interaction on the site's logo mark using @property, for branding? I think it'd reinforce the identity nicely. The logo currently just has `color: var(--color-text)` swapping to `color: var(--color-accent)` on hover via a plain `transition: color 0.2s ease`.",
+			"expected_output": "BEHAVIORAL eval testing BOTH the animation-philosophy exception AND the @property-vs-plain-transition judgment (a real production lesson: this exact scenario was built, measured, and reverted on mattsafaii.com — the @property version's only actual delta over the existing plain crossfade was an invisible ~0.4 degree hue overshoot and 3x the duration). The agent should engage with the branding idea on its merits (not a blanket refusal, not a silent yes) AND, critically, recognize that a plain two-color oklch transition already interpolates hue/lightness/chroma natively — so it should question whether @property adds anything beyond what's already there, not implement it reflexively just because the user named the technique. A correct answer either (a) points out the existing transition already achieves a smooth color shift and asks what @property is meant to add beyond it before building anything, or (b) if a genuine reason exists (a visible multi-stop hue arc, not a two-endpoint swap), implements it AND explicitly measures/describes the actual behavioral delta over the plain-transition baseline rather than assuming @property is automatically better.",
+			"files": [],
+			"expectations": [
+				"Does NOT refuse outright with a blanket 'no animation' — recognizes branding-reinforcement as a legitimate named exception category",
+				"Also does NOT treat the request as an automatic yes — engages with whether this specific use is tasteful/restrained (a hover shift, not a general animation license)",
+				"Recognizes that the EXISTING plain `transition: color` already interpolates smoothly across lightness/chroma/hue — does not silently assume @property is required just because the user named it",
+				"Either questions what @property adds over the existing plain transition before implementing, or implements it and explicitly compares the actual resulting behavior against the plain-transition baseline (not just asserting @property is smoother without checking)",
+				"If implementing, uses a typed @property (e.g. syntax: '<number>') and gates the transition under prefers-reduced-motion",
+				"Frames it as a specific, considered case rather than either extreme (total refusal, unconsidered yes, or unconsidered @property adoption)"
+			]
+		},
+		{
+			"id": 26,
+			"prompt": "Add a subtle paper-grain texture to the site's background using an SVG filter.",
+			"expected_output": "A static feTurbulence (type=\"fractalNoise\") applied as a tiled background-image (commonly a data-URI inline SVG), blended with background-blend-mode: multiply at low opacity. No JavaScript, no animation — the grain pattern itself is fixed/static. This is the well-established static use case from the skill's SVG filters section, so it should be implemented relatively directly (still worth a brief brand-reinforcement framing, but not a heavy multi-part negotiation) rather than escalated as if it were the animated/interactive case.",
+			"files": [],
+			"expectations": [
+				"Uses feTurbulence (type=\"fractalNoise\") as the noise source",
+				"Applies it as a static background texture (background-image, tiled) rather than an animated/JS-driven effect",
+				"Uses background-blend-mode: multiply (or similar) at a low opacity so it sits under content rather than fighting with it",
+				"Does NOT introduce JavaScript or requestAnimationFrame for what is explicitly a static texture request",
+				"Sets color-interpolation-filters=\"sRGB\" on the filter, or otherwise avoids the washed-out linearRGB default"
+			]
+		},
+		{
+			"id": 27,
+			"prompt": "Take that paper-grain SVG filter and make it subtly breathe/shimmer over time.",
+			"expected_output": "BEHAVIORAL eval. Turning the static filter into an animated one crosses two ask-first gates at once: the general animation-off-by-default rule, AND the SVG-filters rule that an animated filter is JS-driven (CSS can't transition individual filter-primitive attributes) and therefore also gives up 'works without JavaScript.' The agent should surface BOTH asks explicitly before implementing — not silently add a requestAnimationFrame loop — and if it does sketch an approach, gate it with IntersectionObserver (only compute while visible) and settle on a still frame under prefers-reduced-motion rather than removing the effect outright.",
+			"files": [],
+			"expectations": [
+				"Recognizes that animating a filter attribute requires JavaScript (requestAnimationFrame) — CSS cannot transition individual filter-primitive values",
+				"Surfaces this as a SECOND, separate ask on top of the general animation-off-by-default rule (not silently proceeding since a static version was already approved)",
+				"Does not silently implement a JS animation loop without flagging the JS-dependency and animation asks first",
+				"If sketching an approach, gates computation with IntersectionObserver (only while visible) and honors prefers-reduced-motion by settling on a still frame rather than removing the effect"
+			]
+		},
+		{
+			"id": 28,
+			"prompt": "Once approved: animate a list of 8 items fading in with a staggered entrance when the page loads.",
+			"expected_output": "Motion craft rules applied: stagger via animation-delay: calc(var(--i) * <N>ms) with --i set per item, NOT 8 hand-written delay values. animation-fill-mode: both is required (not optional) so items don't flash their final state before their delay elapses or snap back to the start state when the animation begins. A deliberate easing curve (not a bare linear/ease default) sized to a duration appropriate for the effect (roughly the 150-300ms UI-transition band per item, not 500ms+). Gated under prefers-reduced-motion.",
+			"files": [],
+			"expectations": [
+				"Staggers the entrance via a custom property formula (animation-delay: calc(var(--i) * Nms)) rather than 8 separately hand-written animation-delay values",
+				"Includes animation-fill-mode: both on the staggered items — treats this as required, not optional",
+				"Chooses a duration in a sensible band for a UI entrance (roughly 150-300ms per item), not an arbitrarily large or tiny number",
+				"Uses a deliberate easing curve (a named cubic-bezier or a curve matched to the motion's intent) rather than leaving the browser default unconsidered",
+				"Gates the whole animation under prefers-reduced-motion"
+			]
+		},
+		{
+			"id": 29,
+			"prompt": "Arrange 6 icons evenly spaced around a circle.",
+			"expected_output": "Native CSS trig functions (sin()/cos()) via calc() to position each icon — e.g. left: calc(50% + var(--radius) * cos(var(--angle))); top: calc(50% + var(--radius) * sin(var(--angle)));, with --angle set per item (e.g. calc(360deg / 6 * var(--i))). No JavaScript positioning loop, no hardcoded per-icon coordinates.",
+			"files": [],
+			"expectations": [
+				"Uses CSS trig functions (cos()/sin()) inside calc() to compute each icon's position",
+				"Derives each icon's angle from a formula (e.g. 360deg / count * index) rather than hardcoding 6 separate angle values by hand",
+				"Does NOT use a JavaScript positioning loop for this",
+				"Uses a --radius custom property (token-derived or explicit) rather than a magic pixel value baked into each position",
+				"Recognizes this as the narrow circular/radial case, not reached for as a general positioning replacement for grid/flex"
+			]
+		},
+		{
+			"id": 30,
+			"prompt": "I have several equally-weighted subtle background tints for different named categories on a tagging UI, and I expect to add more categories over time as the product grows.",
+			"expected_output": "BEHAVIORAL eval testing the escalation judgment. Because the category list is open-ended and each new one needs a full tint AND the same treatment (not just one flat shade), this is exactly the case for the relative-recipe ramp escalation — recipes (--tint-*) written once as L/C/H fragments relative to a source, so each new category color is a single line via oklch(from var(--category-x) var(--tint-N)). The agent should recognize this crosses from 'a few named accents' (fixed L/C, vary H) into 'growing number of sources each needing a repeatable ramp' and reach for the escalation rather than hand-writing a new flat oklch() literal per category as they're added. If it proposes the recipe chroma taper, it should taper at BOTH extremes (near-zero at the lightest/darkest steps, peaking at the source's own unscaled chroma mid-ramp) rather than leaving middle steps at full unscaled chroma.",
+			"files": [],
+			"expectations": [
+				"Recognizes the open-ended, growing category count as the trigger for the relative-recipe ramp escalation, not just the flat multi-brand (fixed L/C, vary H) technique",
+				"Proposes recipes written once as L/C/H fragments (using the bare c/h keywords resolved via oklch(from <source> ...)), reusable across any number of category source colors",
+				"Each new category is presented as a single new source-color line, not a hand-tuned repeated ramp",
+				"If chroma tapering is discussed, it tapers at BOTH the light and dark extremes rather than leaving the middle steps at full unscaled chroma (the gamut-clipping trap)",
+				"Frames this as an opt-in escalation for a real, growing need — not something to reach for by default on a small/fixed category list"
+			]
+		},
+		{
+			"id": 31,
+			"prompt": "This text/background pair is failing contrast: color: oklch(0.65 0.2 250); background: oklch(0.75 0.05 250);. Fix it.",
+			"expected_output": "Fix by widening the LIGHTNESS gap between the two — darken the foreground's L (or lighten the background's L) — while leaving chroma and hue unchanged on both. Should NOT 'fix' this by changing chroma or hue instead of L, and should reference an actual threshold (WCAG 4.5:1 normal text, or APCA |Lc| >= 60) to verify the fix rather than asserting it's fixed without a number.",
+			"files": [],
+			"expectations": [
+				"Fixes the pair by adjusting LIGHTNESS (L) — moving the foreground darker and/or the background lighter — not by changing chroma or hue",
+				"Leaves chroma and hue unchanged on both colors (or explicitly states they should stay the same)",
+				"References a concrete contrast threshold to check against (WCAG 4.5:1 for normal text, or APCA |Lc| >= 60), not just an unverified claim that it's fixed",
+				"Does not suggest a hue swap or chroma reduction as the fix mechanism"
+			]
+		},
+		{
+			"id": 32,
+			"prompt": "Convert this inherited stylesheet's colors to oklch:\n\n```css\n.hero {\n  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);\n  color: white;\n}\n.badge {\n  background: transparent;\n  border: 1px solid currentColor;\n  color: inherit;\n}\n.icon {\n  fill: #64748b;\n}\n```",
+			"expected_output": "BEHAVIORAL/correctness eval. Converts the hex values (#1e3a8a, #3b82f6, #64748b) to oklch AND converts the named color `white` to oklch (e.g. oklch(1 0 0)) — named colors are real color literals, not functional keywords. Does NOT touch `currentColor`, `inherit`, or `transparent` — these are the actual functional keywords that must not be converted or removed. Converts only the gradient's color STOPS, not the linear-gradient() function/interpolation method itself (doesn't rewrite it as color-mix or change the angle/shape). Does not restructure the CSS around the conversion.",
+			"files": [],
+			"expectations": [
+				"Converts the hex colors (#1e3a8a, #3b82f6, #64748b) to oklch values",
+				"Also converts the named color `white` to an oklch value — recognizes it as a real color literal, not a functional keyword",
+				"Does NOT convert or remove `currentColor`, `inherit`, or `transparent` — leaves these functional CSS keywords exactly as they are",
+				"Converts only the gradient's color stops, leaving the linear-gradient() function itself (angle, shape, interpolation) unchanged",
+				"Does not restructure the CSS, rename selectors, or change anything beyond the color values themselves"
+			]
+		},
+		{
+			"id": 33,
+			"prompt": "I need a row of three feature cards. Each card has a border, rounded corners and padding, and the row should collapse to fewer columns as the viewport narrows. Style it.",
+			"expected_output": "The CUBE judgment: two jobs, two layers. The row's wrapping and placement is a composition (the starter's .grid, or a new file in _compositions/); the card's border, radius and padding are a block in _blocks/. The composition does not style the card and the card does not lay out the row -- no single class does both. No @media breakpoints: the intrinsic grid wraps on its own. Border color, radius and spacing come from tokens (--color-border, --radius, --space-*).",
+			"files": [],
+			"expectations": [
+				"Puts the row's wrapping/placement in a composition -- the starter's .grid, or a new file under _compositions/ -- not in a .cards block that owns the layout",
+				"Puts the card's border, radius and padding in a block under _blocks/, separate from the layout",
+				"Keeps layout and appearance in separate rules: no single class both lays out the row and styles the card",
+				"Uses no @media breakpoints for the column count -- the grid wraps intrinsically",
+				"References tokens for border color, radius and spacing (--color-border, --radius, --space-*), not literals"
+			]
+		}
+	]
 }

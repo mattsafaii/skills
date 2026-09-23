@@ -1,0 +1,5 @@
+/* Full-bleed inside `.breakout` — spans from the bleed-start line to
+   bleed-end, ignoring the measured content column. */
+.bleed {
+	grid-column: bleed;
+}

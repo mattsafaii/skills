@@ -1,0 +1,31 @@
+.button {
+	--button-bg: var(--color-accent);
+	--button-text: var(--color-text-on-accent, oklch(99% 0 0));
+	--button-border: transparent;
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-block: 0.55em;
+	padding-inline: 1em;
+	border: 1px solid var(--button-border);
+	border-radius: var(--radius);
+	background: var(--button-bg);
+	color: var(--button-text);
+	font: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+@media (hover: hover) {
+	.button:hover {
+		filter: brightness(1.08);
+	}
+}
+
+/* A new look is another [data-variant] that only assigns variables. */
+.button[data-variant="ghost"] {
+	--button-bg: transparent;
+	--button-text: var(--color-text);
+	--button-border: var(--color-border);
+}

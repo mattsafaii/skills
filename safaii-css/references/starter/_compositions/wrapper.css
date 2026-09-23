@@ -1,0 +1,4 @@
+.wrapper {
+	inline-size: min(100% - var(--gutter) * 2, var(--wrapper-max-width));
+	margin-inline: auto;
+}

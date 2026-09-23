@@ -1,0 +1,13 @@
+.prose {
+	--flow-space: 1em;
+	max-inline-size: var(--measure);
+}
+
+.prose :is(h2, h3) {
+	--flow-space: 1.5em;
+}
+
+.prose ul,
+.prose ol {
+	padding-inline-start: 1.2em;
+}

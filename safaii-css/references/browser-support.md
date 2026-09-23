@@ -6,7 +6,7 @@ This skill leans on recent CSS. Support status is the one thing that goes stale 
 
 The bar isn't a fixed age (the textbook "Baseline Widely available = 30 months" gate is too conservative). It's **project type × failure cost.**
 
-- **Personal / own projects** → **Baseline Newly available.** Use the latest the moment it's in all three engines. No fallback needed just because it's recent. This is the default; the skill's `@scope`/`cqi`/relative-color mandates assume it.
+- **Personal / own projects** → **Baseline Newly available.** Use the latest the moment it's in all three engines. No fallback needed just because it's recent. This is the default; the skill's `@scope`/`cqi`/relative-color usage assumes it.
 - **Client projects** → same default, *but* when a feature is **both** recently-shipped **and** fails ungracefully, don't avoid it — **adopt the Baseline feature and ship a removable fallback**, then delete the fallback once the audience is fully on supporting browsers. The preference order:
   1. **Does it degrade gracefully if unsupported?** (The load-bearing question.) If yes, just gate it with `@supports`/`@media` and ship — the unsupported case no-ops.
   2. If it fails ungracefully (broken layout, a dialog that won't open), add an explicit fallback: an `@supports` alternative for CSS, or a feature-detect polyfill-lite for an HTML/JS API. Use the modern feature as the primary path; the fallback is the safety net for not-yet-updated browsers.
@@ -105,7 +105,7 @@ When unsure for client work, WebFetch one of these rather than trusting memory o
 | `prefers-reduced-motion` media feature | 2020 (Jan, widely available) | **yes** — query doesn't match, motion just plays | Use. The skill's single most-used gate — every animation/transition bullet wraps in `@media (prefers-reduced-motion: no-preference)`. Ancient and safe. |
 | `hover` media feature | 2018 (Dec, widely available) | **yes** — query doesn't match, rule just doesn't apply | Use. Gates hover-only affordances so touch/no-pointer devices don't get a stuck `:hover` state. Ancient and safe. |
 | `light-dark()` | 2024 (May, Baseline) | **no** — invalid at computed-value time; the property falls back to inherited/initial, not the light-mode color | Use, but pair with `color-scheme: light dark` on `:root` — the function does nothing without it. The per-token dark-mode mechanism; needs a hex/oklch fallback only for pre-2024 engines if a project must support them. |
-| `@scope` | mid-2024 | **no** — styles leak / don't apply | The skill mandates it. Newest load-bearing feature — the one to watch for conservative client work. |
+| `@scope` | mid-2024 | **no** — styles leak / don't apply | Use where it earns its place — a `to (…)` boundary, or the lower specificity — never as a blanket mandate. On conservative client work the fallback is plain descendant selectors: the same styling with wider support. |
 | Relative color `oklch(from …)` | mid-2024 | **no** | Newly available; pairs with `@scope` in age. |
 | Popover API | 2024 | needs fallback | Enhancement; vet for client work. |
 | `@view-transition` (MPA) | mid-2024 | **yes** — no transition | Safe as enhancement (starter ships it). |

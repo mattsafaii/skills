@@ -7,21 +7,22 @@ description: Safaii Studio CSS conventions and starter stylesheet. Use whenever 
 
 How Safaii Studio writes CSS.
 
-**Source of truth:** this skill and `references/starter.css`, together. `starter.css` is canonical for the stylesheet itself — tokens, layer order, scope patterns. This `SKILL.md` is canonical for everything not expressible as CSS — process, rules, and the Checks — and points at `starter.css` rather than restating its values, so the two can't drift apart. Both are version-controlled and machine-checkable; edit them directly.
+**Source of truth:** this skill and `references/starter/`, together. The starter tree is canonical for the stylesheet itself — tokens, layer order, scope patterns. This `SKILL.md` is canonical for everything not expressible as CSS — process, rules, and the Checks — and points at the starter rather than restating its values, so the two can't drift apart. Both are version-controlled and machine-checkable; edit them directly.
 
 The Basecamp doc "Frontend Conventions" (Lab project 46824335, doc 9768197742 — one combined overview also covering [[safaii-html]]) is a **derived, human-readable view** — refresh it from this skill when convenient. Its lag is cosmetic, not functional; you never have to update it first to change a rule.
 
 ## Process
 
 ### New static site (11ty)
-1. Copy `references/starter.css` as the project's stylesheet (one file, usually `css/style.css`).
-2. Fill in `config`: project palette (oklch only), project fonts. Keep the token names `starter.css` ships with (`--gutter`, `--stack`, `--measure`, `--radius`, `--color-*`) — that file is the canonical list; don't maintain a parallel one here.
+1. Copy `references/starter/` into the project as `src/assets/css/` — the tree, not one file. `main.css` is the entry point; every layer folder is underscored, so `main.css` is the only file that reaches the output.
+2. Lightning CSS bundles it at build (`bundleAsync` resolves the `@import`s), so the browser makes one request.
+3. Fill in `tokens.css`: project palette (oklch only), project fonts. Keep the token names the starter ships with (`--gutter`, `--measure`, `--radius`, `--space-*`, `--color-*`) — that file is the canonical list; don't maintain a parallel one here.
 3. Style elements before inventing classes — the page must work as a styled document first. But element-first applies to *default document elements* (`h1`, `p`, `a`, `button`'s baseline). An **opt-in visual variant** — a filled brand button among ghost/secondary/icon buttons, a callout, a card — earns a class; don't dissolve it into a bare element selector, which would restyle every instance and change selector semantics. When refactoring, preserve the original selector's contract (a `.button` class stays a class) unless told otherwise.
-4. Add components only when a pattern can't be expressed on bare elements. Each one uses `@scope` *if it has descendant rules*; a single-rule variant on its root class stays a plain rule.
+4. Add blocks only when a pattern can't be expressed on bare elements. A block that is a single rule on its root class stays a plain rule; reach for `@scope` only when it needs a boundary or the lower specificity.
 5. Run the Checks before calling it done.
 
 ### Rails apps
-Same layers, same rules, different file layout: Propshaft loads every file in `app/assets/stylesheets/`, so split by concern instead of one file — `config.css` (the `@layer` declaration + tokens), `reset.css`, `elements.css`, then one file per component (`flash.css`, `dialog.css`, `inputs.css`, `nav.css`). The `@layer` declaration keeps the cascade order correct regardless of file load order. App components (flash, dialog, inputs) live in the `components` layer and use `@scope` like everything else. Skip the starter's body grid — app layout is its own decision, not the document grid.
+Same layers, same rules, different file layout: Propshaft loads every file in `app/assets/stylesheets/`, so split by concern rather than through a bundler entry — one file per layer (`tokens.css`, `reset.css`, `base.css`, `composition.css`), then one file per component (`flash.css`, `dialog.css`, `inputs.css`, `nav.css`). The `@layer` declaration keeps the cascade order correct regardless of file load order. App components go in the `block` layer and use `@scope` like everything else. Take only the compositions the app actually wants; the document-grid `.breakout` is a page concern, not an app shell.
 
 ### Existing project
 Don't restructure working CSS uninvited. New styles follow the conventions; flag (don't fix) existing violations.
@@ -29,14 +30,17 @@ Don't restructure working CSS uninvited. New styles follow the conventions; flag
 ## Rules
 
 - **Vanilla CSS only.** No Tailwind, no CSS-in-JS, no preprocessors, no utility-class systems.
-- **One declaration order:** `@layer config, reset, elements, components;` — first thing after fonts/keyframes.
-  - `config` — custom properties and `@view-transition` only. No selectors styling elements.
-  - `reset` — the minimal reset from starter.css. Resist additions.
-  - `elements` — bare HTML elements. This is where most of the stylesheet lives.
-  - `components` — the few classes that earn their existence.
-  - `utilities` — appended (fifth, last) only when the project needs one-off utility classes like `.sr-only` (canonical visually-hidden recipe in [[safaii-html]]) or `.bleed`; last so a utility beats component styles. Utility-class *systems* stay banned.
-- **Components use `@scope`.** Scope to the component root instead of prefixing every selector with the component class; use `@scope (...) to (...)` to stop at nested component boundaries. Style the root via `:scope`. A component that is a single rule on its root class (no descendant rules) stays a plain rule — don't wrap it pointlessly.
-- **Colors are oklch.** Custom properties in `config`; derive muted variants with `color-mix(in oklch, ...)`, not new hex values or opacity. Converting inherited hex/rgb/hsl **and named colors** (`white`, `black`, `tomato`, …, — actual color literals, just spelled as words) to oklch (a legacy-CSS refactor): convert the color values and leave everything else alone — don't restructure the CSS around it. **Leave untouched — these aren't color literals:** the functional CSS keywords `currentColor`, `inherit`, `initial`, `unset`, `transparent`. Also leave a gradient's function/interpolation method alone (convert only its color *stops*), and anything in a third-party library config that specifically expects a hex string.
+- **One declaration order:** `@layer reset, tokens, base, composition, block, utility, exception;` — first thing in the entry file. This is CUBE: Composition, Utility, Block, Exception. Each layer is a folder, imported into its layer by `main.css`.
+  - `reset` — the minimal reset from the starter. Resist additions.
+  - `tokens` — custom properties only. No selectors styling elements.
+  - `base` — bare HTML elements. This is where most of the stylesheet lives.
+  - `composition` — layout primitives that own placement and wrapping (`.flow`, `.wrapper`, `.cluster`, `.grid`, `.repel`, `.sidebar`, `.switcher`, `.breakout`). They lay out whatever they wrap and never style the content itself.
+  - `block` — the few classes that earn their existence, one component per file. A block solves **one** contextual problem and stays small (~80–100 lines); past that, or when a variant stops being recognisable as the original, it's a new block. Its internals get a composition (usually `.flow`), not per-element margins.
+  - `utility` — single-concern classes for what varies page to page (`.region`, `.visually-hidden`, `.indent`, `.bleed`). Utility-class *systems* stay banned: a utility folder that grows into a hand-rolled Tailwind is the thing this refuses.
+  - `exception` — the last word, for cross-cutting `data-*` rules and genuine one-offs that aren't a block's business. Ships empty and stays that way until something needs it; the everyday `data-variant` belongs in the block's own file.
+- **Where we follow CUBE, and where we deliberately depart from it, is in `references/cube.md`** — the refusal to generate utilities from tokens, `.wrapper` living in compositions, and exceptions sitting with their block are all choices, not drift.
+- **`@scope` when the block needs a boundary.** Use it where a block contains nested components and its rules must stop at that boundary — `@scope (.card) to (.card-body)` — and style the root via `:scope`. It also carries lower specificity than a `.block descendant` selector, which fits leaning on the cascade. But it isn't a blanket mandate: a block that is a single rule on its root class stays plain, and a block with a few simple descendant rules can use plain descendant selectors (`.prose ul`) — CUBE permits that, and `@scope` fails ungracefully on browsers that lack it. Don't wrap a block in `@scope` just to have one.
+- **Colors are oklch.** Custom properties in `tokens`; derive muted variants with `color-mix(in oklch, ...)`, not new hex values or opacity. Converting inherited hex/rgb/hsl **and named colors** (`white`, `black`, `tomato`, …, — actual color literals, just spelled as words) to oklch (a legacy-CSS refactor): convert the color values and leave everything else alone — don't restructure the CSS around it. **Leave untouched — these aren't color literals:** the functional CSS keywords `currentColor`, `inherit`, `initial`, `unset`, `transparent`. Also leave a gradient's function/interpolation method alone (convert only its color *stops*), and anything in a third-party library config that specifically expects a hex string.
 - **Chroma ranges as a sanity check, not a hard limit.** Max in-gamut chroma varies by hue — yellows/cyans tolerate more than reds/blues at the same lightness — but as rough bands: neutrals ~0–0.10, sRGB-safe saturated colors ~0.20–0.32, wide-gamut-only ~0.32–0.40. DevTools flags out-of-gamut oklch values directly; trust that over the bands when they disagree.
 - **Wide gamut via Display P3** (graceful enhancement). Declare the sRGB-safe oklch value as the base, then raise chroma behind `@media (color-gamut: p3)` for capable displays — same lightness and hue, just more saturated:
   ```css
@@ -61,8 +65,8 @@ Don't restructure working CSS uninvited. New styles follow the conventions; flag
   **Check first whether a plain `transition` already does the job.** A `transition: color 0.2s` between two full `oklch()` values already interpolates smoothly across lightness, chroma, *and* hue natively — no `@property` needed, and no JS. `@property` earns its complexity only when something a plain two-endpoint color transition genuinely can't do is actually needed: the channel value read or computed elsewhere, or a hue journey with real, visible range (a multi-stop arc, an overshoot big enough to see) — not a fixed hover-state swap between two named tokens, which a plain transition already handles. Built and measured on `mattsafaii`'s masthead hover: the `@property` version's only actual delta over the existing plain crossfade was a ~0.4° hue overshoot (invisible) and 3x the duration (200ms → 600ms, reads as slower, not premium) — reverted, nothing gained. Verify the same way before shipping: measure the actual behavioral difference against the plain-transition baseline, don't assume typing the property automatically improves on it.
 
   This follows the general ask-first-animation rule below — reserve it for a specific, tasteful brand-reinforcing micro-interaction that a plain transition genuinely can't produce, bring that idea to Matt to review before building it, and gate it under `prefers-reduced-motion` like any other motion. Baseline 2024 (all engines); degrades to an instant snap if unsupported.
-- **Font-relative units.** Spacing is a fixed rem scale on a 4px grid (`--space-1`…`--space-16`, where the number is px÷4); `--measure` for line length. The semantic tokens `--gutter` (inline) and `--stack` (block) are fluid but **bounded by scale steps** — `clamp(var(--space-4), 2.5vmax, var(--space-6))` — so spacing rides between grid stops and never leaves the system; anything needing an exact value uses `--space-*` directly. Derive spacing from the tokens via `calc()`, not magic numbers. Corner radius is a small rem scale (`--radius-sm`/`--radius`/`--radius-lg`), not literal `px`. For a rounded element nested inside another (an inset image in a rounded card), don't reuse the outer radius — concentric corners need `inner = outer − gap`, where the gap is padding + border + spacing: `border-radius: calc(var(--radius-lg) - var(--gutter) - 1px)`. Write the formula from tokens so it holds when spacing changes; then trust your eye for a ±1–2px nudge. (The formula assumes round corners; `corner-shape` squircles don't offset cleanly — eyeball those.) Relative units everywhere — the only `px` exceptions are `border-width` and `outline-width`, where hairlines and focus rings should stay crisp at any zoom.
-- **Spacing rhythm of three.** Reach for scale steps by nesting level, not by eye: ~`--space-2` (8px) *within* a group, ~`--space-4` (16px) *between* groups, ~`--space-8`–`--space-10` (32–40px) *between* sections. Keeps vertical rhythm legible without per-element fiddling; `--stack` (≈12–16px) already sits at the between-group level for document flow.
+- **Font-relative units.** Spacing is a fixed rem scale on a 4px grid (`--space-1`…`--space-16`, where the number is px÷4); `--measure` for line length. The semantic token `--gutter` (inline) is fluid but **bounded by scale steps** — `clamp(var(--space-4), 2.5vmax, var(--space-6))` — so spacing rides between grid stops and never leaves the system; anything needing an exact value uses `--space-*` directly. Derive spacing from the tokens via `calc()`, not magic numbers. Corner radius is a small rem scale (`--radius-sm`/`--radius`/`--radius-lg`), not literal `px`. For a rounded element nested inside another (an inset image in a rounded card), don't reuse the outer radius — concentric corners need `inner = outer − gap`, where the gap is padding + border + spacing: `border-radius: calc(var(--radius-lg) - var(--gutter) - 1px)`. Write the formula from tokens so it holds when spacing changes; then trust your eye for a ±1–2px nudge. (The formula assumes round corners; `corner-shape` squircles don't offset cleanly — eyeball those.) Relative units everywhere — the only `px` exceptions are `border-width` and `outline-width`, where hairlines and focus rings should stay crisp at any zoom.
+- **Spacing rhythm of three.** Reach for scale steps by nesting level, not by eye: ~`--space-2` (8px) *within* a group, ~`--space-4` (16px) *between* groups, ~`--space-8`–`--space-10` (32–40px) *between* sections. Keeps vertical rhythm legible without per-element fiddling; the `.flow` composition's `--flow-space` already sits at the between-group level for document flow.
 - **Fluid type with `clamp()` + `cqi`.** For headings/display text that should scale with available space, use `clamp()` with `cqi` (1% of the container's inline size) as the ideal value and a `rem` minimum so the hierarchy survives 200%+ zoom: `font-size: clamp(1.25rem, 5cqi, 3rem)`. `cqi` responds to the element's container, not the viewport, so type scales right inside a narrow column on a wide screen — but the parent must set `container-type: inline-size`. Fall back to `vb` only when there's genuinely no containment context.
 - **Optical text trimming — `text-box-trim` / `text-box-edge`** (experimental, graceful). Trims the font's half-leading above caps / below the baseline so text optically centers in buttons/badges and headings align precisely: `text-box: trim-both cap alphabetic`. Chromium-only as of mid-2026 — *pure enhancement*, so guard it with `@supports (text-box-trim: trim-both)` and keep your normal spacing as the baseline; non-supporting browsers just keep the default leading. Use it to remove fiddly magic-number padding, not as load-bearing layout.
 - **Drop caps — `initial-letter`** (experimental, graceful). Native sunk initial for an essay/article opening: `p:first-of-type::first-letter { -webkit-initial-letter: 3 2; initial-letter: 3 2; }`. **Firefox doesn't support it**, so it's pure enhancement — give a plain `::first-letter { font-size; font-weight }` baseline so Firefox shows an enlarged (not sunk) letter; supporting engines get the real drop cap. Needs the `-webkit-` prefix.
@@ -97,9 +101,9 @@ Optional dark-mode polish: a default OS scrollbar can look mismatched on a dark 
 
 `light-dark()` only swaps a single value per property, so it covers token-level color swaps but not rules that need real logic (swapping a background image, changing a shadow recipe, disabling an effect entirely). For those, fall back to a `@media (prefers-color-scheme: dark)` block instead — it can hold any declaration, not just a two-way color pick. Same `color-scheme` switch drives both; use `light-dark()` by default and only reach for the media query when a rule outgrows a value swap.
 
-Two sizes, both in the `config` layer:
+Two sizes, both in the `tokens` layer:
 
-- **Small palette** (most personal/document sites): just the semantic tokens — `--color-bg`, `--color-text`, `--color-accent`. This is what starter.css ships with; add muted variants via `color-mix()` only once a component actually needs one, rather than pre-declaring them as tokens.
+- **Small palette** (most personal/document sites): the semantic tokens — `--color-bg`, `--color-text`, `--color-accent`, plus `--color-border` derived from `--color-text` with `color-mix()`. This is what the starter ships with; add further muted variants via `color-mix()` only once a component actually needs one, rather than pre-declaring them as tokens.
 - **Bigger palette** (client work): three layers — primitives, semantics, and an optional dark-mode remap.
   - **Layer 1 — Primitives:** a named neutral ramp (`--base-50` … `--base-950`, plus named endpoints like `--cream`/`--paper`/`--ink`) and named accents (`--primary`, `--yellow`, …). If the project ships dark mode, give at least the accents a dark-side primitive too (`--primary-dark`, built with the +0.10–0.15 L offset above) — that's the raw material layer 3 remaps into.
     - **Generating a ramp — formula, not hand-tuning.** Steps `50/100/200/300/400/500/600/700/800/900/950`, **lightness** decreasing in roughly uniform steps end to end, **hue held constant** throughout. **Chroma tapers differently by ramp type:**
@@ -164,7 +168,7 @@ Two sizes, both in the `config` layer:
       }
       ```
       Trade-off: this form has no manual toggle on its own — a `[data-theme="dark"]` block would have to duplicate the whole remap.
-  - Everything outside `config` uses semantic tokens only — never a primitive directly. Renaming a brand color then touches one line.
+  - Everything outside `tokens` uses semantic tokens only — never a primitive directly. Renaming a brand color then touches one line.
   - Derive related colors with relative color syntax instead of new literals: `--color-link: oklch(from var(--primary) 0.30 0.12 h);` shadow alphas as `oklch(from var(--color-shadow) l c h / 5%)`.
 
 **Fixing failing contrast — adjust L, not C or H.** In hex/rgb, fixing a failing text/background pair means trial-and-error across three channels at once. In oklch, contrast is controlled almost entirely by the **lightness distance** between foreground and background — widen or narrow the `L` gap and leave chroma and hue alone (chroma has negligible effect on contrast). Rough landmarks, not a replacement for a real check (per safaii-html: verify with the WebAIM checker or an APCA calculator, not lightness alone):
@@ -188,7 +192,7 @@ button {
 
 ### Other token groups (client tier only)
 
-The minimal default doesn't ship these — add them in `config` only when a client project actually needs elevation or motion, same "semantic, in config, referenced everywhere" rule as colors. Don't tokenize what the project doesn't use.
+The minimal default doesn't ship these — add them in `tokens` only when a client project actually needs elevation or motion, same "semantic, in tokens, referenced everywhere" rule as colors. Don't tokenize what the project doesn't use.
 
 - **Shadow** — `--shadow-sm/md/lg`, alphas via `oklch(... / <a>)`. Reach for these only when the design genuinely uses elevation; the default aesthetic is flat.
 - **Motion** — `--duration-fast/base/slow` (e.g. `150ms`/`250ms`/`400ms`) and `--easing-*`. Tokenize durations/easings so animation stays consistent — but the animation-off-by-default rule and `prefers-reduced-motion` gating still apply; tokens don't license decoration.
@@ -212,66 +216,43 @@ SVG filter primitives (`feTurbulence`, `feGaussianBlur`, `feMorphology`, `feColo
 - **Tuning `feTurbulence`** — treat its attributes as a parameter space, not magic numbers: `baseFrequency` is scale (lower = larger organic blotches, higher = fine grain — the paper-grain example above uses `0.65` for fine grain), `numOctaves` adds detail layers at a real processing cost (more isn't free, keep it low for a background texture), `seed` reruns the same settings with a different pattern (useful for trying variations without touching the frequency/octave values that are already tuned).
 - `feImage` is the flakiest primitive on HTML content (unreliable in Safari and Firefox) — avoid it.
 
-## @scope component pattern
+## @scope, when it earns its place
 
 ```css
-@layer components {
-	@scope (.site-nav) {
-		:scope {
-			display: flex;
-			gap: var(--gutter);
-		}
-
-		a {
-			text-decoration: none;
-		}
+/* One block file, e.g. _blocks/site-nav.css. The @import assigns the layer. */
+@scope (.site-nav) {
+	:scope {
+		display: flex;
+		gap: var(--gutter);
 	}
 
-	/* `to` keeps card styles out of nested components rendered inside .card-body */
-	@scope (.card) to (.card-body) {
-		img {
-			border-radius: var(--radius);
-		}
+	a {
+		text-decoration: none;
+	}
+}
+
+/* `to` keeps card styles out of nested components rendered inside .card-body */
+@scope (.card) to (.card-body) {
+	img {
+		border-radius: var(--radius);
 	}
 }
 ```
 
 ## Layout patterns
 
-No-breakpoint layouts that wrap intrinsically. Both tie the wrap threshold to readable content width via `ch`, not arbitrary pixels.
+No-breakpoint layouts that wrap intrinsically. The starter ships these as `_compositions/` — read those files rather than re-deriving them. This section is the judgment around them.
 
-```css
-@layer components {
-	/* Self-wrapping column grid — columns fill space, wrap below the minimum.
-	   The scoped --grid-col-min makes the threshold overridable per instance. */
-	@scope (.grid) {
-		:scope {
-			--grid-col-min: 20ch;
-			display: grid;
-			gap: var(--gutter);
-			grid-template-columns: repeat(auto-fit, minmax(var(--grid-col-min), 1fr));
-		}
-	}
-
-	/* Items that wrap independently at their own threshold (deconstructed pancake).
-	   Each grows/shrinks freely but won't collapse below 20ch before wrapping. */
-	@scope (.cluster) {
-		:scope {
-			display: flex;
-			flex-wrap: wrap;
-			gap: var(--gutter);
-		}
-
-		> * {
-			flex: 1 1 20ch;
-		}
-	}
-}
-```
+- `.flow` — vertical rhythm via the owl selector, with `--flow-space` overridable per instance.
+- `.wrapper` — the measured column, capped at `--wrapper-max-width`.
+- `.cluster` — items that wrap at their own intrinsic width.
+- `.grid` — auto-fitting columns, with `data-layout` variants that only change `--grid-min-item-size`.
+- `.repel`, `.sidebar`, `.switcher` — the remaining Every Layout primitives, same idea.
+- `.breakout` — the named-column document grid (`bleed` / `content` line names) plus the `.bleed` utility. Opt in on a wrapper; it is not a default page shell.
 
 Use `auto-fill` instead of `auto-fit` when empty columns should keep their space (locking the grid to N columns even with fewer items).
 
-These two come from [Every Layout](https://every-layout.dev/) (the Cluster and Grid primitives). It's the canonical source for intrinsic, no-breakpoint layout primitives and worth reaching for when a layout needs more than these — Center, Sidebar, Switcher. Its **Stack** primitive (owl selector `* + *` for vertical rhythm) is the formal version of what the starter already does by hand with `main > * + *` and `--stack`.
+These come from [Every Layout](https://every-layout.dev/). It's the canonical source for intrinsic, no-breakpoint primitives and worth reaching for when a layout needs more than the starter has — its **Stack** primitive is the formal version of what `.flow` already does. When you add a composition the starter lacks, it goes in `_compositions/` as its own file and earns an `@import` line in `main.css` — not a new `@media` width.
 
 **Masonry isn't production-ready** (experimental, unsettled syntax — it's a "not-ready" feature in `references/browser-support.md`). Don't write `grid-template-rows: masonry` / `display: masonry`. Until it's Baseline: the `auto-fit` grid above (predictable, accessible) or, for *non-sequential* galleries only, a `columns` approximation — never `columns` for ordered content, since it flows top-to-bottom per column and breaks reading order.
 
@@ -303,30 +284,30 @@ This skill uses recent CSS (`@scope`, `cqi`, `oklch`, relative color, `@view-tra
 
 | # | Check | Pass criteria | If fail |
 |---|-------|---------------|---------|
-| 1 | Layer order | `grep -cE '^@layer config, reset, elements, components(, utilities)?;' style.css` → 1 | Add/fix the declaration; it must precede all `@layer` blocks |
+| 1 | Layer order | `grep -cE '^@layer reset, tokens, base, composition, block, utility, exception;' main.css` → 1 | Add/fix the declaration; it must precede all `@layer` blocks |
 | 2 | No frameworks | `grep -nE '@tailwind|@apply|!important' style.css` → no matches | Remove; express with layers/specificity instead |
-| 3 | Scoped components | every component with descendant rules sits inside `@scope`; **and** no `@scope` block is root-only (a `@scope` whose only rule targets `:scope`, even with `:scope:hover`/`:scope:focus`, is needless) | Descendant rules: wrap in `@scope (.component-root)`. Root-only wrapped in `@scope`: unwrap to a plain `.component-root { … }` rule |
+| 3 | `@scope` earns its place | any `@scope` block has more than a `:scope` rule, **and** either needs a `to (…)` boundary or benefits from the lower specificity; no `@scope` wrapped around a root-only rule | Root-only inside `@scope`: unwrap to a plain `.block { … }` rule. No boundary need and the descendant rules are simple: plain descendant selectors are allowed — CUBE permits them |
 | 4 | oklch only | `grep -nE '#[0-9a-fA-F]{3,8}\b|rgb\(|hsl\(' style.css` → no matches (SVG data-URIs exempt) | Convert to oklch |
-| 5 | Tokens used | spacing values reference `--gutter`/`--stack` (grep for stray `margin.*px`) | Derive from tokens via `calc()` |
+| 5 | Tokens used | spacing values reference `--gutter`/`--space-*`/`--flow-space` (grep for stray `margin.*px`) | Derive from tokens via `calc()` |
 | 6 | Motion gated | every `animation:`/`transition` on motion is inside `prefers-reduced-motion: no-preference` (micro-transitions like color/underline exempt) | Wrap in the media query |
 
 ## Failure modes
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| Styles in wrong layer win/lose unexpectedly | Element styles placed in `components`, or tokens outside `config` | Move rules to the layer matching their role |
+| Styles in wrong layer win/lose unexpectedly | Element styles placed in `block`, or tokens outside `tokens` | Move rules to the layer matching their role |
 | Component styles leak into nested content | `@scope` without a `to` boundary around a component that contains other components | Add `to (.inner-component)` limit |
-| Scaffold drifts per project | Starter copied from a previous project instead of this skill | Always copy `references/starter.css` |
-| Derived views stale | Skill / starter.css changed but `rules.txt` and the Basecamp doc weren't refreshed | Regenerate the derived views from this skill; the skill + starter.css are the source of truth, so this is cosmetic, not a conflict |
-| Garp scaffold off-spec | `garp new` ships a baked-in `style.css` const that was hand-written instead of derived from this skill | Refresh garp's `new.go` `scaffoldStyles` const from `starter.css`; canonical token names here win over whatever the scaffold currently uses |
+| Scaffold drifts per project | Starter copied from a previous project instead of this skill | Always copy `references/starter/` |
+| Derived views stale | The skill or the starter tree changed but the Basecamp doc wasn't refreshed | Regenerate the derived views from this skill; the skill + starter are the source of truth, so this is cosmetic, not a conflict |
+| Garp scaffold off-spec | `garp new` ships a baked-in `scaffold/static/style.css` that was hand-written instead of derived from this skill | Refresh it from the starter tree (flattened into one file) and rebuild; canonical token names here win over whatever the scaffold currently uses |
 
 ## Consumers (keep in sync)
 
-These materialize the conventions; when this skill or `references/starter.css` changes, refresh each — none auto-update:
+These materialize the conventions; when this skill or `references/starter/` changes, refresh each — none auto-update:
 
-- **11ty sites** — copy `references/starter.css` as the project's `css/style.css`.
-- **Rails apps** — split `starter.css` by concern into `app/assets/stylesheets/`.
-- **garp** (`~/Work/safaii-studio/lab/garp`) — `new.go` bakes the starter into a Go string const: `scaffoldStyles` → `static/style.css`. A *compiled snapshot*: it ships with `garp new` and silently drifts when the conventions move. Refresh the const from `starter.css` and rebuild. Canonical token names here win over the scaffold's.
+- **11ty sites** — copy `references/starter/` to `src/assets/css/`. In the client template it is processed by Lightning CSS; see the Process section.
+- **Rails apps** — split the starter by concern into `app/assets/stylesheets/`, one file per layer plus one per component.
+- **garp** (`~/Work/safaii-studio/lab/garp`) — `new.go` embeds a real `scaffold/` tree (`//go:embed all:scaffold`) and stamps it into a new project. `scaffold/static/style.css` is the starter flattened into one file, because garp doesn't bundle CSS. A *snapshot*: it ships with `garp new` and silently drifts when the conventions move. Refresh it from the starter tree and rebuild. `sink.go` parses the `@layer tokens` block for the kitchen-sink token list, so a layer rename here also breaks that page. Canonical token names here win over the scaffold's.
 
 ### Derived human-readable views
 
@@ -342,12 +323,14 @@ Not project stylesheets — readable renderings of the conventions. Their lag is
 
 Real stylesheets that follow the conventions. Study before starting:
 
-- **`references/starter.css` — the canonical artifact and source of truth for the stylesheet itself.** Every project starts from this; the examples below are real-world applications of it, not replacements for it. When in doubt, the starter wins.
-- `~/Work/safaii-studio/playground/mattsafaii/src/css/style.css` — layer order, config tokens, body grid with named bleed/content columns, element-first styling, `color-mix` muting, gated motion/hover, `@scope` components (including a `to (.lightbox)` boundary example).
+- **`references/starter/` — the canonical artifact and source of truth for the stylesheet itself.** Every project starts from this tree; the examples below are real-world applications of it, not replacements for it. When in doubt, the starter wins.
+- `~/Work/safaii-studio/playground/mattsafaii/src/css/style.css` — tokens, the body grid with named bleed/content columns (now the opt-in `.breakout` composition), element-first styling, `color-mix` muting, gated motion/hover, `@scope` components (including a `to (.lightbox)` boundary example). Predates the CUBE layer names.
 - `~/Work/safaii-studio/clients/konnected-concepts/site/src/assets/css/base.css` (config layer) — the bigger-palette token system: primitive ramp + accents, semantic tier built on top, relative color syntax for derived values. Color structure only — its layer list and utilities predate the conventions (8-layer order, hex neutral ramp, not oklch).
 - Basecamp "Frontend Conventions" (derived human-readable view, not authoritative): https://app.basecamp.com/6191443/buckets/46824335/documents/9768197742
 
 ## Status
+
+Moved to CUBE (2026-09-23): one stylesheet file became a tree (`references/starter/`), and the layer order became `reset, tokens, base, composition, block, utility, exception`. The `config`/`elements`/`components` folder names became `tokens`/`base`/`blocks`; `composition`, `utility`, and `exception` were added. The body grid moved out of `base` into the opt-in `.breakout` composition, and `--stack` was replaced by the `.flow` composition's `--flow-space`. Token names, the animation and SVG-filter gates, the contrast rule, and every convention that isn't about file layout are unchanged.
 
 First version, with one example. After the next CSS project, add any new failure modes to the table and the finished stylesheet to Examples.
 

@@ -1,0 +1,54 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	font-kerning: normal;
+}
+
+html {
+	hanging-punctuation: first last;
+	overflow-x: clip;
+}
+
+body {
+	min-height: 100vh;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+	display: block;
+	max-inline-size: 100%;
+	block-size: auto;
+}
+
+input,
+button,
+textarea,
+select {
+	font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	overflow-wrap: break-word;
+}
+
+:target {
+	scroll-margin-block: 2rlh;
+}
+
+@media (forced-colors: active) {
+	:where(button) {
+		border: 1px solid;
+	}
+}

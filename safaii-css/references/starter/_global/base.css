@@ -1,0 +1,76 @@
+@view-transition {
+	navigation: auto;
+}
+
+html {
+	background-color: var(--color-bg);
+	color: var(--color-text);
+}
+
+body {
+	font-family: var(--font-body);
+	line-height: var(--line-height);
+	-webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+	text-wrap: balance;
+	hyphens: auto;
+}
+
+a {
+	color: inherit;
+	text-underline-offset: 0.15em;
+	text-decoration-thickness: 0.05em;
+}
+
+a:hover {
+	text-decoration-color: var(--color-accent);
+}
+
+p,
+ul,
+ol {
+	text-wrap: pretty;
+}
+
+ul,
+ol {
+	padding-inline-start: 2ch;
+}
+
+::selection {
+	background: var(--color-accent);
+	color: var(--color-bg);
+}
+
+:where(:focus-visible) {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+}
+
+:where(img, svg, video, iframe) {
+	max-inline-size: 100%;
+	block-size: auto;
+}
+
+:where(svg) {
+	fill: currentColor;
+}
+
+:where(input:is([type="checkbox"], [type="radio"]), select, label, button) {
+	cursor: pointer;
+}
+
+article {
+	content-visibility: auto; /* skip rendering off-screen articles */
+	contain-intrinsic-size: auto 60rem; /* size estimate so the scrollbar doesn't jump; auto remembers the real size after first render */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	:root {
+		scroll-behavior: smooth;
+	}
+}

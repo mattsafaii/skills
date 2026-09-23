@@ -1,0 +1,19 @@
+/* The named-column document grid: content sits in a measured middle column,
+   with bleed line names on either side for full-bleed elements.
+
+   Opt in on a wrapper element for a page that actually needs breakout — an
+   essay, a long-form article. It is not a default page shell: most pages use
+   `.wrapper` and stop there. */
+.breakout {
+	display: grid;
+	grid-template-columns:
+		[bleed-start] minmax(var(--gutter), 1fr)
+		[content-start] minmax(0, var(--measure))
+		[content-end] minmax(var(--gutter), 1fr)
+		[bleed-end];
+	align-items: start;
+}
+
+.breakout > * {
+	grid-column: content;
+}

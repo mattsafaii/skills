@@ -1,0 +1,17 @@
+.grid {
+	display: grid;
+	gap: var(--grid-gap, var(--space-4));
+	grid-template-columns: repeat(
+			auto-fit,
+			minmax(min(100%, var(--grid-min-item-size, 16rem)), 1fr)
+		);
+}
+
+/* A new column habit is a data-layout that only changes variables. */
+.grid[data-layout="50-50"] {
+	--grid-min-item-size: 20rem;
+}
+
+.grid[data-layout="thirds"] {
+	--grid-min-item-size: 14rem;
+}
