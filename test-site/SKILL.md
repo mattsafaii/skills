@@ -58,12 +58,13 @@ Report each break in the vocabulary of the owning skill, so the fix starts in th
 
 | Break | Owner |
 |---|---|
-| Wrapping, truncation, tall scripts | `better-typography` |
-| Container has no room, mirroring, unbounded measure | `better-layout` |
-| Dark mode, contrast from color alone | `better-colors` |
-| Source copy is the problem, empty state | `better-writing` |
-| State, zoom, motion, missing accessible name | `better-accessibility` |
-| Purely visual polish | `better-ui` |
+| Wrapping, truncation, tall scripts | `safaii-css` |
+| Container has no room, mirroring | `safaii-css` |
+| Unbounded measure, grouping, hierarchy | `page-design` |
+| Dark mode, contrast from color alone | `safaii-css` |
+| Source copy is the problem, empty state | `page-design` |
+| State, zoom, motion, missing accessible name | `safaii-html` |
+| Purely visual polish | `page-design` |
 
 The page is half the report — render the instances on a throwaway page, mark each break under its label, and leave it up until Matt says he's done.
 

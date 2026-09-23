@@ -71,7 +71,7 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 Regressions are invisible in the post-change state. Read the `-` side of every hunk against [removed-signals.md](removed-signals.md) — a change can quietly drop an accessible name, a focus ring, a reduced-motion guard, a text-wrapping rule, or a color token.
 
-A removed signal is a lead, not a finding. Check for an equivalent replacement first (an `aria-label` giving way to `aria-labelledby` is not a regression). Route the unmatched removal to its owner (`better-accessibility`, `better-typography`, `better-colors`, `better-layout`, `better-writing`) and report it as a **Regression** only once that owner confirms the interface got worse.
+A removed signal is a lead, not a finding. Check for an equivalent replacement first (an `aria-label` giving way to `aria-labelledby` is not a regression). Route the unmatched removal to its owner (`safaii-html`, `safaii-css`, `page-design`) and report it as a **Regression** only once that owner confirms the interface got worse.
 
 ## 5. Spawn the reviewers in parallel
 
@@ -105,7 +105,7 @@ herdr agent read review-interface --source recent-unwrapped --lines 120
 
 **Interface reviewer brief** — include the diff command and commit list:
 
-> Report what the change broke or left incomplete in user-facing code: (a) a state applied to some cases but not all — hover, focus, active, disabled, loading, selected; (b) a new component with no empty, loading, error, disabled, or narrow-width state; (c) a control added to one surface but not its sibling surfaces; (d) a removal from the `-` side that nothing replaces (accessibility, focus, motion, text, a color token). Name the owning `better-*` skill for each. Report only what the diff shows, not taste. Under 400 words.
+> Report what the change broke or left incomplete in user-facing code: (a) a state applied to some cases but not all — hover, focus, active, disabled, loading, selected; (b) a new component with no empty, loading, error, disabled, or narrow-width state; (c) a control added to one surface but not its sibling surfaces; (d) a removal from the `-` side that nothing replaces (accessibility, focus, motion, text, a color token). Name the owning skill for each (`safaii-html`, `safaii-css`, `page-design`). Report only what the diff shows, not taste. Under 400 words.
 
 All reviewers are **read-only** — report gaps, don't fix them. The calling agent applies the fixes.
 

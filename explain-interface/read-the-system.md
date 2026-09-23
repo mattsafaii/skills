@@ -72,7 +72,7 @@ for (const sheet of document.styleSheets) {
 ({ tokens, unreadable, count: Object.keys(tokens).length });
 ```
 
-Group the result by prefix. The prefixes are the system's own layer names, and a two-tier structure, `--blue-500` feeding `--color-text-primary`, is the seam `better-colors` calls the semantic tier.
+Group the result by prefix. The prefixes are the system's own layer names, and a two-tier structure, `--blue-500` feeding `--color-text-primary`, is the seam `safaii-css` calls the semantic tier.
 
 ## The type scale
 
@@ -105,7 +105,7 @@ for (const el of document.querySelectorAll('*')) {
 [...vals].sort((a, b) => a[0] - b[0]);
 ```
 
-Look for the base unit that divides most values, then check `better-layout`'s grouping rule. Is the gap between groups at least 2× the gap within one?
+Look for the base unit that divides most values, then check `page-design`'s grouping rule. Is the gap between groups at least 2× the gap within one?
 
 ## Radii, shadows, borders
 
@@ -167,7 +167,7 @@ Compare against the framework defaults. Breakpoints at exactly `640/768/1024/128
 });
 ```
 
-`variable: true` means one file covers a weight range. A class on `<html>` beside a `prefers-color-scheme` query means a toggle that can override the system, the mechanism `better-colors` describes.
+`variable: true` means one file covers a weight range. A class on `<html>` beside a `prefers-color-scheme` query means a toggle that can override the system, the mechanism `safaii-css` describes.
 
 ## Reading a second state
 

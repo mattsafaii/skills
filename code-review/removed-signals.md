@@ -4,16 +4,16 @@ What to look for on the `-` side of a hunk, and which skill owns the judgement. 
 
 | Removed from the `-` side | Owner | What to check |
 | --- | --- | --- |
-| `aria-label`, `aria-labelledby`, `aria-describedby`, `aria-live`, `role=` | `better-accessibility` | The control or region lost its accessible name, description, or announcement |
-| `alt=`, `<label`, `for=`, `scope=` | `better-accessibility` | An image, field, or table cell lost its programmatic association |
-| `<button>`, `<a>`, `<nav>`, `<main>`, `<ul>` replaced by `div` or `span` | `better-accessibility` | Keyboard and assistive-technology behavior traded for styling |
-| `:focus-visible`, `:focus`, `outline`, `tabindex` | `better-accessibility` | Keyboard users lost the focus indicator, or the element left the tab order |
-| `prefers-reduced-motion`, `prefers-contrast` | `better-accessibility` | Motion or contrast now ignores the user's system preference |
-| Logical properties swapped for `left` / `right` | `better-layout` | Direction-aware layout was dropped |
-| `lang=`, `dir=` | `better-typography` | Language metadata or text direction was dropped |
-| `text-wrap`, `line-clamp`, `overflow-wrap`, `tabular-nums`, `font-feature-settings` | `better-typography` | Text rendering, wrapping, or numeral alignment silently changed |
-| A color token swapped for a literal, or a token swapped for a lighter one | `better-colors` | The rendered contrast pair may now fail; measure it |
-| A user-facing string deleted or shortened | `better-writing` | A label, error, or empty state lost the information it carried |
+| `aria-label`, `aria-labelledby`, `aria-describedby`, `aria-live`, `role=` | `safaii-html` | The control or region lost its accessible name, description, or announcement |
+| `alt=`, `<label`, `for=`, `scope=` | `safaii-html` | An image, field, or table cell lost its programmatic association |
+| `<button>`, `<a>`, `<nav>`, `<main>`, `<ul>` replaced by `div` or `span` | `safaii-html` | Keyboard and assistive-technology behavior traded for styling |
+| `:focus-visible`, `:focus`, `outline`, `tabindex` | `safaii-html` | Keyboard users lost the focus indicator, or the element left the tab order |
+| `prefers-reduced-motion`, `prefers-contrast` | `safaii-html` | Motion or contrast now ignores the user's system preference |
+| `lang=`, `dir=` | `safaii-html` | Language metadata or text direction was dropped |
+| Logical properties swapped for `left` / `right` | `safaii-css` | Direction-aware layout was dropped |
+| `text-wrap`, `line-clamp`, `overflow-wrap`, `tabular-nums`, `font-feature-settings` | `safaii-css` | Text rendering, wrapping, or numeral alignment silently changed |
+| A color token swapped for a literal, or a token swapped for a lighter one | `safaii-css` | The rendered contrast pair may now fail; measure it |
+| A user-facing string deleted or shortened | `page-design` | A label, error, or empty state lost the information it carried |
 
 ## Equivalent replacements
 

@@ -16,7 +16,7 @@ One exception. Where the image contains text you can identify as body copy, assu
 
 ## Colors, which are the reliable part
 
-Sample the actual pixels rather than describing what you see. Then hand the values to `better-colors`:
+Sample the actual pixels rather than describing what you see. Then hand the values to `safaii-css`:
 
 - Convert each to OKLCH, so lightness is comparable across hues.
 - Sort by lightness to see whether the samples form a ramp and whether steps sit denser at the light end.
@@ -32,7 +32,7 @@ You cannot identify a typeface from a screenshot with confidence, so never claim
 - **Tells worth naming:** single or double-storey `a` and `g`, terminal angle, aperture, x-height against cap height. Also whether the digits are lining or old-style and whether the figures look tabular.
 - **Scale:** count the distinct sizes. Express them as multiples of the body size and derive the ratio.
 - **Weight contrast:** how many weights and how far apart. Two weights three steps apart reads deliberate, four weights one step apart accidental.
-- **Measure:** count characters on a full line of body copy and compare against `better-typography`'s 60 to 75 range.
+- **Measure:** count characters on a full line of body copy and compare against `page-design`'s 60 to 75 range.
 
 Where the actual face matters, name the category and suggest identifying it from the live page.
 
@@ -40,7 +40,7 @@ Where the actual face matters, name the category and suggest identifying it from
 
 Measure in the image, then divide everything by the smallest repeated gap. That quotient set is the rhythm, and it survives not knowing the scale.
 
-Then check the ratio `better-layout` owns, the gap between groups against the gap within one. At or above 2, space is carrying the grouping. Below that, something else is, usually a border or a background shape.
+Then check the ratio `page-design` owns, the gap between groups against the gap within one. At or above 2, space is carrying the grouping. Below that, something else is, usually a border or a background shape.
 
 ## Say what the image hid
 
