@@ -75,7 +75,7 @@ Every page starts from the same shell:
 - **Tabs for indentation**, matching the house style (the same as `safaii-css`'s `starter.css`).
 - **Attribute order** (loose, don't over-police): `class`, `id`, `name`, `data-*`, `src`/`href`/`type`/`value`, `alt`/`title`, `aria-*`/`role`, then booleans. Keep `class`/`id` first.
 - **One attribute-heavy element per line;** wrap long attribute lists rather than running them off-screen.
-- **Comments:** ship-facing notes in `<!-- -->`, sparingly. Build-only notes go in the template engine's comment (`{# … #}` in Nunjucks) so they never reach the browser.
+- **Comments:** ship-facing notes in `<!-- -->`, sparingly. Build-only notes go in the template engine's comment (`{% # … %}` in Liquid) so they never reach the browser.
 
 ## Naming & hooks
 
@@ -87,7 +87,8 @@ Every page starts from the same shell:
 
 The markup conventions here are engine-agnostic — the template layer just emits this HTML.
 
-- **11ty:** Nunjucks only (no Liquid mixing). Reusable fragments are Nunjucks partials/macros; build-only comments use `{# … #}`.
+- **11ty:** Liquid only (no Nunjucks mixing). Reusable fragments are Liquid `{% include %}` partials; build-only comments use `{% # … %}` or `{% comment %} … {% endcomment %}`.
+- **Liquid truthiness:** only `nil` and `false` are falsy — an empty string or empty array is **truthy**. Guard optional values with `!= blank` (`{% if site.phone != blank %}`), never a bare `{% if site.phone %}`, or a blank value renders.
 - **Rails:** ERB + Hotwire; prefer a link or form submission over custom `fetch`; extract partials for reuse.
 
 ## Component patterns
@@ -123,6 +124,7 @@ Native-first markup gets you most of the way; these are the rules that finish th
 | `command`/`commandfor` button does nothing | Invoker Commands isn't supported (pre-2025 browser) and no fallback was shipped | Add the feature-detect fallback snippet, delete it once the audience is fully on supporting browsers |
 | Screen reader announces a duplicate landmark | `role="search"`/`role="navigation"` added to an element that already carries that implicit role | Drop the redundant `role` — `<nav>`, `<search>`, etc. already imply it |
 | `hidden="until-found"` never reveals on find-in-page | Applied to a `display: none/contents/inline` element | It needs a real box to reveal into — use a `display` that has one |
+| A blank value renders anyway (`data-site=""`, an empty `"telephone"`) | Liquid treats empty strings and empty arrays as truthy — only `nil` and `false` are falsy | Guard optional values with `!= blank` (`{% if site.phone != blank %}`), not a bare `{% if site.phone %}` |
 
 ## Quick reference
 
@@ -154,7 +156,7 @@ Native-first markup gets you most of the way; these are the rules that finish th
 
 ## Status
 
-Renamed and expanded from `safaii-a11y` (2026-06-29) to cover the full markup surface: structure, semantics, forms, coding style, and accessibility merged in rather than kept separate. Split the Component patterns/Invoker Commands and full Accessibility recipes out to `references/` (2026-07-02), matching safaii-css's reference-file pattern — this file keeps the scannable rules, the reference files keep the code.
+Renamed and expanded from `safaii-a11y` (2026-06-29) to cover the full markup surface: structure, semantics, forms, coding style, and accessibility merged in rather than kept separate. Split the Component patterns/Invoker Commands and full Accessibility recipes out to `references/` (2026-07-02), matching safaii-css's reference-file pattern — this file keeps the scannable rules, the reference files keep the code. Switched the 11ty template convention from Nunjucks to Liquid (2026-09-22), matching the client-site starter.
 
 Behavioral evals live in `evals/evals.json` — they test whether this skill *steers* an agent to the conventions (a test of the skill, not a consumer to keep in sync). Not part of normal markup work; run them via the skill-crafting tooling when changing the conventions, and add an eval when a new convention lands.
 
