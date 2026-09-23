@@ -1,59 +1,59 @@
 {
-  "skill_name": "dev-log-backfill",
-  "notes": "Behavioral evals for the dev-log-backfill skill. Each targets a place a generic agent would default the wrong way: skipping the existing-entries check, fabricating a confident 'why' from terse commits, dumping one entry per commit on a huge repo, or posting before Matt has reviewed the drafts. Run a fresh agent that reads SKILL.md (not the evals) per prompt, then grade the output against the expectations.",
-  "evals": [
-    {
-      "id": 1,
-      "name": "basic-backfill-trigger",
-      "prompt": "This repo doesn't have any dev log yet — can you backfill one from the git history?",
-      "expected_output": "Pulls the full git history, checks Basecamp for existing dev log entries first, groups commits into dated/thematic entries, drafts them in the standard dev-log format, and shows the drafts before posting anything.",
-      "files": [],
-      "expectations": [
-        "Pulls the full git history (e.g. `git log --oneline` or `--format=... --date=short`) rather than guessing at past work",
-        "Checks Basecamp for existing \"Dev log —\" messages before drafting, so it doesn't duplicate real-time entries",
-        "Groups commits by date/theme rather than listing every commit individually",
-        "Drafts entries in the \"Dev log — YYYY-MM-DD: summary\" title format with categorized Markdown bullets",
-        "Shows the drafted entries and waits for confirmation before posting anything to Basecamp"
-      ]
-    },
-    {
-      "id": 2,
-      "name": "terse-commits-no-fabrication",
-      "prompt": "Backfill the dev log for this repo. Most of the commit messages are just 'wip', 'fix', or 'more work' — there's not much to go on.",
-      "expected_output": "Acknowledges the git history is terse, sticks to describing what changed rather than inventing motivations it can't infer, and flags which entries are guesses.",
-      "files": [],
-      "expectations": [
-        "Does not invent a confident \"why\" for commits where the message and diff don't support one",
-        "Falls back to describing what changed when the reasoning can't be inferred, rather than fabricating narrative",
-        "Is upfront that terse commit history makes the entries less narrative-rich than real-time ones",
-        "Flags any inferred/uncertain reasoning to the reader rather than presenting guesses as fact"
-      ]
-    },
-    {
-      "id": 3,
-      "name": "existing-entries-no-duplicate",
-      "prompt": "Backfill the dev log — but heads up, we started posting dev logs about a month ago, so there's already some entries on the message board.",
-      "expected_output": "Checks the existing dev log messages first and only backfills commit history from before the earliest existing entry, rather than re-covering already-logged work.",
-      "files": [],
-      "expectations": [
-        "Explicitly checks for existing \"Dev log —\" messages on the project's message board before drafting",
-        "Scopes the backfill to dates before the earliest existing real-time entry",
-        "Does not attempt to edit or overwrite the existing entries",
-        "Avoids re-summarizing work the existing entries already cover"
-      ]
-    },
-    {
-      "id": 4,
-      "name": "large-old-repo-density",
-      "prompt": "This repo is almost 2 years old with a huge commit history. Can you backfill a dev log for the whole thing?",
-      "expected_output": "Groups the history into a readable narrative of milestones instead of one entry per day or commit, explicitly favoring density over completeness for a repo this size.",
-      "files": [],
-      "expectations": [
-        "Does not attempt one entry per day or per commit for a 2-year history",
-        "Groups related work into meaningful milestones or date ranges",
-        "Skips or folds in trivial-commit days (typos, merges, version bumps) rather than giving them their own entry",
-        "Reflects the \"density over completeness\" framing when explaining the approach"
-      ]
-    }
-  ]
+	"skill_name": "dev-log-backfill",
+	"notes": "Behavioral evals for the dev-log-backfill skill. Each targets a place a generic agent would default the wrong way: skipping the existing-entries check, fabricating a confident 'why' from terse commits, dumping one entry per commit on a huge repo, or posting before Matt has reviewed the drafts. Run a fresh agent that reads SKILL.md (not the evals) per prompt, then grade the output against the expectations.",
+	"evals": [
+		{
+			"id": 1,
+			"name": "basic-backfill-trigger",
+			"prompt": "This repo doesn't have any dev log yet — can you backfill one from the git history?",
+			"expected_output": "Pulls the full git history, checks Basecamp for existing dev log entries first, groups commits into dated/thematic entries, drafts them in the standard dev-log format, and shows the drafts before posting anything.",
+			"files": [],
+			"expectations": [
+				"Pulls the full git history (e.g. `git log --oneline` or `--format=... --date=short`) rather than guessing at past work",
+				"Checks Basecamp for existing \"Dev log —\" messages before drafting, so it doesn't duplicate real-time entries",
+				"Groups commits by date/theme rather than listing every commit individually",
+				"Drafts entries in the \"Dev log — YYYY-MM-DD: summary\" title format with categorized Markdown bullets",
+				"Shows the drafted entries and waits for confirmation before posting anything to Basecamp"
+			]
+		},
+		{
+			"id": 2,
+			"name": "terse-commits-no-fabrication",
+			"prompt": "Backfill the dev log for this repo. Most of the commit messages are just 'wip', 'fix', or 'more work' — there's not much to go on.",
+			"expected_output": "Acknowledges the git history is terse, sticks to describing what changed rather than inventing motivations it can't infer, and flags which entries are guesses.",
+			"files": [],
+			"expectations": [
+				"Does not invent a confident \"why\" for commits where the message and diff don't support one",
+				"Falls back to describing what changed when the reasoning can't be inferred, rather than fabricating narrative",
+				"Is upfront that terse commit history makes the entries less narrative-rich than real-time ones",
+				"Flags any inferred/uncertain reasoning to the reader rather than presenting guesses as fact"
+			]
+		},
+		{
+			"id": 3,
+			"name": "existing-entries-no-duplicate",
+			"prompt": "Backfill the dev log — but heads up, we started posting dev logs about a month ago, so there's already some entries on the message board.",
+			"expected_output": "Checks the existing dev log messages first and only backfills commit history from before the earliest existing entry, rather than re-covering already-logged work.",
+			"files": [],
+			"expectations": [
+				"Explicitly checks for existing \"Dev log —\" messages on the project's message board before drafting",
+				"Scopes the backfill to dates before the earliest existing real-time entry",
+				"Does not attempt to edit or overwrite the existing entries",
+				"Avoids re-summarizing work the existing entries already cover"
+			]
+		},
+		{
+			"id": 4,
+			"name": "large-old-repo-density",
+			"prompt": "This repo is almost 2 years old with a huge commit history. Can you backfill a dev log for the whole thing?",
+			"expected_output": "Groups the history into a readable narrative of milestones instead of one entry per day or commit, explicitly favoring density over completeness for a repo this size.",
+			"files": [],
+			"expectations": [
+				"Does not attempt one entry per day or per commit for a 2-year history",
+				"Groups related work into meaningful milestones or date ranges",
+				"Skips or folds in trivial-commit days (typos, merges, version bumps) rather than giving them their own entry",
+				"Reflects the \"density over completeness\" framing when explaining the approach"
+			]
+		}
+	]
 }

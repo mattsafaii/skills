@@ -1,108 +1,108 @@
 {
-  "skill_name": "fathom-analytics",
-  "notes": "Behavioral evals for the Fathom Analytics skill. Covers both the active instrument-a-site workflow (analyze -> propose -> approval gate -> create via API -> wire code) and the reference-only asks (embed snippet, self-exclude, API query). The workflow evals check that nothing gets created or committed before Matt approves, and that the skill doesn't invent duplicate events or over-propose vanity tracking.",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Set up Fathom tracking for this site. [run inside a client repo with a contact form, a pricing page with a 'Book a call' CTA linking to Calendly, and no existing Fathom embed]",
-      "expected_output": "Greps for an existing data-site embed first, then checks the client's SEO — Project Context doc in Basecamp (Internal > SEO, Analytics section) for the Fathom site id, then asks for the site ID or offers to create one rather than guessing. Analyzes the repo and proposes a small set of decision-worthy events (contact form submitted, booking link clicked) rather than every clickable element. Presents the plan as a table and stops for approval before calling the API or editing any files.",
-      "files": [],
-      "expectations": [
-        "Follows the layered site-id resolution (grep embed -> SEO Project Context doc -> ask/offer to create) rather than assuming a site_id",
-        "Proposes events only for genuine decision points (contact form, booking CTA) — does not propose tracking for every button or nav link",
-        "Presents the full plan (events, any milestone, instrumentation points) before creating or editing anything",
-        "Does not call the Fathom API or write code until Matt approves"
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Yes, that plan looks good, go ahead. [approving a previously-shown plan with 2 new events and 1 milestone]",
-      "expected_output": "Checks GET /sites/{site_id}/events first and skips creating any event that already exists by name. Creates the remaining events via POST, the milestone via POST with a name under 30 characters, then wires the trackEvent() calls using the delegated data-fathom-event listener pattern (or the site's existing behavior layer, if it has one) rather than a bespoke listener per event and without assuming a specific framework. Reports back what was created with Fathom's returned IDs and which files changed.",
-      "files": [],
-      "expectations": [
-        "Calls GET /sites/{site_id}/events before creating, and skips any pre-existing event by name instead of duplicating it",
-        "Keeps the milestone name at or under 30 characters",
-        "Uses the shared delegation pattern (data attribute + one listener) rather than one custom listener per tracked element",
-        "Reports created event/milestone IDs and the files it changed"
-      ]
-    },
-    {
-      "id": 3,
-      "prompt": "Add a Fathom event for our $49/mo signup so we can see revenue.",
-      "expected_output": "Uses fathom.trackEvent() with _value in cents (4900), notes currency has to be set in Site settings > Events since the API/JS call doesn't set it, and doesn't invent a cart/funnel model Fathom doesn't have.",
-      "files": [],
-      "expectations": [
-        "Passes _value: 4900 (cents), not 49",
-        "Mentions setting currency separately in the dashboard",
-        "Does not fabricate ecommerce funnel steps Fathom doesn't support"
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "My own visits to the client's site are messing up their Fathom numbers. How do I stop that?",
-      "expected_output": "Recommends fathom.blockTrackingForMe() run once in the browser console, not IP-based firewall blocking, and explains why (IPs change, this doesn't).",
-      "files": [],
-      "expectations": [
-        "Recommends fathom.blockTrackingForMe() as the primary fix",
-        "Distinguishes this from firewall IP blocking",
-        "Mentions fathom.enableTrackingForMe() as the reverse"
-      ]
-    },
-    {
-      "id": 5,
-      "prompt": "Pull last month's total visits and top 10 pages for site ID ABCDE from the Fathom API.",
-      "expected_output": "Two curl calls against api.usefathom.com/v1/aggregations with a bearer token resolved from 1Password (op read 'op://Secrets/Fathom API Token/password'): one for totals (visits/uniques/pageviews), one with field_grouping=pathname, sort_by=pageviews:desc, limit=10.",
-      "files": [],
-      "expectations": [
-        "Uses /v1/aggregations with entity=pageview and entity_id=ABCDE",
-        "Includes a totals query and a separate top-pages query with field_grouping=pathname",
-        "Resolves the token from 1Password via op read rather than asking Matt to paste one",
-        "Uses date_from/date_to for the specific month"
-      ]
-    },
-    {
-      "id": 6,
-      "prompt": "[analyzing a service-business site] There's a phone number in the header, the footer, and again on the contact page — all tel: links to the same number.",
-      "expected_output": "Proposes ONE 'call now clicked' (or similar) event covering all three locations via a single delegated listener, not three separate events. Explains that Fathom events carry no custom properties, so per-location tracking would mean forking the event name and fragmenting the one number that answers the real question, rather than adding a dimension. Only proposes a split if a specific location (e.g. a sticky mobile CTA) answers a genuinely different question, and calls that out explicitly as the exception.",
-      "files": [],
-      "expectations": [
-        "Collapses all three tel: links into a single event, not one event per location",
-        "Explains the no-custom-properties constraint as the reason for collapsing rather than splitting",
-        "Only proposes separate events per location when explicitly justified by a distinct question, and flags that reasoning"
-      ]
-    },
-    {
-      "id": 7,
-      "prompt": "[analyzing a repo for tracking] While reading the contact form template, notice it has no action attribute and no submit handler anywhere in the codebase — submitting it does nothing.",
-      "expected_output": "Surfaces the dead form as a separate, clearly-labeled finding alongside the tracking plan — does not silently fix it, and does not silently omit it from the report. Still proposes the form-submission event (tracking intent is still valid), but notes the event will be measuring a form that currently doesn't work.",
-      "files": [],
-      "expectations": [
-        "Reports the dead form as a distinct finding, not folded silently into the tracking plan",
-        "Does not attempt to fix the form's backend unprompted",
-        "Does not drop the observation just because it's outside the tracking task's literal scope"
-      ]
-    },
-    {
-      "id": 8,
-      "prompt": "[approved plan, starting the execute phase] Go ahead and create the events in Fathom.",
-      "expected_output": "Checks GET /token first to confirm the token has write access before attempting any POST. If the token turns out to be read-only, stops and asks for a write-scoped token (offering to use it for this run or have it swapped into the 1Password item at op://Secrets/Fathom API Token) rather than attempting the create call and failing, or silently trying alternate auth.",
-      "files": [],
-      "expectations": [
-        "Calls GET /token before attempting to create anything",
-        "If read-only, stops and asks for a write-scoped token rather than proceeding to a failing POST",
-        "Notes that updating the shared 1Password item is safe since write access covers client-report's read-only needs too"
-      ]
-    },
-    {
-      "id": 9,
-      "prompt": "[wiring instrumentation] Track a 'signup completed' event by checking if location.pathname === '/signup/thank-you.html' on page load. This is a static site deployed to Cloudflare Pages.",
-      "expected_output": "Flags that Cloudflare Pages strips .html from served URLs, so the actual deployed pathname is likely '/signup/thank-you', not the template's literal filename — recommends verifying against the real deployed URL (curl -sI or a browser check) before finalizing the check, rather than trusting the source template's path as-is.",
-      "files": [],
-      "expectations": [
-        "Flags the .html-stripping behavior of Cloudflare Pages (or equivalent static-host URL rewriting) as a risk for this exact check",
-        "Recommends verifying the real deployed pathname rather than trusting the template's literal filename",
-        "Does not wire the check as written without raising this"
-      ]
-    }
-  ]
+	"skill_name": "fathom-analytics",
+	"notes": "Behavioral evals for the Fathom Analytics skill. Covers both the active instrument-a-site workflow (analyze -> propose -> approval gate -> create via API -> wire code) and the reference-only asks (embed snippet, self-exclude, API query). The workflow evals check that nothing gets created or committed before Matt approves, and that the skill doesn't invent duplicate events or over-propose vanity tracking.",
+	"evals": [
+		{
+			"id": 1,
+			"prompt": "Set up Fathom tracking for this site. [run inside a client repo with a contact form, a pricing page with a 'Book a call' CTA linking to Calendly, and no existing Fathom embed]",
+			"expected_output": "Greps for an existing data-site embed first, then checks the client's SEO — Project Context doc in Basecamp (Internal > SEO, Analytics section) for the Fathom site id, then asks for the site ID or offers to create one rather than guessing. Analyzes the repo and proposes a small set of decision-worthy events (contact form submitted, booking link clicked) rather than every clickable element. Presents the plan as a table and stops for approval before calling the API or editing any files.",
+			"files": [],
+			"expectations": [
+				"Follows the layered site-id resolution (grep embed -> SEO Project Context doc -> ask/offer to create) rather than assuming a site_id",
+				"Proposes events only for genuine decision points (contact form, booking CTA) — does not propose tracking for every button or nav link",
+				"Presents the full plan (events, any milestone, instrumentation points) before creating or editing anything",
+				"Does not call the Fathom API or write code until Matt approves"
+			]
+		},
+		{
+			"id": 2,
+			"prompt": "Yes, that plan looks good, go ahead. [approving a previously-shown plan with 2 new events and 1 milestone]",
+			"expected_output": "Checks GET /sites/{site_id}/events first and skips creating any event that already exists by name. Creates the remaining events via POST, the milestone via POST with a name under 30 characters, then wires the trackEvent() calls using the delegated data-fathom-event listener pattern (or the site's existing behavior layer, if it has one) rather than a bespoke listener per event and without assuming a specific framework. Reports back what was created with Fathom's returned IDs and which files changed.",
+			"files": [],
+			"expectations": [
+				"Calls GET /sites/{site_id}/events before creating, and skips any pre-existing event by name instead of duplicating it",
+				"Keeps the milestone name at or under 30 characters",
+				"Uses the shared delegation pattern (data attribute + one listener) rather than one custom listener per tracked element",
+				"Reports created event/milestone IDs and the files it changed"
+			]
+		},
+		{
+			"id": 3,
+			"prompt": "Add a Fathom event for our $49/mo signup so we can see revenue.",
+			"expected_output": "Uses fathom.trackEvent() with _value in cents (4900), notes currency has to be set in Site settings > Events since the API/JS call doesn't set it, and doesn't invent a cart/funnel model Fathom doesn't have.",
+			"files": [],
+			"expectations": [
+				"Passes _value: 4900 (cents), not 49",
+				"Mentions setting currency separately in the dashboard",
+				"Does not fabricate ecommerce funnel steps Fathom doesn't support"
+			]
+		},
+		{
+			"id": 4,
+			"prompt": "My own visits to the client's site are messing up their Fathom numbers. How do I stop that?",
+			"expected_output": "Recommends fathom.blockTrackingForMe() run once in the browser console, not IP-based firewall blocking, and explains why (IPs change, this doesn't).",
+			"files": [],
+			"expectations": [
+				"Recommends fathom.blockTrackingForMe() as the primary fix",
+				"Distinguishes this from firewall IP blocking",
+				"Mentions fathom.enableTrackingForMe() as the reverse"
+			]
+		},
+		{
+			"id": 5,
+			"prompt": "Pull last month's total visits and top 10 pages for site ID ABCDE from the Fathom API.",
+			"expected_output": "Two curl calls against api.usefathom.com/v1/aggregations with a bearer token resolved from 1Password (op read 'op://Secrets/Fathom API Token/password'): one for totals (visits/uniques/pageviews), one with field_grouping=pathname, sort_by=pageviews:desc, limit=10.",
+			"files": [],
+			"expectations": [
+				"Uses /v1/aggregations with entity=pageview and entity_id=ABCDE",
+				"Includes a totals query and a separate top-pages query with field_grouping=pathname",
+				"Resolves the token from 1Password via op read rather than asking Matt to paste one",
+				"Uses date_from/date_to for the specific month"
+			]
+		},
+		{
+			"id": 6,
+			"prompt": "[analyzing a service-business site] There's a phone number in the header, the footer, and again on the contact page — all tel: links to the same number.",
+			"expected_output": "Proposes ONE 'call now clicked' (or similar) event covering all three locations via a single delegated listener, not three separate events. Explains that Fathom events carry no custom properties, so per-location tracking would mean forking the event name and fragmenting the one number that answers the real question, rather than adding a dimension. Only proposes a split if a specific location (e.g. a sticky mobile CTA) answers a genuinely different question, and calls that out explicitly as the exception.",
+			"files": [],
+			"expectations": [
+				"Collapses all three tel: links into a single event, not one event per location",
+				"Explains the no-custom-properties constraint as the reason for collapsing rather than splitting",
+				"Only proposes separate events per location when explicitly justified by a distinct question, and flags that reasoning"
+			]
+		},
+		{
+			"id": 7,
+			"prompt": "[analyzing a repo for tracking] While reading the contact form template, notice it has no action attribute and no submit handler anywhere in the codebase — submitting it does nothing.",
+			"expected_output": "Surfaces the dead form as a separate, clearly-labeled finding alongside the tracking plan — does not silently fix it, and does not silently omit it from the report. Still proposes the form-submission event (tracking intent is still valid), but notes the event will be measuring a form that currently doesn't work.",
+			"files": [],
+			"expectations": [
+				"Reports the dead form as a distinct finding, not folded silently into the tracking plan",
+				"Does not attempt to fix the form's backend unprompted",
+				"Does not drop the observation just because it's outside the tracking task's literal scope"
+			]
+		},
+		{
+			"id": 8,
+			"prompt": "[approved plan, starting the execute phase] Go ahead and create the events in Fathom.",
+			"expected_output": "Checks GET /token first to confirm the token has write access before attempting any POST. If the token turns out to be read-only, stops and asks for a write-scoped token (offering to use it for this run or have it swapped into the 1Password item at op://Secrets/Fathom API Token) rather than attempting the create call and failing, or silently trying alternate auth.",
+			"files": [],
+			"expectations": [
+				"Calls GET /token before attempting to create anything",
+				"If read-only, stops and asks for a write-scoped token rather than proceeding to a failing POST",
+				"Notes that updating the shared 1Password item is safe since write access covers client-report's read-only needs too"
+			]
+		},
+		{
+			"id": 9,
+			"prompt": "[wiring instrumentation] Track a 'signup completed' event by checking if location.pathname === '/signup/thank-you.html' on page load. This is a static site deployed to Cloudflare Pages.",
+			"expected_output": "Flags that Cloudflare Pages strips .html from served URLs, so the actual deployed pathname is likely '/signup/thank-you', not the template's literal filename — recommends verifying against the real deployed URL (curl -sI or a browser check) before finalizing the check, rather than trusting the source template's path as-is.",
+			"files": [],
+			"expectations": [
+				"Flags the .html-stripping behavior of Cloudflare Pages (or equivalent static-host URL rewriting) as a risk for this exact check",
+				"Recommends verifying the real deployed pathname rather than trusting the template's literal filename",
+				"Does not wire the check as written without raising this"
+			]
+		}
+	]
 }

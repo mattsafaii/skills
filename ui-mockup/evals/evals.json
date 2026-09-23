@@ -1,58 +1,58 @@
 {
-  "skill_name": "ui-mockup",
-  "notes": "Behavioral evals for the prototype skill. Each targets a place a generic agent would default the wrong way: reskinning instead of genuinely varying, taking on a page-sized ask without narrowing it, ignoring a requested variation count, or carrying prototype shortcuts into the real build. Run a fresh agent that reads SKILL.md (not the evals) per prompt, then grade the output against the expectations.",
-  "evals": [
-    {
-      "id": 1,
-      "name": "basic-five-variations",
-      "prompt": "Prototype the empty state for our dashboard — what should it look like when there's no data yet?",
-      "expected_output": "Generates 5 genuinely different interactive variations of the empty state in one self-contained HTML file, each named with a one-line tradeoff note, saved to prototypes/ and opened.",
-      "files": [],
-      "expectations": [
-        "Produces 5 variations by default (unless the user asked for a different count)",
-        "Each variation reflects a genuinely different interaction/layout approach, not a recolor of the same idea",
-        "Output is a single self-contained HTML file — vanilla HTML/CSS/JS, no build step, no CDN, no framework",
-        "Each variation has a short name and a one-line tradeoff note",
-        "Variations share the same fake content/data for a fair comparison",
-        "File is saved under prototypes/<feature-name>.html and opened"
-      ]
-    },
-    {
-      "id": 2,
-      "name": "page-sized-ask-scopes-down",
-      "prompt": "Prototype our new settings screen — I want to see a few different directions for the whole thing.",
-      "expected_output": "Recognizes the ask is page-sized rather than one feature, and asks which specific piece to prototype first instead of attempting to mock up the whole screen in variations.",
-      "files": [],
-      "expectations": [
-        "Does not immediately generate 5 full-screen variations",
-        "Asks which single feature/piece of the settings screen to prototype first",
-        "Briefly explains that prototyping works best on one feature at a time"
-      ]
-    },
-    {
-      "id": 3,
-      "name": "custom-count-honored",
-      "prompt": "Mock up 3 different takes on our notification toast — keep it quick.",
-      "expected_output": "Honors the requested count of 3 variations instead of defaulting to 5, while keeping each one genuinely distinct.",
-      "files": [],
-      "expectations": [
-        "Produces exactly 3 variations, not the default 5",
-        "Each of the 3 is still a genuinely different approach, not filler",
-        "Still follows the one self-contained HTML file format"
-      ]
-    },
-    {
-      "id": 4,
-      "name": "post-selection-real-build",
-      "prompt": "I looked at the 5 grid-density prototypes you made and I want to go with variation 3, the stepped notches one. Build that for real.",
-      "expected_output": "Builds variation 3 for real in the actual project using the project's real CSS architecture and real data/state, rather than copying the throwaway prototype file's inline styles or fake data into the codebase.",
-      "files": [],
-      "expectations": [
-        "Builds the chosen variation as a real component in the project, not by copying the prototype file's markup wholesale",
-        "Uses the project's actual CSS architecture (e.g. @layer config, reset, elements, components) instead of the prototype's inline styles",
-        "Wires the component to real state/data rather than the prototype's fake data",
-        "Leaves the original prototype file in place as a record unless told to delete it"
-      ]
-    }
-  ]
+	"skill_name": "ui-mockup",
+	"notes": "Behavioral evals for the prototype skill. Each targets a place a generic agent would default the wrong way: reskinning instead of genuinely varying, taking on a page-sized ask without narrowing it, ignoring a requested variation count, or carrying prototype shortcuts into the real build. Run a fresh agent that reads SKILL.md (not the evals) per prompt, then grade the output against the expectations.",
+	"evals": [
+		{
+			"id": 1,
+			"name": "basic-five-variations",
+			"prompt": "Prototype the empty state for our dashboard — what should it look like when there's no data yet?",
+			"expected_output": "Generates 5 genuinely different interactive variations of the empty state in one self-contained HTML file, each named with a one-line tradeoff note, saved to prototypes/ and opened.",
+			"files": [],
+			"expectations": [
+				"Produces 5 variations by default (unless the user asked for a different count)",
+				"Each variation reflects a genuinely different interaction/layout approach, not a recolor of the same idea",
+				"Output is a single self-contained HTML file — vanilla HTML/CSS/JS, no build step, no CDN, no framework",
+				"Each variation has a short name and a one-line tradeoff note",
+				"Variations share the same fake content/data for a fair comparison",
+				"File is saved under prototypes/<feature-name>.html and opened"
+			]
+		},
+		{
+			"id": 2,
+			"name": "page-sized-ask-scopes-down",
+			"prompt": "Prototype our new settings screen — I want to see a few different directions for the whole thing.",
+			"expected_output": "Recognizes the ask is page-sized rather than one feature, and asks which specific piece to prototype first instead of attempting to mock up the whole screen in variations.",
+			"files": [],
+			"expectations": [
+				"Does not immediately generate 5 full-screen variations",
+				"Asks which single feature/piece of the settings screen to prototype first",
+				"Briefly explains that prototyping works best on one feature at a time"
+			]
+		},
+		{
+			"id": 3,
+			"name": "custom-count-honored",
+			"prompt": "Mock up 3 different takes on our notification toast — keep it quick.",
+			"expected_output": "Honors the requested count of 3 variations instead of defaulting to 5, while keeping each one genuinely distinct.",
+			"files": [],
+			"expectations": [
+				"Produces exactly 3 variations, not the default 5",
+				"Each of the 3 is still a genuinely different approach, not filler",
+				"Still follows the one self-contained HTML file format"
+			]
+		},
+		{
+			"id": 4,
+			"name": "post-selection-real-build",
+			"prompt": "I looked at the 5 grid-density prototypes you made and I want to go with variation 3, the stepped notches one. Build that for real.",
+			"expected_output": "Builds variation 3 for real in the actual project using the project's real CSS architecture and real data/state, rather than copying the throwaway prototype file's inline styles or fake data into the codebase.",
+			"files": [],
+			"expectations": [
+				"Builds the chosen variation as a real component in the project, not by copying the prototype file's markup wholesale",
+				"Uses the project's actual CSS architecture (e.g. @layer config, reset, elements, components) instead of the prototype's inline styles",
+				"Wires the component to real state/data rather than the prototype's fake data",
+				"Leaves the original prototype file in place as a record unless told to delete it"
+			]
+		}
+	]
 }

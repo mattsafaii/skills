@@ -1,26 +1,26 @@
 {
-  "skill_name": "rework",
-  "evals": [
-    {
-      "id": 0,
-      "name": "apply-scope-creep-client",
-      "prompt": "A web design client wants me to build them a full custom booking system with payments, and they keep adding feature requests on top of the basic marketing site we agreed on. The scope is ballooning. Should I take it all on?",
-      "expected_output": "Applies Rework principles to the decision (e.g. build half a product not a half-assed product, say no by default, let your customers outgrow you, throw less at the problem). Names the principles, presents them as Rework's stance, and gives a concrete recommendation for this situation rather than just summarizing the book.",
-      "files": []
-    },
-    {
-      "id": 1,
-      "name": "lookup-meetings",
-      "prompt": "What does Rework actually say about meetings? I want the exact lines, not a paraphrase.",
-      "expected_output": "Surfaces 'Meetings are toxic' (and possibly 'Interruption is the enemy of productivity') with accurate verbatim wording — the true-cost math (a 1-hour, 10-person meeting is a 10-hour meeting) and the rules for a productive meeting. Quotes accurately rather than inventing lines.",
-      "files": []
-    },
-    {
-      "id": 2,
-      "name": "apply-take-investment",
-      "prompt": "I'm thinking about taking on an outside investor to grow my security-camera install business faster — hire a sales team, scale up installs across LA. Is that a smart move?",
-      "expected_output": "Applies the relevant Rework principles (outside money is Plan Z, why grow / small is a destination, building to flip is building to flop, start a business not a startup). Names them as Rework's position, weighs them against the user's actual situation, and gives a concrete take rather than a generic pros/cons list.",
-      "files": []
-    }
-  ]
+	"skill_name": "rework",
+	"evals": [
+		{
+			"id": 0,
+			"name": "apply-scope-creep-client",
+			"prompt": "A web design client wants me to build them a full custom booking system with payments, and they keep adding feature requests on top of the basic marketing site we agreed on. The scope is ballooning. Should I take it all on?",
+			"expected_output": "Applies Rework principles to the decision (e.g. build half a product not a half-assed product, say no by default, let your customers outgrow you, throw less at the problem). Names the principles, presents them as Rework's stance, and gives a concrete recommendation for this situation rather than just summarizing the book.",
+			"files": []
+		},
+		{
+			"id": 1,
+			"name": "lookup-meetings",
+			"prompt": "What does Rework actually say about meetings? I want the exact lines, not a paraphrase.",
+			"expected_output": "Surfaces 'Meetings are toxic' (and possibly 'Interruption is the enemy of productivity') with accurate verbatim wording — the true-cost math (a 1-hour, 10-person meeting is a 10-hour meeting) and the rules for a productive meeting. Quotes accurately rather than inventing lines.",
+			"files": []
+		},
+		{
+			"id": 2,
+			"name": "apply-take-investment",
+			"prompt": "I'm thinking about taking on an outside investor to grow my security-camera install business faster — hire a sales team, scale up installs across LA. Is that a smart move?",
+			"expected_output": "Applies the relevant Rework principles (outside money is Plan Z, why grow / small is a destination, building to flip is building to flop, start a business not a startup). Names them as Rework's position, weighs them against the user's actual situation, and gives a concrete take rather than a generic pros/cons list.",
+			"files": []
+		}
+	]
 }
