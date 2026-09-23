@@ -21,6 +21,8 @@ If there's no `kanban_board` in the dock, this project needs the Card Table tool
 
 Talk it through briefly — what's changing, what's explicitly not. This is a short conversation, not an interview. Post-launch changes are usually clearer-cut than a brand-new feature, so don't manufacture ambiguity that isn't there — if Matt already said what he wants, confirm and move on rather than asking a checklist of questions.
 
+One exception: when the approach itself is unsettled — two plausible ways to build it and no clear winner — don't scope on top of the guess. Run `grilling` to work the options down, `codebase-design` when the question is where the seam goes, or `prototype` to check whether a data shape or interface feels right. Scope from the answer. The card carries the outcome — no research doc, no new artifact.
+
 ### 3. Break it into cards
 
 Create one card per session-sized chunk of work in the **Backlog** column:
@@ -63,6 +65,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Cards post to the wrong project | No `.basecamp/config.json` in the repo root | Always check config first; if missing, run `basecamp projects list` or ask Matt — never guess |
 | Can't find the Backlog table | Project never had the Card Table tool added | Ask Matt to add it once via the Basecamp UI — the CLI can't create a card table, only manage one that exists |
 | Scoping turns into a full interview | Treated a clear-cut change like an ambiguous new feature | Post-launch changes are usually clearer-cut — confirm what Matt already said and move on |
+| Card scoped as if clear-cut, then the approach shifts mid-build | The change was genuinely uncertain about approach, but scoping skipped straight to cards | Run `grilling` (or `codebase-design`/`prototype`) first, then scope from the answer |
 | Cards accumulate fake dependencies | Invented a "Blocked by" note for ordering preference, not a real gate | Only note a real blocker; most small changes have none |
 | Reviewer rewrites the code | Reviewer brief omitted read-only scope | Brief says report gaps, don't fix them; apply the fixes yourself after |
 | Build agent (or you) waits on a reviewer forever | Reviewer spawned with the wrong tool and hit a permission prompt, so it never went idle | Spawn both reviewers with OpenCode (unattended) — see the herdr skill |
