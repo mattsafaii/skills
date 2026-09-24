@@ -122,8 +122,8 @@ A component with no empty, loading, or error state is unfinished.
 
 - **A page is a visual product.** A page of nothing but type is not minimalism; it is unfinished work.
 - **Source real images, in this order:**
-  1. **An image-generation tool, if the environment has one** — generate section-specific assets at the aspect ratio each placement needs.
-  2. **The client's own assets** from `inventory-brief` — their photography, product shots, logo. Preferred whenever they exist.
+  1. **The client's own assets** from `inventory-brief` — their photography, product shots, logo. Always preferred for anything that is evidence of the business: the work, the product, the team.
+  2. **Generate the gaps** via `image-direction` — texture, atmosphere, background, and product context where the client has nothing. Never fabricated evidence: no invented product UI, no screenshot of something that does not exist, no generated stand-in for the actual work.
   3. **A labelled placeholder slot** — a TODO naming the placement and the size, so nothing ships with a silent gap.
 - **Never** a fake screenshot built from styled divs, and never a hand-rolled decorative SVG standing in for a photograph.
 - **Decorative or content.** Content images get meaningful alt text; decorative ones get `alt=""` (`safaii-html`).

@@ -22,6 +22,7 @@ Do not restate what another skill owns. Point at it.
 | Copy voice — AI tells, praxis fog, that one USGC register | `humanizer`, `nothing-language`, `us-graphics-voice` |
 | Reference before designing — real shipped sites, UI variants, how an effect was built | `inspo`, `ui-mockup`, `explain-interface` |
 | Scroll-driven motion | `scroll-driven-animation` |
+| Deciding and generating the page's imagery | `image-direction` |
 | Redesign audit of an existing site | `inventory-brief`, `structure-redirects` |
 
 ## 0. Read the brief first
