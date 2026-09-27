@@ -1,6 +1,6 @@
 ---
 name: competitor-analysis
-description: Analyze one competitor's organic footprint, ranking keywords, content themes, backlinks, and gaps, and write the findings to the client's SEO — Competitor — <domain> doc in Basecamp (Internal > SEO). Deep dive on a single named domain — for the market-level read across several, use competitive-landscape. Compares against the client's own domain by default when the context doc has one, GSC-anchored on the client row. Use when Matt says "competitor analysis for [domain]", "analyze [domain]", "what's [competitor] doing in SEO", "/competitor-analysis", or "deep dive on [domain]". The doc title is stable per competitor — never recreate it under a variant.
+description: Analyze one competitor's organic footprint, ranking keywords, content themes, backlinks, and gaps, and write the findings to the client's SEO — Competitor — <domain> doc in Basecamp (Working on new projects). Deep dive on a single named domain — for the market-level read across several, use competitive-landscape. Compares against the client's own domain by default when the context doc has one, GSC-anchored on the client row. Use when Matt says "competitor analysis for [domain]", "analyze [domain]", "what's [competitor] doing in SEO", "/competitor-analysis", or "deep dive on [domain]". The doc title is stable per competitor — never recreate it under a variant.
 ---
 
 # Competitor Analysis Skill
@@ -22,9 +22,9 @@ Load the **dataforseo** skill for the full catalog and hard rules. The essential
 ## Fixed context
 
 - Basecamp account: always `-a 6191443` (Safaii Studio), passed explicitly — never rely on the CLI default. This skill only ever runs against the Safaii account.
-- Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `project_id` and `seo_folder_id` exactly as `seo-project-setup` does — do not invent a second folder walk.
+- Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `SEO — Project Context` in Internal → SEO. For research docs, check exact titles in Working and legacy Internal → SEO; stop if both have the same title. Use the existing folder id for updates, or Working for first create (`research_folder_id`).
 - The client's own domain comes from `SEO — Project Context`'s `Domain:` line; the competitor's domain is the one Matt names (or the one `competitive-landscape` surfaced). The context doc's `## Competitors` says whether this domain is already known and what was concluded about it before.
-- The doc lives in the client's **Docs & Files → Internal → SEO folder**, team-only, titled **`SEO — Competitor — <domain>`** where `<domain>` is the **registrable host, lowercase, no scheme, no `www`, no path** (e.g. `SEO — Competitor — bearcom.com`, never `www.bearcom.com` or `https://bearcom.com/radios`). Confirm that normalized string with Matt before create — it's the stable contract per competitor, never recreated under a variant.
+- The doc lives in **Working on new projects**, or its existing legacy Internal → SEO folder, team-only, titled **`SEO — Competitor — <domain>`** where `<domain>` is the **registrable host, lowercase, no scheme, no `www`, no path** (e.g. `SEO — Competitor — bearcom.com`, never `www.bearcom.com` or `https://bearcom.com/radios`). Confirm that normalized string with Matt before create — it's the stable contract per competitor, never recreated under a variant.
 - **Basecamp 5 renders markdown** — write docs in markdown, GFM tables included.
 
 ## Workflow
@@ -128,13 +128,13 @@ Best opportunity:
 
 **The write loop (every write, every time):**
 
-1. Find the doc by exact title in the SEO folder — never create a second copy.
+1. Find the doc by exact title in Working and legacy Internal → SEO — stop on duplicates; never create a second copy.
 2. Read the full markdown into memory.
 3. Patch the analysis sections; **replace** the opportunity table with the newly confirmed one; **append** a Research log row — leave prior rows and other sections untouched.
-4. Upload the **entire** doc as an update of that same file id (`--vault <seo_folder_id>`).
+4. Upload the **entire** doc as an update of that same file id (`--vault <research_folder_id>`).
 5. Re-read and assert the other sections still exist, the title and vault are unchanged, and the content is non-empty.
 
-First create only if the exact title is missing in the SEO folder. Create: `basecamp -a 6191443 files doc create "SEO — Competitor — <domain>" "<markdown>" --in <project_id> --vault <seo_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <seo_folder_id> --json`.
+First create only if the exact title is missing in both Working and legacy Internal → SEO. Create in Working: `basecamp -a 6191443 files doc create "SEO — Competitor — <domain>" "<markdown>" --in <project_id> --vault <research_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <research_folder_id> --json`.
 
 **`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+)** — prefer `-` for large or multiline markdown to avoid shell quoting and argument-length limits. Verify content length after any write.
 

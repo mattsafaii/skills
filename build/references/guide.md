@@ -336,7 +336,7 @@ Keep the returned id for the "Scaffold repo" todo — step 8 needs it. **Existin
 2. Repoint the Basecamp config at the new list: `cd <repo> && basecamp config set todolist_id <new_todolist_id>`
 3. Commit those changes, then skip to step 9
 
-Workspace path: `~/Work/safaii-studio/lab/<kebab-name>`. Confirm with Matt if anything other than the default makes sense.
+Workspace path: `~/Workspaces/safaii-studio/lab/<kebab-name>`. Confirm with Matt if anything other than the default makes sense.
 
 Don't pre-create the directory — `rails new`, `hugo new site`, and `bundle gem` create it themselves, and a pre-existing dir makes `bundle gem` prompt or fail. Only the stacks that `cd` into the dir below (11ty, Go, static) need the `mkdir` first; each command includes it.
 
@@ -344,7 +344,7 @@ Scaffold for the stack, using the absolute path. If the stack isn't one of the r
 
 **Rails:** (creates the dir)
 ```bash
-rails new ~/Work/safaii-studio/lab/<name> --database=sqlite3 --no-skip-test
+rails new ~/Workspaces/safaii-studio/lab/<name> --database=sqlite3 --no-skip-test
 ```
 
 `--no-skip-test` is load-bearing, not noise. `~/.railsrc` carries `--skip-test` and Rails merges it into every `rails new`, so leaving the flag off silently scaffolds a project with no test directory — nowhere for the `Test:` lines from step 3 to go. Verified on Rails 8.1.3: with `--no-skip-test` the `test/` tree is created despite the rc file.
@@ -353,27 +353,27 @@ Drop it (and let `--skip-test` win) only for a Rails project that's essentially 
 
 **11ty:** (deploys to Cloudflare Pages)
 ```bash
-mkdir -p ~/Work/safaii-studio/lab/<name> && cd ~/Work/safaii-studio/lab/<name> && git init && pnpm init && pnpm add @11ty/eleventy
+mkdir -p ~/Workspaces/safaii-studio/lab/<name> && cd ~/Workspaces/safaii-studio/lab/<name> && git init && pnpm init && pnpm add @11ty/eleventy
 ```
 
 **Hugo:** (creates the dir)
 ```bash
-hugo new site ~/Work/safaii-studio/lab/<name> --force && cd ~/Work/safaii-studio/lab/<name> && git init
+hugo new site ~/Workspaces/safaii-studio/lab/<name> --force && cd ~/Workspaces/safaii-studio/lab/<name> && git init
 ```
 
 **Ruby gem/CLI:** (creates the dir — do not mkdir first)
 ```bash
-cd ~/Work/safaii-studio/lab && bundle gem <name>
+cd ~/Workspaces/safaii-studio/lab && bundle gem <name>
 ```
 
 **Go:**
 ```bash
-mkdir -p ~/Work/safaii-studio/lab/<name> && cd ~/Work/safaii-studio/lab/<name> && git init && go mod init <module-path>
+mkdir -p ~/Workspaces/safaii-studio/lab/<name> && cd ~/Workspaces/safaii-studio/lab/<name> && git init && go mod init <module-path>
 ```
 
 **Static (no framework):**
 ```bash
-mkdir -p ~/Work/safaii-studio/lab/<name> && cd ~/Work/safaii-studio/lab/<name> && git init
+mkdir -p ~/Workspaces/safaii-studio/lab/<name> && cd ~/Workspaces/safaii-studio/lab/<name> && git init
 ```
 
 Then write the project files into the workspace: `AGENTS.md` and `README.md` (plus the Basecamp config below). There is no per-project process file — Solo is gone and Herdr runs commands in panes, not from a config. The project's run and test commands live in AGENTS.md's **Commands** section instead.
@@ -431,7 +431,7 @@ Keep the stub short — real usage, install, and examples come at the finalize-R
 **Basecamp repo config** — so the build session can run `basecamp` commands without `-a`/`--in` flags. Run the bundled script rather than retyping the sequence:
 
 ```bash
-@scripts/init-basecamp-config.sh ~/Work/safaii-studio/lab/<name> <project_id> <todolist_id>
+@scripts/init-basecamp-config.sh ~/Workspaces/safaii-studio/lab/<name> <project_id> <todolist_id>
 ```
 
 It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `set todolist_id` / `trust`, then appends `.basecamp/` to `.gitignore`. (`trust` is only needed for authority keys, but it's harmless and future-proofs the config.) `.basecamp/` stays out of git — it's local session config holding account and project IDs, not project code. Gitignoring `.basecamp/` before the commit keeps the `git add -A` scaffold commit clean — important since these repos are often open-core-ready or public. The build session pulls the PRD/pitch via `basecamp` commands (config above), so no IDs or URLs need to be written into the committed repo.
@@ -439,7 +439,7 @@ It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `
 Commit the scaffold and offer to push to GitHub:
 
 ```bash
-cd ~/Work/safaii-studio/lab/<name> && git add -A && git commit -m "Scaffold [stack]"
+cd ~/Workspaces/safaii-studio/lab/<name> && git add -A && git commit -m "Scaffold [stack]"
 gh repo create <name> --private --source . --push   # creates under the gh-authed account (mattsafaii)
 ```
 
@@ -461,7 +461,7 @@ Otherwise the build agent hits "Scaffold repo" as its first todo already done an
 **New project** — create a workspace for it:
 
 ```bash
-herdr workspace create --label "<Project Name>" --cwd ~/Work/safaii-studio/lab/<name> --no-focus
+herdr workspace create --label "<Project Name>" --cwd ~/Workspaces/safaii-studio/lab/<name> --no-focus
 ```
 
 Read the workspace id from `.result.workspace.workspace_id` and the shell pane from `.result.root_pane.pane_id`. The root pane opens at the repo with an interactive shell — that's the pane the agent starts in.
@@ -510,7 +510,7 @@ If the move returns `ok: false`, retry once — transient failures happen.
 
 One line: Basecamp project created, PRD doc written, [N] todos created, repo scaffolded, card moved to In Progress. Share the Basecamp project URL. Then the handoff: "Switch to the **<Project Name>** workspace in Herdr — the build session is already running on the first todo."
 
-**If no agent was spawned** (not running inside Herdr, step 10 skipped): don't claim a session is running. Handoff instead: "Open Herdr, start an OpenCode session in the repo (`~/Work/safaii-studio/lab/<name>`), and tell it: *Read AGENTS.md, then start on the first todo in the Basecamp Build list.*"
+**If no agent was spawned** (not running inside Herdr, step 10 skipped): don't claim a session is running. Handoff instead: "Open Herdr, start an OpenCode session in the repo (`~/Workspaces/safaii-studio/lab/<name>`), and tell it: *Read AGENTS.md, then start on the first todo in the Basecamp Build list.*"
 
 **Existing project:** the one-liner is instead: PRD doc written, kickoff posted, [N] todos created on "Build: [Cycle Name]", AGENTS.md updated, cycle agent spawned (or manual-start note if not inside Herdr), card moved to In Progress.
 

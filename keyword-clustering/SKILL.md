@@ -1,6 +1,6 @@
 ---
 name: keyword-clustering
-description: Turn a client's saved keywords into a page map — cluster keywords by intent and SERP reality, assign each cluster to an existing or new page, flag cannibalization, and write the result to the client's SEO — Page Map doc in Basecamp (Internal > SEO). Pure analysis of what keyword-research and project-setup already produced; the only spend is a small SERP batch for borderline terms. Use when Matt says "cluster keywords for [client]", "keyword clustering", "/keyword-clustering", "map keywords to pages for [client]", or "turn the keywords into a page plan". The page map is what seo-strategy reads to draft content — never recreate the doc under a new title.
+description: Turn a client's saved keywords into a page map — cluster keywords by intent and SERP reality, assign each cluster to an existing or new page, flag cannibalization, and write the result to the client's SEO — Page Map doc in Basecamp (Working on new projects). Pure analysis of what keyword-research and project-setup already produced; the only spend is a small SERP batch for borderline terms. Use when Matt says "cluster keywords for [client]", "keyword clustering", "/keyword-clustering", "map keywords to pages for [client]", or "turn the keywords into a page plan". The page map is what seo-strategy reads to draft content — never recreate the doc under a new title.
 ---
 
 # Keyword Clustering Skill
@@ -20,8 +20,8 @@ Load the **dataforseo** skill for the full catalog and hard rules. The essential
 ## Fixed context
 
 - Basecamp account: always `-a 6191443` (Safaii Studio), passed explicitly — never rely on the CLI default. This skill only ever runs against the Safaii account.
-- Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `project_id` and `seo_folder_id` exactly as `seo-project-setup` does — do not invent a second folder walk.
-- The doc lives in the client's **Docs & Files → Internal → SEO folder**, team-only, titled **`SEO — Page Map`** — a stable contract, never recreated.
+- Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `SEO — Project Context` in Internal → SEO. For research docs, check exact titles in Working and legacy Internal → SEO; stop if both have the same title. Use the existing folder id for updates, or Working for first create (`research_folder_id`).
+- The doc lives in **Working on new projects**, or its existing legacy Internal → SEO folder, team-only, titled **`SEO — Page Map`** — a stable contract, never recreated.
 - **Basecamp 5 renders markdown** — write docs in markdown, GFM tables included.
 
 ## Workflow
@@ -67,8 +67,8 @@ If existing URL data is missing entirely, label every target page as proposed.
 Cannibalization is **two live URLs already competing for one intent**, or **two separate target pages assigned to the same intent** — not two keywords sharing a target. Two keywords on the same page is a correct cluster, not cannibalization; don't split a good cluster because of it.
 
 Evidence, in order of strength:
-- The research log's cannibalization note from keyword-research's GSC `query_page` pull — a query earning impressions across two URLs is confirmed.
-- Two existing `## Key pages` URLs assigned to the same intent by this map.
+- The research log's GSC `query_page` overlap candidate: inspect both live pages and their intent, then compare queries, clicks and impressions for the same date range. Two URLs getting impressions for one query alone is **not** confirmed cannibalization.
+- Two existing `## Key pages` URLs assigned to the same intent by this map are a proposed-target conflict; inspect the pages before recommending consolidation.
 - If neither exists (GSC skipped, or no real data), say so in the log and map from structure only — don't fabricate a cannibalization flag.
 
 ### 8. Confirm the map with Matt
@@ -113,13 +113,13 @@ Internal-link opportunities:
 
 **The write loop (every write, every time):**
 
-1. Find the doc by exact title in the SEO folder — never create a second copy.
+1. Find the doc by exact title in Working and legacy Internal → SEO — stop on duplicates; never create a second copy.
 2. Read the full markdown into memory.
 3. Patch the cluster map and page briefs; **replace** the cluster map with the newly confirmed one; **append** a Research log row — leave prior rows and other sections untouched.
-4. Upload the **entire** doc as an update of that same file id (`--vault <seo_folder_id>`).
+4. Upload the **entire** doc as an update of that same file id (`--vault <research_folder_id>`).
 5. Re-read and assert the other sections still exist, the title and vault are unchanged, and the content is non-empty.
 
-First create only if the exact title is missing in the SEO folder. Create: `basecamp -a 6191443 files doc create "SEO — Page Map" "<markdown>" --in <project_id> --vault <seo_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <seo_folder_id> --json`.
+First create only if the exact title is missing in both Working and legacy Internal → SEO. Create in Working: `basecamp -a 6191443 files doc create "SEO — Page Map" "<markdown>" --in <project_id> --vault <research_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <research_folder_id> --json`.
 
 **`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+)** — prefer `-` for large or multiline markdown to avoid shell quoting and argument-length limits. Verify content length after any write.
 

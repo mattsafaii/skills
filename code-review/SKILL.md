@@ -135,7 +135,7 @@ If something fails in a way this section doesn't cover, show Matt the raw error 
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Two `code-review` skills available | Pocock's copy still installed alongside this one | Remove the `~/.agents/skills` copy: `npx skills remove -g -y code-review`. Note the CLI deletes same-named skills from `~/Work/skills` too, so recreate this file afterward if it vanished. |
+| Two `code-review` skills available | Pocock's copy still installed alongside this one | Remove the `~/.agents/skills` copy: `npx skills remove -g -y code-review`. Note the CLI deletes same-named skills from `~/Workspaces/_tools/skills` too, so recreate this file afterward if it vanished. |
 | Not running inside Herdr | Skill invoked outside a managed pane | Run the reviews sequentially as sub-agents instead (Task tool, `general-purpose`), still one independent context each |
 | Reviewer hangs or never goes idle | It hit a permission prompt | Check `herdr agent get` / `herdr agent read`; spawn reviewers as OpenCode (unattended) and clear the prompt rather than re-sending blind |
 | Empty or bad diff | Fixed point didn't resolve | `git rev-parse <fixed-point>`; fix the ref before spawning anything |

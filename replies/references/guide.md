@@ -40,7 +40,7 @@ Bodies come back as Markdown, oldest entry first. Read the whole thread before w
 Then gather context, cheaply and only as needed:
 
 - **Sender's private note:** find the contact ID from the posting's `contacts`, then `hey contact show <contact_id> --json` — the note may hold history ("prefers text", "invoice on net-30").
-- **Past discussions:** if the sender or their company rings a bell but the note is empty, search memory (`qmd`) before asking Matt.
+- **Past discussions:** if the sender or their company rings a bell but the note is empty, search the thread history before asking Matt.
 - **Project context:** if the thread is clearly about a build, check that project's Basecamp todolist or dev log for current state. Don't go fishing otherwise.
 
 ## Step 3 — Draft in Matt's voice

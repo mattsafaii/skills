@@ -30,7 +30,7 @@ For each entry, check in this order (stop at the first hit):
 5. **Lead-shaped:** a person's name + service-sounding subject ("quote", "estimate", "cameras", "installation", "consultation") → treat as a possible Zonebrite lead regardless of polish.
 6. Otherwise: **unknown** — read the thread before judging: `hey thread read <topic_id> --markdown`.
 
-Optionally search memory (qmd) for a sender that rings a bell but matches nothing above.
+Read the thread before judging if the sender rings a bell but matches nothing above.
 
 ## Step 3 — Recommend
 

@@ -1,6 +1,6 @@
 ---
 name: local-seo
-description: Audit a Google Business Profile and local-pack visibility for one client — profile snapshot (category, rating, reviews, claimed, hours), competitor comparison from the same market, Maps/local-pack position per keyword, and a prioritized fix list led by one do-this-week action — written to the client's SEO — Local Audit doc in Basecamp (Internal > SEO). Use when Matt says "local SEO for [client]", "/local-seo [client]", "why isn't [client] showing up on Google Maps", "local search audit for [client]", or a client's rankings depend on a physical location or service area. Not national organic work (that's keyword-research / competitive-landscape). Never recreate the doc under a new title.
+description: Audit a Google Business Profile and local-pack visibility for one client — profile snapshot (category, rating, reviews, claimed, hours), competitor comparison from the same market, Maps/local-pack position per keyword, and a prioritized fix list led by one do-this-week action — written to the client's SEO — Local Audit doc in Basecamp (Working on new projects). Use when Matt says "local SEO for [client]", "/local-seo [client]", "why isn't [client] showing up on Google Maps", "local search audit for [client]", or a client's rankings depend on a physical location or service area. Not national organic work (that's keyword-research / competitive-landscape). Never recreate the doc under a new title.
 ---
 
 # Local SEO Skill
@@ -24,9 +24,9 @@ Load the **dataforseo** skill for the full catalog and hard rules. The essential
 ## Fixed context
 
 - Basecamp account: always `-a 6191443` (Safaii Studio), passed explicitly — never rely on the CLI default. This skill only ever runs against the Safaii account.
-- Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `project_id` and `seo_folder_id` exactly as `seo-project-setup` does — do not invent a second folder walk.
+- Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `SEO — Project Context` in Internal → SEO. For research docs, check exact titles in Working and legacy Internal → SEO; stop if both have the same title. Use the existing folder id for updates, or Working for first create (`research_folder_id`).
 - Inputs: the business name and coordinate come from Matt or the context doc's business overview; the storefront coordinate must be confirmed (a check from the wrong place is worse than no check). The 1–3 customer keywords come from `SEO — Keyword Research`'s dated saved set when it exists (pick the local-intent terms, never brand); only ask Matt for seeds when that set doesn't exist — don't invent a parallel list.
-- The doc lives in the client's **Docs & Files → Internal → SEO folder**, team-only, titled **`SEO — Local Audit`** — a stable contract, never recreated.
+- The doc lives in **Working on new projects**, or its existing legacy Internal → SEO folder, team-only, titled **`SEO — Local Audit`** — a stable contract, never recreated.
 - **Basecamp 5 renders markdown** — write docs in markdown, GFM tables included.
 
 ## Workflow
@@ -141,13 +141,13 @@ Coordinate:
 
 **The write loop (every write, every time):**
 
-1. Find the doc by exact title in the SEO folder — never create a second copy.
+1. Find the doc by exact title in Working and legacy Internal → SEO — stop on duplicates; never create a second copy.
 2. Read the full markdown into memory.
 3. Patch the snapshot and comparison; **replace** the signal comparison with the newly confirmed one; **append** a Research log row — leave prior rows and other sections untouched. **For a chain, never replace snapshot rows for locations you didn't re-audit** — only the deep-dived locations' rows get updated.
-4. Upload the **entire** doc as an update of that same file id (`--vault <seo_folder_id>`).
+4. Upload the **entire** doc as an update of that same file id (`--vault <research_folder_id>`).
 5. Re-read and assert the other sections still exist, the title and vault are unchanged, and the content is non-empty.
 
-First create only if the exact title is missing in the SEO folder. Create: `basecamp -a 6191443 files doc create "SEO — Local Audit" "<markdown>" --in <project_id> --vault <seo_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <seo_folder_id> --json`.
+First create only if the exact title is missing in both Working and legacy Internal → SEO. Create in Working: `basecamp -a 6191443 files doc create "SEO — Local Audit" "<markdown>" --in <project_id> --vault <research_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <research_folder_id> --json`.
 
 **`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+)** — prefer `-` for large or multiline markdown to avoid shell quoting and argument-length limits. Verify content length after any write.
 

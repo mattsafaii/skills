@@ -36,7 +36,7 @@ Where it sits: `page-design` sets the Design Read, the palette, and the dials; t
 - **`provider`** defaults to `openai`; **`model`** defaults to that provider's default. **`size`** is `WIDTHxHEIGHT` on OpenAI models — match the placement, not a default. **`outputFormat`** is `png`, `jpeg`, or `webp` on OpenAI, `png` or `jpeg` on Gemini.
 - **`referenceImages`** — passing local images switches to the edits endpoint, and the prompt becomes the edit rather than a fresh generation. This is how you fix a specific image or build a variant that must match one.
 
-**Look at what comes back.** The primary model cannot see images. Route the result to the `vision` subagent (`vision-cloud` if the local one is slow) with what you asked for and what to check. Never ship an image nobody has looked at.
+**Look at what comes back.** The primary model cannot see images. Route the result to the `vision` subagent with what you asked for and what to check. Never ship an image nobody has looked at.
 
 ## Shared craft
 

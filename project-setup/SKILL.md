@@ -91,7 +91,7 @@ Brief: <title> — draft | approved YYYY-MM-DD | none yet
 
 ## Kit
 
-Workspace: ~/Work/safaii-studio/clients/<slug>
+Workspace: ~/Workspaces/safaii-studio/clients/<slug>
 Site root: <workspace>/site
 Repo: <GitHub org/repo or "not yet">
 Cloudflare: <account / Pages project or "not yet">
@@ -255,7 +255,7 @@ Ask:
 
 Record what exists, planned state vs "not yet":
 
-- Workspace: derive `<slug>` from the Basecamp project name — lowercase, spaces to hyphens, strip other punctuation (e.g. "Guru Packaging" → `guru-packaging`) — and confirm the slug with Matt once. Write the full path on the `Workspace:` line: `~/Work/safaii-studio/clients/<slug>`, and the website repo root on the `Site root:` line: `<workspace>/site` (the folder pushed to GitHub). If the workspace directory does not exist, create it with `mkdir -p`. If **mkdir fails**, record the path anyway, tell Matt, and do not abort the Basecamp write. This step creates the workspace folder only — it does **not** create `site/`, does not `git init`, does not scaffold, and does not copy Basecamp docs into the workspace; Build makes `site/` and runs `git init`.
+- Workspace: derive `<slug>` from the Basecamp project name — lowercase, spaces to hyphens, strip other punctuation (e.g. "Guru Packaging" → `guru-packaging`) — and confirm the slug with Matt once. Write the full path on the `Workspace:` line: `~/Workspaces/safaii-studio/clients/<slug>`, and the website repo root on the `Site root:` line: `<workspace>/site` (the folder pushed to GitHub). If the workspace directory does not exist, create it with `mkdir -p`. If **mkdir fails**, record the path anyway, tell Matt, and do not abort the Basecamp write. This step creates the workspace folder only — it does **not** create `site/`, does not `git init`, does not scaffold, and does not copy Basecamp docs into the workspace; Build makes `site/` and runs `git init`.
 - Repo: GitHub org/repo
 - Cloudflare: account / Pages project
 - Production URL

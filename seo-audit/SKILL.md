@@ -23,11 +23,11 @@ Load the **dataforseo** skill for the catalog and hard rules. The essentials:
 ## Fixed context
 
 - Basecamp account: always `-a 6191443` (Safaii Studio), passed explicitly — never rely on the CLI default. This skill only ever runs against the Safaii account.
-- **The report is an artifact, not a message body.** The flow: create the audit doc in the client's **Internal > Reports** folder (team-only, born hidden), Matt reviews and manually moves it to **Deliverables > Reports** (client-visible — the move flips visibility), then a short message posts to the client's Message Board with a link to the moved doc.
-- Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `project_id` and `seo_folder_id` exactly as `seo-project-setup` does — do not invent a second folder walk.
+- **The report is an artifact, not a message body.** The flow: create the audit doc in the client's **Reports** folder (team-only, born hidden), Matt reviews and manually moves it to **Handoff** (client-visible — the move flips visibility), then a short message posts to the client's Message Board with a link to the moved doc.
+- Client and project are resolved from Basecamp by exact name. `SEO — Project Context` remains in Internal → SEO; `SEO — Keyword Research` lives in Working on new projects or its legacy Internal → SEO folder. Reports are drafted in the top-level Reports folder on new projects.
 - **Which project?** If the audited domain is an existing client, match it to their project and create the report there. If it's a prospect or unknown, ask Matt which project it belongs to — never guess. (Prospects normally get a `teardown`; if Matt says audit a prospect instead, this skill still runs and the report doc goes wherever Matt directs.)
 - The domain to audit is the one Matt names — if it's a client, confirm it matches the context doc's `Domain:` line.
-- tribunal lives at `~/Work/safaii-studio/lab/tribunal`; it runs via its Docker image (see step 2) or the local binary.
+- tribunal lives at `~/Workspaces/safaii-studio/lab/tribunal`; it runs via its Docker image (see step 2) or the local binary.
 - Tone reference for client-facing prose: Basecamp doc `10032725076` ("Marathon Power Website Review (to send)") — read it before drafting, every time.
 - **Basecamp 5 renders markdown** — the report doc is markdown, not HTML. GFM tables render.
 
@@ -44,7 +44,7 @@ Read `SEO — Project Context` if it exists — what the business does decides w
 Same mechanics as teardown/client-report — Docker image, history volume mount (so a later `client-report` diff can use this run as its baseline):
 
 ```bash
-docker image inspect tribunal >/dev/null 2>&1 || (cd ~/Work/safaii-studio/lab/tribunal && docker build -t tribunal .)
+docker image inspect tribunal >/dev/null 2>&1 || (cd ~/Workspaces/safaii-studio/lab/tribunal && docker build -t tribunal .)
 mkdir -p ~/.local/share/tribunal/history
 docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/credential')" \
   -e GOOGLE_SAFE_BROWSING_API_KEY="$(op read 'op://Secrets/GOOGLE_SAFE_BROWSING_API_KEY/credential')" \
@@ -82,7 +82,7 @@ It must be doable this week by a non-technical person, with copy-paste-ready mec
 
 ### 5. Propose a starting focus area (healthy sites only)
 
-**If `SEO — Keyword Research` already has a dated saved set, defer to it** — point at that set or skip "where to focus first." Never invent a parallel 3–5 keyword list when the research exists. The focus area is a fresh-domain-only feature.
+**If `SEO — Keyword Research` already has a dated saved set in Working or legacy Internal → SEO (stop if both exist), defer to it** — point at that set or skip "where to focus first." Never invent a parallel 3–5 keyword list when the research exists. The focus area is a fresh-domain-only feature.
 
 For a fresh domain: propose one topic area and 3–5 specific, low-difficulty keywords the site can realistically rank for, each with the page or post to make. **Seeds come only from the site's visible on-page headings / `webfetch` language** — not from `dataforseo_labs/google/keyword_ideas/live` (that's the consumer-junk path KR banned). Then one `dataforseo_labs/google/keyword_overview/live` call (volume/difficulty) to verify they're winnable. Drop any term that's off-positioning. Label the section a **starting direction**, and **don't write these terms into `SEO — Keyword Research`** — this isn't research, it's a pointer. **Skip this entirely when the site is down** — the one thing is all that matters there.
 
@@ -108,31 +108,31 @@ Run an adversarial pass on your own draft. Attack four things: claims beyond the
 
 Show Matt the full draft. Revise in place until he approves. **Ambiguous response ≠ approval.** If he walks away, the draft just waits.
 
-### 9. Create the report doc (Internal > Reports)
+### 9. Create the report doc (Reports)
 
-On explicit approval, create the audit as a **document** in the client's **Internal > Reports** folder (team-only — born hidden, never client-visible at this point):
+On explicit approval, create the audit as a **document** in the client's **Reports** folder (team-only — born hidden, never client-visible at this point):
 
 ```bash
-basecamp -a 6191443 files doc create "SEO review — <Domain>" "<report body as Markdown>" --in <basecamp_project_id> --vault <internal_reports_id> --json
+basecamp -a 6191443 files doc create "SEO review — <Domain>" "<report body as Markdown>" --in <basecamp_project_id> --vault <reports_id> --json
 ```
 
 **Content as an argument, or `-` for stdin (CLI v0.10.0+).** Verify content length after create.
 
-Resolve the `Internal > Reports` folder id exactly as `seo-project-setup` resolves Internal > SEO (walk Internal, find/create Reports under it). Create the Reports folder if missing.
+Resolve the top-level Reports folder by exact name on new projects. On an older project that only has Internal → Reports, use that existing folder and its established client-visible report destination; do not create duplicate folders or documents. If neither folder exists, stop and check the project template.
 
-### 9a. Create the handoff-message draft doc (Internal > Reports)
+### 9a. Create the handoff-message draft doc (Reports)
 
-Create the email-body-style handoff **as its own draft doc** in the same Internal > Reports folder — so Matt reviews and edits the message copy alongside the report:
+Create the email-body-style handoff **as its own draft doc** in the same Reports folder — so Matt reviews and edits the message copy alongside the report:
 
 ```bash
-basecamp -a 6191443 files doc create "SEO review — <Domain> — handoff message" "<handoff text, with placeholder for the report doc link>" --in <basecamp_project_id> --vault <internal_reports_id> --json
+basecamp -a 6191443 files doc create "SEO review — <Domain> — handoff message" "<handoff text, with placeholder for the report doc link>" --in <basecamp_project_id> --vault <reports_id> --json
 ```
 
-The handoff draft is the *email body*: the audit report is the attachment. Short, warm, one paragraph — ending with "the full review is here: <link>". It carries a placeholder link until the report is moved. This doc stays in Internal — the record of what was sent, never client-visible itself.
+The handoff draft is the *email body*: the audit report is the attachment. Short, warm, one paragraph — ending with "the full review is here: <link>". It carries a placeholder link until the report is moved. This doc stays in Reports — the record of what was sent, never client-visible itself.
 
 ### 9b. Matt moves it — the ship gate
 
-Return both doc URLs and tell Matt: **move the report doc from Internal > Reports to Deliverables > Reports** — that move flips it client-visible (verified: a doc moved into a client-visible folder reports `visible_to_clients: True`). His action, not the skill's. The audit stays team-only until he moves it. He can edit the handoff draft doc at this point too.
+Return both doc URLs and tell Matt: **move the report doc from Reports to Handoff** on new projects (or from the legacy draft folder to that project's established client-visible report folder). Confirm the destination is client-visible. His action, not the skill's. The audit stays team-only until he moves it. He can edit the handoff draft doc at this point too.
 
 ### 9c. Post the handoff message
 
@@ -169,7 +169,7 @@ When Matt reviews the draft, summarize in-session:
 - Passive only — never `--authorized` on a site you don't own.
 - Nothing posts without explicit approval.
 - Missing backlink/ranking data = "no recorded data," not a penalty.
-- The audit is an **artifact** — a doc born in Internal > Reports, moved to Deliverables > Reports by Matt (the ship gate), with a short handoff message linking to it. Unlike the Internal > SEO research docs, this one is client-facing — but only after the move.
+- The audit is an **artifact** — a doc born in Reports, moved to Handoff by Matt (the ship gate), with a short handoff message linking to it. Unlike the Working SEO research docs, this one is client-facing — but only after the move.
 
 ## Failure modes
 
@@ -187,9 +187,9 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Blew the data budget | Re-ran failed calls or added overviews | One backlinks + at most one domain overview + one keyword overview; a failed call is "no recorded data," never a re-buy |
 | Backlink claim without evidence | Reported a summary number as fact | Verify the backlink read against the summary and the live context; drop what doesn't hold |
 | Wrote focus keywords into `SEO — Keyword Research` | Treated the starting direction as research | The focus area is a pointer, never a saved set — research lives in keyword-research's own doc |
-| Report doc landed client-visible | Created with `--visible-to-clients` or in Deliverables | Reports are born in Internal > Reports (team-only); the move to Deliverables is Matt's ship gate |
+| Report doc landed client-visible | Created with `--visible-to-clients` or in Handoff | Reports are born in Reports (team-only); the move to Handoff is Matt's ship gate |
 | Report doc empty | Content not passed (or `-` on a pre-v0.10.0 CLI) | Pass content as an argument or via stdin `-` (v0.10.0+); verify content length after create |
-| Handoff message sent before the move | Posted a link to a doc still in Internal | The handoff posts only after Matt confirms the doc is in Deliverables |
+| Handoff message sent before the move | Posted a link to a doc still in Reports | The handoff posts only after Matt confirms the doc is in Handoff |
 | Handoff posted from scratch | Skipped the handoff draft doc | The message uses the drafted handoff doc's content — create it in step 9a, review, then post |
 | Draft posted without approval | Treated silence/ambiguity as a yes | Only an explicit yes publishes; anything else waits |
 | Re-ran an audit from last month | Skipped the reuse check | Same domain audited < 30 days ago → reuse and say so; only an explicit "run it anyway" re-runs |

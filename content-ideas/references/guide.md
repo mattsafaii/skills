@@ -13,7 +13,7 @@ Sweep a time window across everything Matt worked on, distill the insights, and 
 - **Content project:** `46824770` · card table `9768310845` · **Ideas column `9768310846`** (essays/videos land here, prefixed `[Essay]` / `[Video]`)
 - **Distribution table:** `10010006453` · **Triage column `10010006454`** (insights/tweets land here, prefixed `[💡 Insight]`)
 - **Lab project:** `46824335` (scrapped ideas live in its **Graveyard** column)
-- Matt's own repos: `~/Work/safaii-studio/lab/*` and `~/Work/safaii-studio/playground/*`
+- Matt's own repos: `~/Workspaces/safaii-studio/lab/*` and `~/Workspaces/safaii-studio/playground/*`
 
 ---
 
@@ -30,7 +30,7 @@ Match the idea to the board that already owns that content type (keeps the two-b
 ## Writing rules (hard — same as the rest of the system)
 
 - **Essays / videos: seeds only.** Capture the angle, never draft the prose. `develop-essay` does the writing with Matt.
-- **Tweets / insights: draft clay.** Draft as a starting point; Matt rewrites. Mark every clay card: *"Draft clay — rewrite in your voice. NOT for posting as-is."* When drafting for X, apply the X-algorithm reference at `~/Work/skills/distribute/references/x-algorithm.md` (reply/dwell/share/profile-click positives; never engagement-bait — it's subordinate to the writing rules) **and read `references/voice.md`** (in `distribute/references/`) so clay lands in Matt's voice (short, plain, lowercase-starting, understated, first-person-specific).
+- **Tweets / insights: draft clay.** Draft as a starting point; Matt rewrites. Mark every clay card: *"Draft clay — rewrite in your voice. NOT for posting as-is."* When drafting for X, apply the X-algorithm reference at `~/Workspaces/_tools/skills/distribute/references/x-algorithm.md` (reply/dwell/share/profile-click positives; never engagement-bait — it's subordinate to the writing rules) **and read `references/voice.md`** (in `distribute/references/`) so clay lands in Matt's voice (short, plain, lowercase-starting, understated, first-person-specific).
 - **Gut-check claims.** These are mined from the work — flag any strong claim so Matt confirms he stands behind it.
 - **Don't over-produce.** A period of work yields a *few* real insights, not twenty. Most commits are not insights. A high bar beats a wall of filler cards. If a window is thin, say so and produce little.
 
@@ -73,7 +73,7 @@ Gather raw material from the window across all of these. Verify exact CLI flags 
 
 - **Personal repos (git):** across every repo, commits (and diffs for the meaty ones) in the window. Includes scrapped/abandoned repos — a dead project often has the sharpest lesson.
   ```bash
-  for d in ~/Work/safaii-studio/lab/*/ ~/Work/safaii-studio/playground/*/; do
+  for d in ~/Workspaces/safaii-studio/lab/*/ ~/Workspaces/safaii-studio/playground/*/; do
     [ -d "$d/.git" ] || continue
     log=$(git -C "$d" log --since="<START>" --pretty='%h %s' 2>/dev/null)
     [ -n "$log" ] && printf '### %s\n%s\n\n' "$(basename "$d")" "$log"

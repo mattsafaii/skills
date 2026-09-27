@@ -1,22 +1,22 @@
 ---
 name: client-report
-description: Generate the combined monthly report for a Safaii Studio Foundation or Growth client — runs Matt's tribunal audit CLI against the client's site, diffs against last month's run, pulls Fathom Analytics and Google Search Console data for the same window, and consumes the Rank Tracker / market read as the Rankings section (standing on Growth only — Foundation omits the heading and the appendix) — then drafts a ready-to-send month-over-month report in the standardized frozen template (opening verdict, locked scoreboard, what I did, site health, traffic and search, rankings) for Matt's review. Report drafts live in the client's Docs & Files > Internal > Reports; nothing posts or sends without Matt's explicit approval. Content/approval asks ship as separate standalone messages, never inside the monthly report. Use whenever Matt says "client report for [client]", "/client-report [client]", "monthly report for [client]", "run the monthly audit for [client]", or it's report time for a plan client (Foundation or Growth). Clients only — prospects get the teardown skill; ad-hoc audits get audit-website.
+description: Generate the combined monthly report for a Safaii Studio Foundation or Growth client — runs Matt's tribunal audit CLI against the client's site, diffs against last month's run, pulls Fathom Analytics and Google Search Console data for the same window, and consumes the Rank Tracker / market read as the Rankings section (standing on Growth only — Foundation omits the heading and the appendix) — then drafts a ready-to-send month-over-month report in the standardized frozen template (opening verdict, locked scoreboard, what I did, site health, traffic and search, rankings) for Matt's review. Report drafts live in the client's Docs & Files > Reports; nothing posts or sends without Matt's explicit approval. Content/approval asks ship as separate standalone messages, never inside the monthly report. Use whenever Matt says "client report for [client]", "/client-report [client]", "monthly report for [client]", "run the monthly audit for [client]", or it's report time for a plan client (Foundation or Growth). Clients only — prospects get the teardown skill; ad-hoc audits get audit-website.
 ---
 
 # Client Report Skill
 
 Turns tribunal's run history + Fathom + Google Search Console into the monthly proof-of-value report for Foundation and Growth clients, consuming the Rank Tracker and market read (keyword movement) as the Rankings section — **standing on Growth only; a Foundation client omits the heading and the appendix entirely**. The scan diff says what changed, analytics and search data say what it did, Rankings says where the keyword set stands. One combined report per month, in Matt's client voice, reviewed by Matt before anything reaches a client. Every report uses the same frozen body (step 5) so months and clients compare — only the numbers and the sections with data change. In client prose it's never a "program" — say tracking / the keyword set.
 
-**Cadence decision (2026-09-02): the monthly report is the single combined report.** On Growth clients it folds in the Rankings section every cycle — not as optional color, as a standing section (one line when tracking is quiet); on Foundation the heading sits out like any other out-of-scope section. Content/approval asks are **never** in the monthly report at all — zero mentions, not even status references. They go out as their own standalone message when they happen, their published results land in the next monthly report, and only the handoff email may carry an ask (one line, step 7a) when something is genuinely pending. Report drafts always go to the client's **Docs & Files > Internal > Reports** folder.
+**Cadence decision (2026-09-02): the monthly report is the single combined report.** On Growth clients it folds in the Rankings section every cycle — not as optional color, as a standing section (one line when tracking is quiet); on Foundation the heading sits out like any other out-of-scope section. Content/approval asks are **never** in the monthly report at all — zero mentions, not even status references. They go out as their own standalone message when they happen, their published results land in the next monthly report, and only the handoff email may carry an ask (one line, step 7a) when something is genuinely pending. Report drafts always go to the client's **Docs & Files > Reports** folder.
 
 ## Fixed context
 
 - Basecamp account: always `-a 6191443` (Safaii Studio), passed explicitly — never rely on the CLI default. Each client's report posts to **that client's own Basecamp project** (matched by name) — never anywhere else.
-- **The report is an artifact, not a message body.** The flow: create the report doc in the client's **Internal > Reports** folder (team-only, born hidden), Matt reviews and manually moves it to **Deliverables > Reports** (client-visible — the move flips visibility), then a short message posts to the client's Message Board with a link to the moved doc. The report itself lives in Docs & Files; the message is the email-body-style handoff.
-- Client and project are resolved from Basecamp, never a local file: the prep script at `~/Work/scripts/client-report-prep.rb` (see step 1) matches the project by name and reads per-client facts from two context docs. Company facts (domain, Fathom site id + goals) come from the master `Project Context` doc at the root of Internal — built by `project-setup` — and fall back to the SEO doc when the master doc doesn't exist yet. Search facts (GSC property, scoreboard metrics, plan, brand terms) come from the `SEO — Project Context` doc (Internal > SEO).
+- **The report is an artifact, not a message body.** The flow: create the report doc in the client's **Reports** folder (team-only, born hidden), Matt reviews and manually moves it to **Handoff** (client-visible — the move flips visibility), then a short message posts to the client's Message Board with a link to the moved doc. The report itself lives in Docs & Files; the message is the email-body-style handoff.
+- Client and project are resolved from Basecamp, never a local file: the prep script at `~/Workspaces/_tools/scripts/client-report-prep.rb` (see step 1) matches the project by name and reads per-client facts from two context docs. Company facts (domain, Fathom site id + goals) come from the master `Project Context` doc at the root of Internal — built by `project-setup` — and fall back to the SEO doc when the master doc doesn't exist yet. Search facts (GSC property, scoreboard metrics, plan, brand terms) come from the `SEO — Project Context` doc (Internal > SEO).
 - **The SEO docs are consumed, never re-pulled.** Keyword positions come from `SEO — Rank Tracker`'s newest `## Run —` section and `## Tracker config` — never re-run SERP checks here. Market context comes from `SEO — Competitive Landscape`'s `## Market read` when present. On Growth clients the Rankings section is standing: if the docs don't exist, the section says in one line that tracking hasn't produced keyword positions or a market read yet (Foundation omits the heading entirely — see `Plan:`).
-- tribunal lives at `~/Work/safaii-studio/lab/tribunal`; it runs via its Docker image (see step 2).
-- This skill uses the shared prep script at `~/Work/scripts/client-report-prep.rb` (canonical copy — no per-skill copies) plus the shared GSC helper at `~/Work/scripts/gsc-fetch/gsc-fetch.rb` (canonical copy, shared with keyword-research — no per-skill copies). No dependencies; Ruby stdlib only.
+- tribunal lives at `~/Workspaces/safaii-studio/lab/tribunal`; it runs via its Docker image (see step 2).
+- This skill uses the shared prep script at `~/Workspaces/_tools/scripts/client-report-prep.rb` (canonical copy — no per-skill copies) plus the shared GSC helper at `~/Workspaces/_tools/scripts/gsc-fetch/gsc-fetch.rb` (canonical copy, shared with keyword-research — no per-skill copies). No dependencies; Ruby stdlib only.
 - Local secrets live in 1Password, resolved on demand with `op read` — the Fathom token is `op://Secrets/Fathom API Token/password`, the GSC service-account JSON is `op://Secrets/GSC Service Account JSON/notesPlain`. Both are shared across clients; nothing sits in a file on disk.
 
 ## Per-client facts come from the context docs
@@ -44,7 +44,7 @@ Company facts are owned by the master `Project Context` doc (Internal root, buil
 
 ### 1. Resolve the client
 
-**Preferred: run the prep script in one pass.** `ruby ~/Work/scripts/client-report-prep.rb "<client name>"` resolves the project by name, reads both context docs (master `Project Context` at the Internal root when it exists — company facts fall back to the SEO doc when not — and `SEO — Project Context` in Internal → SEO for search facts), and returns JSON with everything steps 1–4 need: `master_context` (whether the master doc was used), `domain`, `fathom_site_id`, `fathom_goals`, `gsc_property`, `scoreboard_metrics` + `scoreboard` (each token classified as `fathom_goal` / `fathom_metric` / `gsc_metric` — unknown tokens surface here, at prep time), `plan`, `brand_terms`, **computed windows** (`report_window`, `prev_window`, `ly_window` — start/end dates plus labels; **use these dates everywhere, never do your own month math**), and `ly_available` (whether same-month-last-year is fillable — computed from the Fathom site's created date), plus `rank_tracker` (newest `Run —` + `Tracker config`) and `market_read`. Exit 1 with a message on failure — read the stderr and act on it.
+**Preferred: run the prep script in one pass.** `ruby ~/Workspaces/_tools/scripts/client-report-prep.rb "<client name>"` resolves the project by name, reads both context docs (master `Project Context` at the Internal root when it exists — company facts fall back to the SEO doc when not — and `SEO — Project Context` in Internal → SEO for search facts), and returns JSON with everything steps 1–4 need: `master_context` (whether the master doc was used), `domain`, `fathom_site_id`, `fathom_goals`, `gsc_property`, `scoreboard_metrics` + `scoreboard` (each token classified as `fathom_goal` / `fathom_metric` / `gsc_metric` — unknown tokens surface here, at prep time), `plan`, `brand_terms`, **computed windows** (`report_window`, `prev_window`, `ly_window` — start/end dates plus labels; **use these dates everywhere, never do your own month math**), and `ly_available` (whether same-month-last-year is fillable — computed from the Fathom site's created date), plus `rank_tracker` (newest `Run —` + `Tracker config`) and `market_read`. Exit 1 with a message on failure — read the stderr and act on it.
 
 **Fallback (script missing or errors):** match the client to a project by name via `basecamp -a 6191443 projects list --json`. Ambiguous or missing → show Matt the candidates and ask. **Never guess a domain or project.** Then resolve the folder ids (never guess a folder): find the master `Project Context` at the root of Internal, and `SEO — Project Context` in Internal → SEO. Read the master doc first for the `Domain:` line, `Fathom site id:`, and `Fathom goals:`; where a master line is absent (or the doc doesn't exist), read the same values from the SEO doc; read the SEO doc for `Property:` (GSC) and `Scoreboard metrics:`.
 
@@ -52,7 +52,7 @@ Missing context docs → step 1's rule applies (master `project-setup` first if 
 
 ### 1c. Read the Rank Tracker / market read (Rankings — Growth only)
 
-When step 1 used the prep script, this data is already in the JSON (`rank_tracker.newest_run` + `rank_tracker.tracker_config`, `market_read`). Fallback only when the script didn't run: find `SEO — Rank Tracker` and read the **newest** `## Run —` section plus `## Tracker config` — keyword positions, movers, device, saved-set date. Find `SEO — Competitive Landscape` and read `## Market read` for context on who's winning.
+When step 1 used the prep script, this data is already in the JSON (`rank_tracker.newest_run` + `rank_tracker.tracker_config`, `market_read`). Fallback only when the script didn't run: look for each exact title in Working and legacy Internal → SEO; if both contain it, stop and resolve the duplicate. Read the newest `## Run —` and `## Tracker config` from `SEO — Rank Tracker`, then `## Market read` from `SEO — Competitive Landscape` when present.
 
 **Consume, never re-pull.** These are the Rank Tracker's and Competitive Landscape's own measurements — do not re-run SERP checks or re-fetch keyword data here. The Rankings section is a standing part of the report **when the client is on Growth** (`Plan: Growth`): if the docs don't exist, write the one-line note (tracking hasn't produced keyword positions or a market read yet) — never fail the run. When the client is Foundation-only, the section sits out whole — no standing "rankings aren't set up" line.
 
@@ -74,9 +74,9 @@ Same mechanics as the teardown skill — Docker image, history volume mount (wit
 # guard never catches a stale image, and a stale image silently drops engines (verified:
 # crux was missing for a month this way).
 IMAGE_CREATED=$(docker image inspect tribunal --format '{{.Created}}' 2>/dev/null)
-SOURCE_UPDATED=$(git -C ~/Work/safaii-studio/lab/tribunal log -1 --format=%cI)
+SOURCE_UPDATED=$(git -C ~/Workspaces/safaii-studio/lab/tribunal log -1 --format=%cI)
 if [ -z "$IMAGE_CREATED" ] || [[ "$SOURCE_UPDATED" > "$IMAGE_CREATED" ]]; then
-  (cd ~/Work/safaii-studio/lab/tribunal && docker build -t tribunal .)
+  (cd ~/Workspaces/safaii-studio/lab/tribunal && docker build -t tribunal .)
 fi
 mkdir -p ~/.local/share/tribunal/history
 docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/credential')" \
@@ -157,7 +157,7 @@ Collect the goal results (goal name → conversions for both windows) into `/tmp
 ### 4. Fetch GSC (skip if the context doc has no `Property:` — absent, empty, or a placeholder)
 
 ```bash
-cd ~/Work/scripts/gsc-fetch
+cd ~/Workspaces/_tools/scripts/gsc-fetch
 GSC_SERVICE_ACCOUNT_JSON="$(op read 'op://Secrets/GSC Service Account JSON/notesPlain')" \
 ruby gsc-fetch.rb \
   --property "<GSC_PROPERTY from context doc>" \
@@ -174,7 +174,7 @@ If the script fails (auth, property not shared with the service account yet), th
 
 ### 4a. Generate charts
 
-The **pingplot** CLI (`~/Work/safaii-studio/lab/pingplot/src/cli.js`) turns the fetched data into charts via Observable Plot. Write chart data files to `/tmp` (keyed by `<project_id>`), run pingplot, then embed via the attach-and-position recipe below (step 4a's chart embedding — verified live).
+The **pingplot** CLI (`~/Workspaces/safaii-studio/lab/pingplot/src/cli.js`) turns the fetched data into charts via Observable Plot. Write chart data files to `/tmp` (keyed by `<project_id>`), run pingplot, then embed via the attach-and-position recipe below (step 4a's chart embedding — verified live).
 
 Invocation (pingplot is a global npm package — `pingplot` is on PATH):
 ```bash
@@ -208,9 +208,9 @@ mv /tmp/client-report-<id>-trend.png "/tmp/Traffic — daily visits and pageview
 
 **Chart embedding — verified live (dry run 2, Sep 2026).** Local paths do NOT upload, and upload-URL embeds (`download_url`) render broken in the doc. The working sequence:
 
-1. Create the report doc with the chart attached: `basecamp -a 6191443 files doc create "<title>" "<body — pure markdown, no image references>" --attach "/tmp/<claim-title>.png" --in <project_id> --vault <internal_reports_id> --json`. `--attach` is repeatable for multiple charts; the attachment lands at the END of the content.
+1. Create the report doc with the chart attached: `basecamp -a 6191443 files doc create "<title>" "<body — pure markdown, no image references>" --attach "/tmp/<claim-title>.png" --in <project_id> --vault <reports_id> --json`. `--attach` is repeatable for multiple charts; the attachment lands at the END of the content.
 2. Re-read the doc and take the SGID from `content_attachments[N].sgid`.
-3. Update the doc with the body as **fully rendered HTML** (`<h2>`, `<p>`, `<table>`, `<ul>`), placing `<bc-attachment sgid="<SGID>" content-type="image/png"></bc-attachment>` inline where the chart belongs.
+3. Update the doc with the body as **fully rendered HTML** (`<h2>`, `<p>`, `<table>`, `<ul>`), placing `<bc-attachment sgid="<SGID>" content-type="image/png"></bc-attachment>` inline where the chart belongs. After verifying the stored content, save this final HTML to `~/Workspaces/safaii-studio/reports/<project-slug>/report-<YYYY-MM>.html`. The initial Markdown passed to `files doc create` is not the edit source.
 4. Assert on the re-read: one `<bc-attachment>` per chart, inline in position; tables as real `<table>` elements; no raw `|` rows left — **and the plan's contract-mandated tables are all present**: scoreboard and conversions (when conversion data exists) on every plan; top pages and top queries on Growth; appendix when a tracker run exists. A draft that carries a table's numbers only as prose is incomplete, not a style choice — on Foundation, prose carries the traffic distribution qualitatively instead.
 
 **The wall-of-text check — after drafting, count sentences per section against the caps.** Over the cap → cut, do not wrap with `<br>` (that is typesetting, not editing). No character caps — they invite empty padding.
@@ -333,31 +333,31 @@ Per-block contract:
 
 Show Matt the full draft. Revise in place until he approves. **Ambiguous response ≠ approval.** If he walks away, the draft just waits.
 
-### 7. Create the report doc (Internal > Reports)
+### 7. Create the report doc (Reports)
 
-On explicit approval, create the report as a **document** in the client's **Internal > Reports** folder (team-only — born hidden, never client-visible at this point):
+On explicit approval, create the report as a **document** in the client's **Reports** folder (team-only — born hidden, never client-visible at this point):
 
 ```bash
-basecamp -a 6191443 files doc create "Site report — <Month Year>" "<report body as Markdown>" --in <basecamp_project_id> --vault <internal_reports_id> --json
+basecamp -a 6191443 files doc create "Site report — <Month Year>" "<report body as Markdown>" --in <basecamp_project_id> --vault <reports_id> --json
 ```
 
 **Content as an argument, or `-` for stdin (CLI v0.10.0+).** Verify content length after create. The chart rides in via `--attach` at create and is positioned inline by the step-4a update; assert one inline `<bc-attachment>` per chart on the re-read.
 
-Resolve the `Internal > Reports` folder id exactly as `seo-project-setup` resolves Internal > SEO (walk Internal, find/create Reports under it). Create the Reports folder if missing.
+Resolve the top-level Reports folder by exact name on new projects. On an older project that only has Internal → Reports, use that existing folder and its established client-visible report destination; do not create duplicate folders or documents. If neither folder exists, stop and check the project template.
 
-### 7a. Create the handoff-message draft doc (Internal > Reports)
+### 7a. Create the handoff-message draft doc (Reports)
 
-Create the email-body-style handoff **as its own draft doc** in the same Internal > Reports folder — so Matt reviews and edits the message copy alongside the report, not just inline text:
+Create the email-body-style handoff **as its own draft doc** in the same Reports folder — so Matt reviews and edits the message copy alongside the report, not just inline text:
 
 ```bash
-basecamp -a 6191443 files doc create "Handoff — <Month Year>" "<handoff text, with placeholder for the report doc link>" --in <basecamp_project_id> --vault <internal_reports_id> --json
+basecamp -a 6191443 files doc create "Handoff — <Month Year>" "<handoff text, with placeholder for the report doc link>" --in <basecamp_project_id> --vault <reports_id> --json
 ```
 
-The handoff draft is the *email body*: the report is the attachment. Short, warm, one paragraph — what you'd write in an email, ending with "the full report is here: <link>". It carries a placeholder link until the report is moved (the final URL isn't known until then). This doc stays in Internal — it's the record of what was sent, never client-visible itself. The handoff email is the **only** place an ask may appear in the monthly flow: if something is genuinely pending on the client (e.g. staged content awaiting approval), one short line here. The report doc itself never mentions it.
+The handoff draft is the *email body*: the report is the attachment. Short, warm, one paragraph — what you'd write in an email, ending with "the full report is here: <link>". It carries a placeholder link until the report is moved (the final URL isn't known until then). This doc stays in Reports — it's the record of what was sent, never client-visible itself. The handoff email is the **only** place an ask may appear in the monthly flow: if something is genuinely pending on the client (e.g. staged content awaiting approval), one short line here. The report doc itself never mentions it.
 
 ### 7b. Matt moves it — the ship gate
 
-Return both doc URLs and tell Matt: **move the report doc from Internal > Reports to Deliverables > Reports** — that move is what flips it client-visible (verified: a doc moved into a client-visible folder reports `visible_to_clients: True`). This is his action, not the skill's. The report stays team-only until he moves it. He can edit the handoff draft doc at this point too.
+Return both doc URLs and tell Matt: **move the report doc from Reports to Handoff** on new projects (or from the legacy draft folder to that project's established client-visible report folder). Confirm the destination is client-visible. This is his action, not the skill's. The report stays team-only until he moves it. He can edit the handoff draft doc at this point too.
 
 ### 7c. Post the handoff message
 
@@ -375,7 +375,7 @@ Return the message URL, and remind Matt to tag it with the **📊 Report** messa
 
 One line to Matt: the report doc URL, the handoff draft doc URL, the message URL, and where the durable artifacts live (`~/.local/share/tribunal/history/<slug>/` — this month's run is next month's baseline). `/tmp` files are scratch; the history is the record. Never delete history.
 
-**Close the loop in the Project Context doc:** the per-cycle record lives in the master `Project Context` doc. Find it at the Internal root (exact title, the master doc built by `project-setup`): append one dated row to its `## Log` table — delivered date + channel (email / Basecamp) + items pending client approval (staged work, transfer asks). Same write loop as every context-doc edit: fresh fetch, splice the row above `</tbody>`, publish with `--content "$(cat file)"`, verify prior rows survived. The log is the project's history — every cycle records itself, never a manual afterthought.
+**Close the loop in the Project Context doc:** find the master doc at the Internal root and append one dated row to its `## Log` table (`Date` and `Summary`); put delivered date, channel and pending items in Summary. Fresh-fetch and locate `Log` by heading; insert into its table using the returned content's actual format (rendered HTML or Markdown), not an assumed `</tbody>` string. Verify prior rows survived before publishing.
 
 **If the master `Project Context` doc does not exist for this client yet** (built against `SEO — Project Context` before `project-setup` shipped), fall back to the old home: append the same row to `SEO — Project Context` → `## Research log` (Internal → SEO vault). When the master doc is later created, note to Matt that the cycle history moves with the repoint migration.
 
@@ -383,7 +383,7 @@ One line to Matt: the report doc URL, the handoff draft doc URL, the message URL
 
 The mechanic: `files update --content` replaces the **whole body every time** — Basecamp has no partial edit. Drift enters two ways: **regeneration** (an agent rewrites untouched sections, so phrasing drifts) and **stale writes** (publishing a copy fetched before an outside change). The pattern that prevents both:
 
-1. **Canonical file first.** The report's canonical body lives in a stable path outside `/tmp` — `~/Work/safaii-studio/reports/<project-slug>/report-<YYYY-MM>.html` — written at publish and kept for the cycle. Every edit patches *that file*, then publishes it. Never publish "a fresh fetch plus a small change" unless the fetch is first verified equal to canonical.
+1. **Canonical file first.** The report's canonical body is the final rendered HTML from the chart-embedding step, saved at `~/Workspaces/safaii-studio/reports/<project-slug>/report-<YYYY-MM>.html` after publish and kept for the cycle. It is not the initial Markdown draft. Every edit patches *that file*, then publishes it. Never publish "a fresh fetch plus a small change" unless the fetch is first verified equal to canonical.
 2. **Patch, never regenerate.** An edit is a targeted string replacement inside the current content. Untouched sections must come out byte-identical — after any edit, diff the published body against canonical: only the intended lines may differ.
 3. **Fresh fetch before every write.** If the live doc differs from canonical (outside edits landed), stop and show Matt the diff — never write over unknown changes.
 4. **Verify on re-read — twice.** Content probes (key sentences, table counts, chart count) after every publish; a failed probe stops the run — never "fix it up" by regenerating. Then audit with Basecamp's own diff: every update lands as a version at `/documents/<doc-id>/changes/<version-id>` with an inline green/red diff — open it and confirm **only the intended lines show green/red**. A diff that touches more than the edit intended is a dirty write: stop, restore from canonical, republish.
@@ -398,9 +398,9 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 |---------|-------|-----|
 | Report posted to the wrong project | Trusted a guessed project instead of matching by name | `basecamp_project_id` comes from `projects list --json` matching the client's name, nowhere else |
 | 404 / wrong account on publish | Relied on the CLI default account | Always pass `-a 6191443` (Safaii Studio) explicitly |
-| Report doc landed client-visible | Created with `--visible-to-clients` or in Deliverables | Reports are born in Internal > Reports (team-only); the move to Deliverables is Matt's ship gate |
+| Report doc landed client-visible | Created with `--visible-to-clients` or in Handoff | Reports are born in Reports (team-only); the move to Handoff is Matt's ship gate |
 | Report doc empty | Content not passed (or `-` on a pre-v0.10.0 CLI) | Pass content as an argument or via stdin `-` (v0.10.0+); verify content length after create |
-| Message sent before the move | Posted the handoff to a doc still in Internal | The handoff message posts only after Matt confirms the doc is in Deliverables |
+| Message sent before the move | Posted the handoff to a doc still in Reports | The handoff message posts only after Matt confirms the doc is in Handoff |
 | Handoff posted from scratch | Skipped the handoff draft doc | The message uses the drafted handoff doc's content — create it in step 7a, review, then post |
 | Client A's numbers appear in client B's report | Reused /tmp scratch files across runs | Scratch files are per-client-per-run keyed by project id; re-fetch, never reuse |
 | "Fixed" claim for something never re-checked | Skipped the diff's `coverage_changes` guard | Cross-check every resolved finding against `coverage_changes` before drafting it |

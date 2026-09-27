@@ -1,6 +1,6 @@
 ---
 name: seo-rank-tracking
-description: Track keyword positions for one client over time — reads the saved-keyword set from the client's SEO — Keyword Research doc, runs a fresh SERP check per keyword, and appends a dated section to the SEO — Rank Tracker doc in that client's Internal > SEO folder. Basecamp is the record. Pure measurement of an already-confirmed set — no confirmation gate, no judgment calls. Use when Matt says "run rank tracking for [client]", "rank check [client]", "update the rank tracker", "where are we ranking for [keyword]", "/seo-rank-tracking". The saved-keyword set is the contract this skill reads; the appended history is what client-report folds into monthly reports. Never recreate the doc under a new title.
+description: Track keyword positions for one client over time — reads the saved-keyword set from the client's SEO — Keyword Research doc, runs a fresh SERP check per keyword, and appends a dated section to the SEO — Rank Tracker doc in Working on new projects. Basecamp is the record. Pure measurement of an already-confirmed set — no confirmation gate, no judgment calls. Use when Matt says "run rank tracking for [client]", "rank check [client]", "update the rank tracker", "where are we ranking for [keyword]", "/seo-rank-tracking". The saved-keyword set is the contract this skill reads; the appended history is what client-report folds into monthly reports. Never recreate the doc under a new title.
 ---
 
 # SEO Rank Tracking Skill
@@ -21,8 +21,8 @@ Load the **dataforseo** skill for the full catalog and hard rules. The essential
 ## Fixed context
 
 - Basecamp account: always `-a 6191443` (Safaii Studio), passed explicitly — never rely on the CLI default. This skill only ever runs against the Safaii account.
-- Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `project_id` and `seo_folder_id` exactly as `seo-project-setup` does — do not invent a second folder walk.
-- The doc lives in the client's **Docs & Files → Internal → SEO folder**, team-only, titled **`SEO — Rank Tracker`** — a stable contract, never recreated.
+- Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `SEO — Project Context` in Internal → SEO. For research docs, check exact titles in Working and legacy Internal → SEO; stop if both have the same title. Use the existing folder id for updates, or Working for first create (`research_folder_id`).
+- The doc lives in **Working on new projects**, or its existing legacy Internal → SEO folder, team-only, titled **`SEO — Rank Tracker`** — a stable contract, never recreated.
 - **Basecamp 5 renders markdown** — write docs in markdown, GFM tables included.
 
 ## Workflow
@@ -37,7 +37,7 @@ Find `SEO — Project Context` and read it — the domain, target markets, compe
 
 ### 2. Load the saved-keyword set
 
-Find `SEO — Keyword Research` in the SEO folder. Read **only** the `## Saved keywords` table (the tracking contract — keyword, cluster) and the `## Research run` header. **Refuse to run if it's missing or undated:** if the doc is absent, `## Saved keywords` is missing or empty, or the `## Research run` header carries no `Date:`, tell Matt to run `keyword-research` first and stop — never invent keywords to track, and never track a set whose snapshot date isn't recorded.
+Find `SEO — Keyword Research` by exact title in Working or legacy Internal → SEO; stop if both exist. Read **only** the `## Saved keywords` table (the tracking contract — keyword, cluster) and the `## Research run` header. **Refuse to run if it's missing or undated:** if the doc is absent, `## Saved keywords` is missing or empty, or the `## Research run` header carries no `Date:`, tell Matt to run `keyword-research` first and stop — never invent keywords to track, and never track a set whose snapshot date isn't recorded.
 
 **Location:** US by default. The SERP `location_name` matches the KR run header's `Location:` when that field is present (it's only set when non-US); otherwise US. If the context doc and KR disagree, stop and ask — don't silently pick one.
 
@@ -49,7 +49,7 @@ Find `SEO — Rank Tracker` and read the newest run's date, location, and device
 
 For each saved keyword, one SERP check (Google, `location_name` from step 2, `language_code: en`):
 
-- **Depth 100 via the REST API, not the MCP tool.** Depth-100 `serp/google/organic/live/advanced` responses are ~2000 lines each — through the MCP tool they flood session context and blow up the run. Instead call the DataForSEO REST endpoint directly: `POST https://api.dataforseo.com/v3/serp/google/organic/live/advanced` with body `[{"keyword": "...", "location_name": "...", "language_code": "en", "depth": 100}]`, header `Authorization: Basic $DATAFORSEO_BASIC_AUTH`. Use a small script (see the shared rank-check script) that extracts only the client's rank/URL, the current #1 domain, and organic-item count per keyword — not the raw payload. Token from the env var if set; only fall back to `op read` if the env is empty (op read is headless-safe via the 1Password service account since 2026-09-06 — no more stale-session failures).
+- **Depth 100 via the REST API, not the MCP tool.** Depth-100 `serp/google/organic/live/advanced` responses are ~2000 lines each — through the MCP tool they flood session context and blow up the run. Instead call the DataForSEO REST endpoint directly: `POST https://api.dataforseo.com/v3/serp/google/organic/live/advanced` with body `[{"keyword": "...", "location_name": "...", "language_code": "en", "device": "mobile", "depth": 100}]` for a mobile run (use `"desktop"` for a desktop run), header `Authorization: Basic $DATAFORSEO_BASIC_AUTH`. The API defaults to **desktop** when `device` is omitted. Set `device` explicitly from the requested/tracker-config device on **every task**, including any helper script, and verify the response device before saving the run. Extract only the client's rank/URL, the current #1 domain, and organic-item count per keyword — not the raw payload. Token from the env var if set; only fall back to `op read` if the env is empty.
 - Find the client's domain in the organic results.
 - Record the **actual organic position through 100** — not just top 10. "Not in top 10" lumps position 11 with position 80, and the striking-distance terms KR cared about (positions 5–20) live right there. Use `not in top 100` when the client isn't found.
 - **Ranking URL (client URL only):** the URL the client ranks with — that's what you act on (wrong page, cannibalization, money page never ranking). A competitor URL in this column is a bug — the `#1` column already covers them.
@@ -78,20 +78,20 @@ Keyword count:
 
 - **`## Tracker config`** — a stable header above the runs: Domain, Location, Device, Saved-set date, Keyword count. **Replace this block each run**; leave every `## Run —` section alone. Without it, after a few runs nobody remembers the device or which saved set the history is against.
 - **Newest run first**, inserted above the previous one.
-- **Device: mobile by default** (unless Matt says otherwise) — desktop+mobile doubles spend and splits the history. The choice lives in Tracker config.
+- **Device: mobile by default** (unless Matt says otherwise) — desktop+mobile doubles spend and splits the history. The choice lives in Tracker config and must match the request and response. If the device cannot be verified, write `unknown`, not `mobile`.
 - **Change column** compares to the previous run's row where one exists; "—" on the first run or for keywords not in the prior run.
 - **Saved-set fingerprint:** if the saved table changed since the last run (KR replaced it), log "set changed (N added / N removed)" — so a sea of `—` isn't read as a ranking collapse.
 - Runs insert; they never replace earlier content.
 
 **The write loop (every write, every time):**
 
-1. Find the doc by exact title in the SEO folder — never create a second copy.
+1. Find the doc by exact title in Working and legacy Internal → SEO — stop on duplicates; never create a second copy.
 2. Read the full markdown into memory.
 3. Update `## Tracker config`; **insert** the new run section above the previous one — leave every existing run untouched.
-4. Upload the **entire** doc as an update of that same file id (`--vault <seo_folder_id>`).
+4. Upload the **entire** doc as an update of that same file id (`--vault <research_folder_id>`).
 5. Re-read and assert the prior runs still exist, the title and vault are unchanged, and the content is non-empty.
 
-First create only if the exact title is missing in the SEO folder. Create: `basecamp -a 6191443 files doc create "SEO — Rank Tracker" "<markdown>" --in <project_id> --vault <seo_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <seo_folder_id> --json`.
+First create only if the exact title is missing in both Working and legacy Internal → SEO. Create in Working: `basecamp -a 6191443 files doc create "SEO — Rank Tracker" "<markdown>" --in <project_id> --vault <research_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <research_folder_id> --json`.
 
 **`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+)** — prefer `-` for large or multiline markdown to avoid shell quoting and argument-length limits. Verify content length after any write.
 

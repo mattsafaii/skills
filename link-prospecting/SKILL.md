@@ -1,6 +1,6 @@
 ---
 name: link-prospecting
-description: Find link prospects for one client's linkable asset — resource pages, listicles, comparisons, directories, and competitor backlink patterns that have a real reason to mention it — then discover contact paths and draft outreach, written to the client's SEO — Link Prospects — <asset-slug> doc in Basecamp (Internal > SEO). One asset per doc. Use when Matt says "link prospecting for [client]", "find link prospects", "/link-prospecting", "who should link to [asset]", or "outreach targets for [asset]". Needs an existing linkable asset (guide, study, tool, template, strong point of view) — never prospect for a page that doesn't exist yet. Never recreate the doc under a new title.
+description: Find link prospects for one client's linkable asset — resource pages, listicles, comparisons, directories, and competitor backlink patterns that have a real reason to mention it — then discover contact paths and draft outreach, written to the client's SEO — Link Prospects — <asset-slug> doc in Basecamp (Working on new projects). One asset per doc. Use when Matt says "link prospecting for [client]", "find link prospects", "/link-prospecting", "who should link to [asset]", or "outreach targets for [asset]". Needs an existing linkable asset (guide, study, tool, template, strong point of view) — never prospect for a page that doesn't exist yet. Never recreate the doc under a new title.
 ---
 
 # Link Prospecting Skill
@@ -23,9 +23,9 @@ Load the **dataforseo** skill for the full catalog and hard rules. The essential
 ## Fixed context
 
 - Basecamp account: always `-a 6191443` (Safaii Studio), passed explicitly — never rely on the CLI default. This skill only ever runs against the Safaii account.
-- Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `project_id` and `seo_folder_id` exactly as `seo-project-setup` does — do not invent a second folder walk.
+- Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`. Resolve `SEO — Project Context` in Internal → SEO. For research docs, check exact titles in Working and legacy Internal → SEO; stop if both have the same title. Use the existing folder id for updates, or Working for first create (`research_folder_id`).
 - Inputs come from Basecamp, never re-researched: the client's domain and positioning from `SEO — Project Context`, the competitors from its `## Competitors`, and the backlink observations from `competitor-analysis` docs (`SEO — Competitor — <domain>`) when they exist.
-- **The doc is one per asset**, titled **`SEO — Link Prospects — <asset-slug>`** (e.g. `SEO — Link Prospects — lte-coverage-map`), slugged from the live URL path — lowercase, path slug only, no scheme, no host, no trailing slash — or a short name Matt confirms before create. It lives in the client's **Docs & Files → Internal → SEO folder**, team-only, never recreated. Prospect the guide in March and the calculator in April → two docs, neither clobbered.
+- **The doc is one per asset**, titled **`SEO — Link Prospects — <asset-slug>`** (e.g. `SEO — Link Prospects — lte-coverage-map`), slugged from the live URL path — lowercase, path slug only, no scheme, no host, no trailing slash — or a short name Matt confirms before create. It lives in Working on new projects (or its existing legacy Internal → SEO folder), team-only, never recreated. Prospect the guide in March and the calculator in April → two docs, neither clobbered.
 - **Basecamp 5 renders markdown** — write docs in markdown, GFM tables included.
 
 ## Workflow
@@ -145,13 +145,13 @@ Reason to reference:
 
 **The write loop (every write, every time):**
 
-1. Find the doc by exact title in the SEO folder — never create a second copy.
+1. Find the doc by exact title in Working and legacy Internal → SEO — stop on duplicates; never create a second copy.
 2. Read the full markdown into memory.
 3. Patch the asset line, prospect table, drafts, and notes; **replace** the prospect table with the newly confirmed one; **append** a Research log row — leave prior rows and other sections untouched.
-4. Upload the **entire** doc as an update of that same file id (`--vault <seo_folder_id>`).
+4. Upload the **entire** doc as an update of that same file id (`--vault <research_folder_id>`).
 5. Re-read and assert the other sections still exist, the title and vault are unchanged, and the content is non-empty.
 
-First create only if the exact title is missing in the SEO folder. Create: `basecamp -a 6191443 files doc create "SEO — Link Prospects — <asset-slug>" "<markdown>" --in <project_id> --vault <seo_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <seo_folder_id> --json`.
+First create only if the exact title is missing in both Working and legacy Internal → SEO. Create in Working: `basecamp -a 6191443 files doc create "SEO — Link Prospects — <asset-slug>" "<markdown>" --in <project_id> --vault <research_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <research_folder_id> --json`.
 
 **`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+)** — prefer `-` for large or multiline markdown to avoid shell quoting and argument-length limits. Verify content length after any write.
 

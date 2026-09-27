@@ -27,7 +27,7 @@ Gather from the conversation; ask only for what's missing:
 - **Client name** (required) — used as the Basecamp project name
 - **Template** (required) — Client — Website or Client — Web App
 - **Maintenance plan** (required) — yes/no; recorded in the register so `/client-report` knows who's due
-- **Repo path** (optional) — if the client repo already exists, the skill drops `.basecamp/config.json` there. Client repos live under `~/Work/safaii-studio/clients/`.
+- **Repo path** (optional) — if the client repo already exists, the skill drops `.basecamp/config.json` there. Client repos live under `~/Workspaces/safaii-studio/clients/`.
 
 ### 2. Duplicate guard
 

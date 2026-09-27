@@ -1,6 +1,6 @@
 ---
 name: keyword-research
-description: Find keyword opportunities for one client and write them into that client's SEO — Keyword Research doc in Basecamp (Internal > SEO). Starts with the cheapest signal that has data — Google Search Console striking-distance terms for an established site, seeds + DataForSEO for a new one — then scores and filters, confirms the saved set with Matt, and writes it. Pure keyword research — no backlinks, no clustering. Use when Matt says "keyword research for [client]", "/keyword-research", "find keywords for [client]", or "what keywords should [client] target". The saved-keyword set is the contract the rank-tracking skill reads — never recreate the doc under a new title.
+description: Find keyword opportunities for one client and write them into that client's SEO — Keyword Research doc in Basecamp (Working on new projects). Starts with the cheapest signal that has data — Google Search Console striking-distance terms for an established site, seeds + DataForSEO for a new one — then scores and filters, confirms the saved set with Matt, and writes it. Pure keyword research — no backlinks, no clustering. Use when Matt says "keyword research for [client]", "/keyword-research", "find keywords for [client]", or "what keywords should [client] target". The saved-keyword set is the contract the rank-tracking skill reads — never recreate the doc under a new title.
 ---
 
 # Keyword Research Skill
@@ -21,8 +21,8 @@ Load the **dataforseo** skill for the full catalog and hard rules. The essential
 
 - Basecamp account: always `-a 6191443` (Safaii Studio), passed explicitly — never rely on the CLI default. This skill only ever runs against the Safaii account.
 - Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`, then read the client's `SEO — Project Context` doc (Internal > SEO) for the domain, positioning, competitors, and key pages. The domain comes from the context doc's `Domain:` line — never guessed.
-- GSC data is fetched with the shared script: `~/Work/scripts/gsc-fetch/gsc-fetch.rb` (canonical copy, shared with client-report — no per-skill copies; Ruby stdlib only, no deps). The property comes from the context doc's Search Console section; the service-account JSON is resolved from 1Password (`op://Secrets/GSC Service Account JSON/notesPlain`) — never a file on disk.
-- The doc lives in the client's **Docs & Files → Internal → SEO folder**, team-only, titled **`SEO — Keyword Research`** — a stable contract, never recreated.
+- GSC data is fetched with the shared script: `~/Workspaces/_tools/scripts/gsc-fetch/gsc-fetch.rb` (canonical copy, shared with client-report — no per-skill copies; Ruby stdlib only, no deps). The property comes from the context doc's Search Console section; the service-account JSON is resolved from 1Password (`op://Secrets/GSC Service Account JSON/notesPlain`) — never a file on disk.
+- The doc lives in **Working on new projects**, or its existing legacy Internal → SEO folder, team-only, titled **`SEO — Keyword Research`** — a stable contract, never recreated.
 - **Basecamp 5 renders markdown** — write docs in markdown, GFM tables included.
 
 ## Workflow
@@ -33,9 +33,9 @@ Matt names a client. Match it to a project by name: `basecamp -a 6191443 project
 
 ### 2. Read the project context and your own doc
 
-Resolve `project_id` and `seo_folder_id` exactly as `seo-project-setup` does (match project by name, walk Internal → SEO). Do not invent a second folder walk. Find `SEO — Project Context` and read it — the `Domain:` line, target markets, positioning, competitors, key pages. If it's missing, tell Matt to run `seo-project-setup` first and stop — never research a client whose context isn't recorded.
+Resolve `SEO — Project Context` in Internal → SEO. For research docs, check exact titles in Working and legacy Internal → SEO; stop if both have the same title. Use the existing folder id for updates, or Working for first create (`research_folder_id`). Find `SEO — Project Context` and read it — the `Domain:` line, target markets, positioning, competitors, key pages. If it's missing, tell Matt to run `seo-project-setup` first and stop — never research a client whose context isn't recorded.
 
-Then find `SEO — Keyword Research` and read its **Research log**: if the same research ran within the last 30 days (same client, **same seeds, and same GSC-wired-or-not as the last log row**), reuse that result and say so instead of re-buying it. A run that adds GSC striking-distance terms is *not* the same seed set — don't reuse just because the calendar is inside 30 days.
+Then find `SEO — Keyword Research` by exact title in Working or legacy Internal → SEO (stop if both exist) and read its **Research log**: if the same research ran within the last 30 days (same client, **same seeds, and same GSC-wired-or-not as the last log row**), reuse that result and say so instead of re-buying it. A run that adds GSC striking-distance terms is *not* the same seed set — don't reuse just because the calendar is inside 30 days.
 
 ### 3. Start with the cheapest signal that has data
 
@@ -44,7 +44,7 @@ GSC only shows terms the site *already has impressions for* — it points at whe
 **Established site with GSC history → GSC first.** Striking-distance terms are the highest-ROI keywords you'll find, and it's free, so it sharpens what you spend DataForSEO money on. Fetch the property from the context doc:
 
 ```bash
-cd ~/Work/scripts/gsc-fetch
+cd ~/Workspaces/_tools/scripts/gsc-fetch
 GSC_SERVICE_ACCOUNT_JSON="$(op read 'op://Secrets/GSC Service Account JSON/notesPlain')" \
 ruby gsc-fetch.rb \
   --property "<GSC_PROPERTY from context doc>" \
@@ -55,7 +55,7 @@ ruby gsc-fetch.rb \
 Use the output to sharpen the research before buying anything:
 - **Striking-distance terms** — queries at positions 5–20 with impressions are the highest-ROI seeds; add them to the candidate list even if they're not in the seed set. These get worked first.
 - **Pages with existing demand** — top pages by impressions tell you which existing pages deserve keyword work; note them for clustering.
-- **Cannibalization — from real data, not structure.** The `query_page` output maps each query to the URLs earning its impressions. A query appearing against **two different URLs** is confirmed cannibalization — flag it in the research log so `keyword-clustering` reads it. If the query_page table is empty (GSC skipped or no combined rows), don't invent it.
+- **Possible page overlap — from real data, not structure.** The `query_page` output maps each query to URLs earning impressions. A query appearing against two URLs is a signal to inspect, **not proof of cannibalization**: distinct pages may serve distinct intents or appear at different times. Record the query, URLs, impressions/clicks, and date range as an overlap candidate for `keyword-clustering`. If the table is empty, don't invent a flag.
 
 **New or empty site → skip GSC, go straight to DataForSEO.** A brand-new property has no impressions yet — GSC starts collecting the moment the site gets traffic, so a fetch on a new project returns zeros. That's not a failure and not a stall: note "GSC too new, no data yet" in the research log and run the research on DataForSEO from the context doc's seeds. If GSC isn't wired at all (no note in the context doc, or the service account hasn't been added to the property), same thing — skip with a one-line note, never fail the run, never fabricate first-party data.
 
@@ -135,13 +135,13 @@ GSC: wired | skipped
 
 Basecamp docs are full-document replace. On a re-run, create-or-replace-the-whole-file would wipe the previous research log and any saved set Matt already confirmed. The procedure:
 
-1. Find the doc by exact title in the SEO folder — never create a second copy.
+1. Find the doc by exact title in Working and legacy Internal → SEO — stop on duplicates; never create a second copy.
 2. Read the full markdown into memory.
 3. Patch the clusters; **replace** `## Saved keywords` with the newly confirmed set (rank-tracking needs a single current set — old sets live in the research log, don't accumulate); **append** a Research log row — leave the prior log rows and other sections untouched.
-4. Upload the **entire** doc as an update of that same file id (`--vault <seo_folder_id>`).
+4. Upload the **entire** doc as an update of that same file id (`--vault <research_folder_id>`).
 5. Re-read and assert the other sections still exist, the title and vault are unchanged, and the content is non-empty.
 
-First create only if the exact title is missing in the SEO folder. Create: `basecamp -a 6191443 files doc create "SEO — Keyword Research" "<markdown>" --in <project_id> --vault <seo_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <seo_folder_id> --json`.
+First create only if the exact title is missing in both Working and legacy Internal → SEO. Create in Working: `basecamp -a 6191443 files doc create "SEO — Keyword Research" "<markdown>" --in <project_id> --vault <research_folder_id> --json`. Every later write: `basecamp -a 6191443 files update <document_id> --content "<markdown>" --in <project_id> --vault <research_folder_id> --json`.
 
 **`files doc create` takes the body as an argument, or as `-` to read stdin (CLI v0.10.0+)** — prefer `-` for large or multiline markdown to avoid shell quoting and argument-length limits. Verify content length after any write.
 

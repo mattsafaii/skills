@@ -31,9 +31,9 @@ decisions so provisioning is repeatable without re-litigating them.
 
 ## Key paths
 
-- Cloud-config: `~/Work/scripts/Server Config Script/digitalocean-cloud-config.yaml`
-- Kamal accessory security: `~/Work/scripts/Server Config Script/kamal-accessory-security.md`
-- Cloudflare Tunnel eval: `~/Work/scripts/Server Config Script/cloudflare-tunnel-vs-ufw-proxy.md`
+- Cloud-config: `~/Workspaces/_tools/scripts/Server Config Script/digitalocean-cloud-config.yaml`
+- Kamal accessory security: `~/Workspaces/_tools/scripts/Server Config Script/kamal-accessory-security.md`
+- Cloudflare Tunnel eval: `~/Workspaces/_tools/scripts/Server Config Script/cloudflare-tunnel-vs-ufw-proxy.md`
 
 ## Workflow
 
