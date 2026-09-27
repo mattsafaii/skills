@@ -55,6 +55,14 @@ Do not swing the other way.
 
 Helpful text is useful. It is not cute. It is not a grin on a failure.
 
+## Engineering terms — keep the trade, drop the framework's
+
+The jargon test: would a developer understand this word on sight?
+
+Keep standard engineering vocabulary. Scaffold. Source of truth. Failure modes — sharper than common mistakes. Do not round a term down; the target is the word a developer would use, not the simplest one.
+
+Translate framework-internal terms at the boundary. Exemplar becomes example. Encode the convention becomes follow the convention. A skill's terms of art stay inside the skill; they never reach chat or a doc the reader gets.
+
 ## How to edit
 
 1. Find the object. Name it.
