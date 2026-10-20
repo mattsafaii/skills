@@ -2,7 +2,7 @@
 
 Base URL: `https://api.usefathom.com/v1`. Headers: `Authorization: Bearer <token>`, `Accept: application/json`. Tokens generated at `app.usefathom.com/api`. Every request counts against the site's monthly pageview allowance.
 
-**Tokens have scopes.** `GET /token` returns the current token's permissions — check it before attempting any create/update/delete. A read-only token (e.g. one set up only for aggregation reads) will fail on `POST`/`DELETE` calls even though the request is otherwise correct. The shared token at `op://Secrets/Fathom API Token/password` was provisioned read-only for client-report's reporting use — don't assume it can write.
+**Tokens have scopes.** `GET /token` returns the current token's permissions — check it before any create/update/delete. The token at `op://Secrets/Fathom API Token/password` (`agent-automation`) has `abilities: ["*"]`, full access. A scoped-down token fails on `POST`/`DELETE` even though the request is otherwise correct.
 
 ## Create a site
 

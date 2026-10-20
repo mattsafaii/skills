@@ -85,12 +85,12 @@
 		{
 			"id": 8,
 			"prompt": "[approved plan, starting the execute phase] Go ahead and create the events in Fathom.",
-			"expected_output": "Checks GET /token first to confirm the token has write access before attempting any POST. If the token turns out to be read-only, stops and asks for a write-scoped token (offering to use it for this run or have it swapped into the 1Password item at op://Secrets/Fathom API Token) rather than attempting the create call and failing, or silently trying alternate auth.",
+			"expected_output": "Checks GET /token first to confirm the token's scope before attempting any POST. The token at op://Secrets/Fathom API Token/password has full access (abilities: [\"*\"]), so it proceeds to create the events. If a call 401s or 403s, it re-checks /token rather than trying alternate auth or repeating the failing call.",
 			"files": [],
 			"expectations": [
 				"Calls GET /token before attempting to create anything",
-				"If read-only, stops and asks for a write-scoped token rather than proceeding to a failing POST",
-				"Notes that updating the shared 1Password item is safe since write access covers client-report's read-only needs too"
+				"Confirms the token has write access, then proceeds",
+				"If a call fails on auth, re-checks /token rather than silently trying alternate auth"
 			]
 		},
 		{

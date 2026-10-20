@@ -45,7 +45,7 @@ The originating spec, in this order:
 
 ## 3. Find the standards
 
-Anything the repo documents about how code is written — `AGENTS.md`, `README.md`, `CONTRIBUTING.md`, `CODING_STANDARDS.md`. On top of that, pull the stack skills when they apply: `safaii-css` and `safaii-html` for markup and CSS, `dhh-rails-style` for Ruby and Rails, and `~/.config/opencode/STACKS.md` for the stack's own rules.
+Anything the repo documents about how code is written — `AGENTS.md`, `README.md`, `CONTRIBUTING.md`, `CODING_STANDARDS.md`. On top of that, pull the stack skills when they apply: `safaii-css` and `safaii-html` for markup and CSS, `dhh-rails-style` for Ruby and Rails, plus the stack rules a project documents for itself (`DESIGN.md`, `PATTERNS.md`).
 
 Above whatever the repo documents, the Standards reviewer always carries the **smell baseline** below — a fixed set of Fowler code smells (*Refactoring*, ch.3) that applies even when a repo documents nothing. Two rules bind it:
 
@@ -75,13 +75,13 @@ A removed signal is a lead, not a finding. Check for an equivalent replacement f
 
 ## 5. Spawn the reviewers in parallel
 
-**Standards and Spec always run. Interface runs when the diff touches user-facing code** — markup, CSS, a component, a style token, or copy. Split a sibling pane per reviewer and start a read-only OpenCode (unattended) agent in each — follow the `herdr` skill. Herdr agent names are lowercase:
+**Standards and Spec always run. Interface runs when the diff touches user-facing code** — markup, CSS, a component, a style token, or copy. Split a sibling pane per reviewer and start a read-only Pi agent in each (`--tools read,grep,find,ls`) — follow the `herdr` skill. Herdr agent names are lowercase:
 
 ```bash
 herdr pane split --current --direction right --no-focus      # one per reviewer
-herdr agent start review-standards --kind opencode --pane <pane-id>
-herdr agent start review-spec --kind opencode --pane <pane-id>
-herdr agent start review-interface --kind opencode --pane <pane-id>   # only when UI
+herdr agent start review-standards --kind pi --pane <pane-id>
+herdr agent start review-spec --kind pi --pane <pane-id>
+herdr agent start review-interface --kind pi --pane <pane-id>   # only when UI
 ```
 
 Then submit each brief with `--wait` (rather than polling), and read them back:
@@ -135,9 +135,9 @@ If something fails in a way this section doesn't cover, show Matt the raw error 
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Two `code-review` skills available | Pocock's copy still installed alongside this one | Remove the `~/.agents/skills` copy: `npx skills remove -g -y code-review`. Note the CLI deletes same-named skills from `~/Workspaces/_tools/skills` too, so recreate this file afterward if it vanished. |
-| Not running inside Herdr | Skill invoked outside a managed pane | Run the reviews sequentially as sub-agents instead (Task tool, `general-purpose`), still one independent context each |
-| Reviewer hangs or never goes idle | It hit a permission prompt | Check `herdr agent get` / `herdr agent read`; spawn reviewers as OpenCode (unattended) and clear the prompt rather than re-sending blind |
+| Two `code-review` skills available | Pocock's copy still installed alongside this one | Remove the `~/.agents/skills` copy: `npx skills remove -g -y code-review`. Note the CLI also deletes same-named skills from the other managed skills dirs, so recreate this file afterward if it vanished. |
+| Not running inside Herdr | Skill invoked outside a managed pane | Run each reviewer as a read-only one-shot instead — `pi --tools read,grep,find,ls --print "<brief>"` — still one independent context each |
+| Reviewer hangs or never goes idle | It is waiting on input, or the brief is unclear | Check `herdr agent get` / `herdr agent read` first; answer what it asked rather than re-sending blind |
 | Empty or bad diff | Fixed point didn't resolve | `git rev-parse <fixed-point>`; fix the ref before spawning anything |
 | Standards reviewer invents conventions | Repo documents none and the smell baseline wasn't pasted in | Paste the baseline into the brief in full — the reviewer can't see this file |
 | Interface axis run when nothing user-facing changed | The trigger didn't check for markup/CSS/component/copy | Skip it; Standards and Spec suffice |

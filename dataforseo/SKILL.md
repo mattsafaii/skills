@@ -9,24 +9,27 @@ External SEO data via the DataForSEO MCP server (v3). The server exposes four to
 
 ## Setup / availability
 
-- Requires the `dataforseo` MCP server (v3, remote at `https://mcp.dataforseo.com/v3/mcp`). Auth is **OAuth**, set up once with `opencode mcp auth dataforseo` (opens the browser). opencode stores the token in `~/.local/share/opencode/mcp-auth.json` and refreshes it. Check with `opencode mcp list`; run `opencode mcp auth dataforseo` again if the tools go missing or calls return 401.
-- `DATAFORSEO_BASIC_AUTH` (resolved from 1Password at shell start, see `~/.zshrc`) is **only** for direct REST calls — `seo-rank-tracking` hits `api.dataforseo.com` with it. The MCP uses OAuth, not this variable.
-- **No `dataforseo_*` tools present? Say so and stop** — never fabricate or approximate SEO data from memory. Skip whatever step wanted it.
+- Requires the `dataforseo` MCP server (v3, remote at `https://mcp.dataforseo.com/v3/mcp`), configured in `~/.pi/agent/mcp.json` with a **Basic auth** header — `Authorization: Basic ${DATAFORSEO_BASIC_AUTH}`. The credential is `base64(login:password)`, resolved from 1Password into `DATAFORSEO_BASIC_AUTH` at shell start (see `~/.zshrc`). It is **not** OAuth: there is no sign-in step, and nothing expires to refresh.
+- Check with `pi mcp list` — it should print `dataforseo: connected, 4 tools`. If the tools are missing, `DATAFORSEO_BASIC_AUTH` isn't set or the header is wrong; an expired token is not the failure mode.
+- The same `DATAFORSEO_BASIC_AUTH` is what `seo-rank-tracking` uses for direct REST calls to `api.dataforseo.com` — one credential, two paths.
+- **No dataforseo tools present? Say so and stop** — never fabricate or approximate SEO data from memory. Skip whatever step wanted it.
 - Costs are pay-as-you-go against the account balance — no subscription.
 
 ## The four tools
 
-- `dataforseo_api_request` — `{ method, path | url, data, noAiMode }`. Makes the authenticated call. `path` is the API path (`/v3/…`); `data` is the task array for POST endpoints.
-- `dataforseo_docs_search` — `{ url }`. Returns an endpoint's request/response documentation. Call it when the body isn't in the catalog below.
-- `dataforseo_docs_index` / `dataforseo_docs_list_sections` — browse the documentation when you need an endpoint that isn't listed here.
+Tools are named `mcp__dataforseo__<tool>`; from a codemode script they are `tools.mcp__dataforseo__<tool>`. Same arguments either way.
+
+- `api_request` — `{ method, path | url, data, noAiMode }`. Makes the authenticated call. `path` is the API path (`/v3/…`); `data` is the task array for POST endpoints.
+- `docs_search` — `{ url }`. Returns an endpoint's request/response documentation. Call it when the body isn't in the catalog below.
+- `docs_index` / `docs_list_sections` — browse the documentation when you need an endpoint that isn't listed here.
 
 Call pattern:
 
 ```
-dataforseo_docs_search({ url: "backlinks/summary/live" })         # confirm fields if unsure
-dataforseo_api_request({ method: "POST",
-                         path: "/v3/backlinks/summary/live",
-                         data: [{ target: "example.com" }] })
+mcp__dataforseo__docs_search({ url: "backlinks/summary/live" })      # confirm fields if unsure
+mcp__dataforseo__api_request({ method: "POST",
+                               path: "/v3/backlinks/summary/live",
+                               data: [{ target: "example.com" }] })
 ```
 
 `noAiMode` defaults to `false`, which returns a flattened, AI-optimized subset — results at the top level, some fields dropped. Set `noAiMode: true` for the standard nested schema (`tasks[].result[].items[]`) with every field present, when a call needs specific raw fields (for example `cid`/`place_id` on local listings). It inflates context, so use it only then.

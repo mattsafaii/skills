@@ -51,7 +51,7 @@ Wait for explicit approval. Revise in place if Matt wants changes — don't crea
 
 ### 4. Execute
 
-**Check the token's scope before creating anything**: `GET /token`. The shared token at `op://Secrets/Fathom API Token/password` was set up for client-report's read-only aggregation pulls — it may not have write access, and a create call will fail if it doesn't. If it's read-only, ask Matt to generate a write-scoped token at `app.usefathom.com/api` and either paste it for this run or update the 1Password item (safe — write access is a superset of what client-report needs, so the swap doesn't break it).
+**Check the token's scope before creating anything**: `GET /token`. The token at `op://Secrets/Fathom API Token/password` (`agent-automation`) carries `abilities: ["*"]` — full access, verified — so it can read and create. Still call `GET /token` first: a scoped-down replacement would fail on `POST`/`DELETE` while otherwise looking correct, and that's the failure to catch before a half-finished run, not after.
 
 On approval, in order:
 1. Create the site first if step 1 didn't find one (`POST /sites`).
@@ -140,7 +140,7 @@ Persists in that browser's local storage indefinitely. Reverse with `fathom.enab
 
 Base URL: `https://api.usefathom.com/v1`. Bearer token auth — generate a token at `app.usefathom.com/api`. **Every API call counts against the site's monthly pageview allowance** — don't poll in a loop.
 
-The token lives in 1Password at `op://Secrets/Fathom API Token/password` (shared with the client-report skill — one token, don't create a second).
+The token lives in 1Password at `op://Secrets/Fathom API Token/password` (one token for the studio, shared with client-report — don't create a second).
 
 ```bash
 TOKEN=$(op read 'op://Secrets/Fathom API Token/password')

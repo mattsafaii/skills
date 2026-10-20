@@ -24,7 +24,7 @@ Schema is optional per job — the process says "schema for the objects you mapp
 1. **`Project Context`** — at the root of Internal. Read **Business** (legal name, domain, address, phone, email, social profiles) for the org node. **Missing → stop; tell Matt to run `project-setup`.**
 2. **`Structure — Fields`** — in Working. The mapped objects decide which entity types apply (`Product`, `Service`). **Missing → stop; run `structure-map`.**
 3. **`Structure — Sitemap`** — in Working. The page types decide `WebSite`, `BreadcrumbList`, and where `Product` / `Service` / `FAQPage` attach.
-4. **The templates and the loaded catalog** — in the repo (`~/Workspaces/safaii-studio/clients/<slug>/site/`), to read the real values each page shows.
+4. **The templates and the loaded catalog** — in the client's repo under `~/Code/` (`~/Code/<slug>/`), to read the real values each page shows.
 
 ## Where the markup goes (repo)
 
