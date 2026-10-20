@@ -17,7 +17,7 @@ So this skill writes **learning docs** (narrative, the hard part) into Basecamp,
 
 **Completeness means: every module/file is accounted for and explained at the right altitude — nothing silently skipped.** It does *not* mean every symbol gets a hand-written entry. Important functions get real narrative depth (what, how, why, gotchas); a trivial one-line getter gets a mention, not a templated stub. Symbol-by-symbol completeness is the generated reference's job.
 
-**This runs inside the repo.** It reads the code, so cwd must be the project directory (`~/Workspaces/safaii-studio/lab/<name>`). The build agent runs it there as a finalize step; standalone, Matt runs it from inside the repo. For non-trivial codebases this is a large job — parallelize the Module Guide with subagents (step 3).
+**This runs inside the repo.** It reads the code, so cwd must be the project directory (`~/Code/<name>`). The build agent runs it there as a finalize step; standalone, Matt runs it from inside the repo. For non-trivial codebases this is a large job — parallelize the Module Guide with subagents (step 3).
 
 ---
 

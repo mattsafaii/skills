@@ -2,7 +2,7 @@
 
 **August cycle (Konnected Concepts) — closed 8 Sep 2026.** First end-to-end run through the frozen pipeline. Delivery: HEY email scheduled 6am 9 Sep (handoff letter pasted + report PDF attached — Mehari is not on Basecamp; delivery channel recorded in the context doc). Report doc "Site report — August 2026" awaits Matt's move to Deliverables > Reports. Five review items staged on branch `review-content-pass` (Access-protected preview) pending Mehari's approval, then merge to master.
 
-**Next:** Oct 3 2026 — launchd `com.mattsafaii.client-monthly` first run (Site report — September 2026, Konnected). Prep script + full-query pull ready. Lead-gate build queued as Backlog card 10280166755 (design done). Guru Packaging context doc + Mercury Net 10 still open on Matt.
+**Next:** the September report for Konnected was never generated — the launchd job `com.mattsafaii.client-monthly` this line relied on was never installed (no such plist in `~/Library/LaunchAgents`). Reports are run by hand until that's rebuilt. Lead-gate build queued as Backlog card 10280166755 (design done). Guru Packaging context doc + Mercury Net 10 still open on Matt.
 
 **Contract changes since the freeze (all Matt/Grok-directed):**
 - Heading "This month" → **"What happened"** (reader-timeless; never This/Last month)
@@ -14,14 +14,14 @@
 - What I did cap (≤4 lines) bent to 5 for August (Pages CMS bullet added at Matt's request)
 
 **Pipeline changes:**
-- `gsc-fetch.rb` now pulls the FULL query list (25k cap) — brand/non-brand split is exact; tested on Konnected Aug (217 rows, 32 brand / 0 non-brand / 23 withheld)
+- `gsc-fetch` (now a Go binary at `~/Code/safaii-tools/scripts/gsc-fetch/gsc-fetch`, run under `op run --env-file=$HOME/.config/op/gsc.env`) pulls the FULL query list (25k cap) — brand/non-brand split is exact; tested on Konnected Aug (217 rows, 32 brand / 0 non-brand / 23 withheld)
 - Scoreboard figcaption carries the pull date + settle note
 - Handoff = a doc in Internal > Reports ("Handoff — <Month>"), NO Message-board post; client delivery = email
 - Step 8 closes the loop: one dated Research-log row in the context doc per cycle (delivered date + channel + pending approvals)
 
 **Wipe incidents (3× on 8 Sep, all recovered from pre-write fetches):** `--content @file` is not supported (×2); publishing `"$(cat missing-file)"` sends empty content. Rules: always `--content "$(cat file)"`, `test -s` before publish, verify stored == canonical after. Anchors must match Basecamp's stored markup (`<li value="N">`, auto-linked URLs, `<p><br></p>` separators).
 
-**Migration architecture (supersedes the pre-project-setup plan agreed 8 Sep):** the master client doc is now a **separate** `Project Context` built by the new `project-setup` skill (`~/Workspaces/_tools/skills/project-setup/`) — one doc per client at Internal root, 11 frozen headings (Business, Contacts, Offer, This engagement, Kit, Access, Key pages, Writing, Constraints, Reporting, Log). The old plan to "promote" `SEO — Project Context` into the master doc is dead: no title/folder move happen.
+**Migration architecture (supersedes the pre-project-setup plan agreed 8 Sep):** the master client doc is now a **separate** `Project Context` built by the new `project-setup` skill (`~/Code/skills/project-setup/`) — one doc per client at Internal root, 11 frozen headings (Business, Contacts, Offer, This engagement, Kit, Access, Key pages, Writing, Constraints, Reporting, Log). The old plan to "promote" `SEO — Project Context` into the master doc is dead: no title/folder move happen.
 
 - **Split of ownership:** company facts (domain, offer, contacts, kit, Fathom, writing rules) live in master `Project Context` (owner: `project-setup`). Search facts (GSC property, Foundation/Growth, brand terms, scoreboard tokens) stay in `SEO — Project Context` (owner: reworked `seo-project-setup` — search add-on, reads Project Context first, never re-asks company facts).
 - **No doc moves → no breakage:** `SEO — …` titles and the Internal → SEO path stay until a later migration, so `client-report-prep.rb` walks Internal → SEO unchanged and the Oct 3 run is safe.

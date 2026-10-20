@@ -13,10 +13,10 @@ Turns tribunal's run history + Fathom + Google Search Console into the monthly p
 
 - Basecamp account: always `-a 6191443` (Safaii Studio), passed explicitly — never rely on the CLI default. Each client's report posts to **that client's own Basecamp project** (matched by name) — never anywhere else.
 - **The report is an artifact, not a message body.** The flow: create the report doc in the client's **Reports** folder (team-only, born hidden), Matt reviews and manually moves it to **Handoff** (client-visible — the move flips visibility), then a short message posts to the client's Message Board with a link to the moved doc. The report itself lives in Docs & Files; the message is the email-body-style handoff.
-- Client and project are resolved from Basecamp, never a local file: the prep script at `~/Workspaces/_tools/scripts/client-report-prep.rb` (see step 1) matches the project by name and reads per-client facts from two context docs. Company facts (domain, Fathom site id + goals) come from the master `Project Context` doc at the root of Internal — built by `project-setup` — and fall back to the SEO doc when the master doc doesn't exist yet. Search facts (GSC property, scoreboard metrics, plan, brand terms) come from the `SEO — Project Context` doc (Internal > SEO).
+- Client and project are resolved from Basecamp, never a local file: the prep script at `~/Code/safaii-tools/scripts/client-report-prep.rb` (see step 1) matches the project by name and reads per-client facts from two context docs. Company facts (domain, Fathom site id + goals) come from the master `Project Context` doc at the root of Internal — built by `project-setup` — and fall back to the SEO doc when the master doc doesn't exist yet. Search facts (GSC property, scoreboard metrics, plan, brand terms) come from the `SEO — Project Context` doc (Internal > SEO).
 - **The SEO docs are consumed, never re-pulled.** Keyword positions come from `SEO — Rank Tracker`'s newest `## Run —` section and `## Tracker config` — never re-run SERP checks here. Market context comes from `SEO — Competitive Landscape`'s `## Market read` when present. On Growth clients the Rankings section is standing: if the docs don't exist, the section says in one line that tracking hasn't produced keyword positions or a market read yet (Foundation omits the heading entirely — see `Plan:`).
-- tribunal lives at `~/Workspaces/safaii-studio/lab/tribunal`; it runs via its Docker image (see step 2).
-- This skill uses the shared prep script at `~/Workspaces/_tools/scripts/client-report-prep.rb` (canonical copy — no per-skill copies) plus the shared GSC helper at `~/Workspaces/_tools/scripts/gsc-fetch/gsc-fetch.rb` (canonical copy, shared with keyword-research — no per-skill copies). No dependencies; Ruby stdlib only.
+- tribunal is on PATH (`~/.local/bin/tribunal`) and its engines are subprocesses it finds there — check coverage with `tribunal doctor` before trusting a thin run (see step 2).
+- This skill uses the shared prep script at `~/Code/safaii-tools/scripts/client-report-prep.rb` (canonical copy — no per-skill copies) plus the shared `gsc-fetch` binary at `~/Code/safaii-tools/scripts/gsc-fetch/gsc-fetch` (canonical copy, shared with keyword-research — no per-skill copies; one Go binary).
 - Local secrets live in 1Password, resolved on demand with `op read` — the Fathom token is `op://Secrets/Fathom API Token/password`, the GSC service-account JSON is `op://Secrets/GSC Service Account JSON/notesPlain`. Both are shared across clients; nothing sits in a file on disk.
 
 ## Per-client facts come from the context docs
@@ -44,7 +44,7 @@ Company facts are owned by the master `Project Context` doc (Internal root, buil
 
 ### 1. Resolve the client
 
-**Preferred: run the prep script in one pass.** `ruby ~/Workspaces/_tools/scripts/client-report-prep.rb "<client name>"` resolves the project by name, reads both context docs (master `Project Context` at the Internal root when it exists — company facts fall back to the SEO doc when not — and `SEO — Project Context` in Internal → SEO for search facts), and returns JSON with everything steps 1–4 need: `master_context` (whether the master doc was used), `domain`, `fathom_site_id`, `fathom_goals`, `gsc_property`, `scoreboard_metrics` + `scoreboard` (each token classified as `fathom_goal` / `fathom_metric` / `gsc_metric` — unknown tokens surface here, at prep time), `plan`, `brand_terms`, **computed windows** (`report_window`, `prev_window`, `ly_window` — start/end dates plus labels; **use these dates everywhere, never do your own month math**), and `ly_available` (whether same-month-last-year is fillable — computed from the Fathom site's created date), plus `rank_tracker` (newest `Run —` + `Tracker config`) and `market_read`. Exit 1 with a message on failure — read the stderr and act on it.
+**Preferred: run the prep script in one pass.** `ruby ~/Code/safaii-tools/scripts/client-report-prep.rb "<client name>"` resolves the project by name, reads both context docs (master `Project Context` at the Internal root when it exists — company facts fall back to the SEO doc when not — and `SEO — Project Context` in Internal → SEO for search facts), and returns JSON with everything steps 1–4 need: `master_context` (whether the master doc was used), `domain`, `fathom_site_id`, `fathom_goals`, `gsc_property`, `scoreboard_metrics` + `scoreboard` (each token classified as `fathom_goal` / `fathom_metric` / `gsc_metric` — unknown tokens surface here, at prep time), `plan`, `brand_terms`, **computed windows** (`report_window`, `prev_window`, `ly_window` — start/end dates plus labels; **use these dates everywhere, never do your own month math**), and `ly_available` (whether same-month-last-year is fillable — computed from the Fathom site's created date), plus `rank_tracker` (newest `Run —` + `Tracker config`) and `market_read`. Exit 1 with a message on failure — read the stderr and act on it.
 
 **Fallback (script missing or errors):** match the client to a project by name via `basecamp -a 6191443 projects list --json`. Ambiguous or missing → show Matt the candidates and ask. **Never guess a domain or project.** Then resolve the folder ids (never guess a folder): find the master `Project Context` at the root of Internal, and `SEO — Project Context` in Internal → SEO. Read the master doc first for the `Domain:` line, `Fathom site id:`, and `Fathom goals:`; where a master line is absent (or the doc doesn't exist), read the same values from the SEO doc; read the SEO doc for `Property:` (GSC) and `Scoreboard metrics:`.
 
@@ -67,27 +67,21 @@ The report's **What I did** list is tasks, not findings — proof of what the re
 
 ### 2. Run tribunal: audit, then diff
 
-Same mechanics as the teardown skill — Docker image, history volume mount (without the mount, `--rm` silently deletes the run tribunal just saved):
+Same shape as the teardown skill — one binary, engines found on PATH, and every run saves itself to history so the diff has a baseline:
 
 ```bash
-# Rebuild when the image is older than the newest tribunal commit — the build-if-missing
-# guard never catches a stale image, and a stale image silently drops engines (verified:
-# crux was missing for a month this way).
-IMAGE_CREATED=$(docker image inspect tribunal --format '{{.Created}}' 2>/dev/null)
-SOURCE_UPDATED=$(git -C ~/Workspaces/safaii-studio/lab/tribunal log -1 --format=%cI)
-if [ -z "$IMAGE_CREATED" ] || [[ "$SOURCE_UPDATED" > "$IMAGE_CREATED" ]]; then
-  (cd ~/Workspaces/safaii-studio/lab/tribunal && docker build -t tribunal .)
-fi
-mkdir -p ~/.local/share/tribunal/history
-docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/credential')" \
-  -e GOOGLE_SAFE_BROWSING_API_KEY="$(op read 'op://Secrets/GOOGLE_SAFE_BROWSING_API_KEY/credential')" \
-  -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
+# Engines are subprocesses, not a bundled image. `tribunal doctor` names any that are
+# missing and what each needs; `tribunal setup` prints the install block.
+tribunal doctor
+op run --env-file="$HOME/.config/op/tribunal.env" -- \
   tribunal audit <domain> --format json > /tmp/client-report-<project_id>-run.json
-docker run --rm -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
+op run --env-file="$HOME/.config/op/tribunal.env" -- \
   tribunal diff <domain> --format json > /tmp/client-report-<project_id>-diff.json
 ```
 
-The audit run carries `-e GOOGLE_CrUX_API_KEY` and `-e GOOGLE_SAFE_BROWSING_API_KEY` (both resolved from 1Password, headless-safe via the service account) — the CrUX engine needs its key for real-user CWV, the Safe Browsing engine for the malware/phishing check. The diff run needs neither: no engines run against saved history.
+`~/.config/op/tribunal.env` resolves the CrUX and Safe Browsing keys from 1Password — the CrUX engine needs its key for real-user CWV, Safe Browsing for the malware/phishing check. Wrapping in `op run` is what makes the API engines work headlessly; run the binary bare and they quietly report `unavailable`. `diff` runs no engines (it reads saved history), so it needs no keys — the wrapper is harmless there.
+
+Runs save themselves to `~/.local/share/tribunal/history/<target>/`. Never pass `--no-save` and never repoint `--history-dir` here — the saved run is next month's baseline, and a missing one turns the report into a first-run baseline.
 
 Pass the context doc's `Domain:` value to both, verbatim.
 
@@ -157,9 +151,8 @@ Collect the goal results (goal name → conversions for both windows) into `/tmp
 ### 4. Fetch GSC (skip if the context doc has no `Property:` — absent, empty, or a placeholder)
 
 ```bash
-cd ~/Workspaces/_tools/scripts/gsc-fetch
-GSC_SERVICE_ACCOUNT_JSON="$(op read 'op://Secrets/GSC Service Account JSON/notesPlain')" \
-ruby gsc-fetch.rb \
+op run --env-file="$HOME/.config/op/gsc.env" -- \
+  ~/Code/safaii-tools/scripts/gsc-fetch/gsc-fetch \
   --property "<GSC_PROPERTY from context doc>" \
   --start <FROM> --end <TO> --prev-start <PREV_FROM> --prev-end <PREV_TO> \
   --inspect "<url1>,<url2>,..." \
@@ -174,7 +167,7 @@ If the script fails (auth, property not shared with the service account yet), th
 
 ### 4a. Generate charts
 
-The **pingplot** CLI (`~/Workspaces/safaii-studio/lab/pingplot/src/cli.js`) turns the fetched data into charts via Observable Plot. Write chart data files to `/tmp` (keyed by `<project_id>`), run pingplot, then embed via the attach-and-position recipe below (step 4a's chart embedding — verified live).
+The **pingplot** CLI (`~/Code/pingplot/src/cli.js`) turns the fetched data into charts via Observable Plot. Write chart data files to `/tmp` (keyed by `<project_id>`), run pingplot, then embed via the attach-and-position recipe below (step 4a's chart embedding — verified live).
 
 Invocation (pingplot is a global npm package — `pingplot` is on PATH):
 ```bash
@@ -210,7 +203,7 @@ mv /tmp/client-report-<id>-trend.png "/tmp/Traffic — daily visits and pageview
 
 1. Create the report doc with the chart attached: `basecamp -a 6191443 files doc create "<title>" "<body — pure markdown, no image references>" --attach "/tmp/<claim-title>.png" --in <project_id> --vault <reports_id> --json`. `--attach` is repeatable for multiple charts; the attachment lands at the END of the content.
 2. Re-read the doc and take the SGID from `content_attachments[N].sgid`.
-3. Update the doc with the body as **fully rendered HTML** (`<h2>`, `<p>`, `<table>`, `<ul>`), placing `<bc-attachment sgid="<SGID>" content-type="image/png"></bc-attachment>` inline where the chart belongs. After verifying the stored content, save this final HTML to `~/Workspaces/safaii-studio/reports/<project-slug>/report-<YYYY-MM>.html`. The initial Markdown passed to `files doc create` is not the edit source.
+3. Update the doc with the body as **fully rendered HTML** (`<h2>`, `<p>`, `<table>`, `<ul>`), placing `<bc-attachment sgid="<SGID>" content-type="image/png"></bc-attachment>` inline where the chart belongs. After verifying the stored content, save this final HTML to `~/Code/safaii-tools/reports/<project-slug>/report-<YYYY-MM>.html` — the canonical copy step 8b diffs against. The initial Markdown passed to `files doc create` is not the edit source.
 4. Assert on the re-read: one `<bc-attachment>` per chart, inline in position; tables as real `<table>` elements; no raw `|` rows left — **and the plan's contract-mandated tables are all present**: scoreboard and conversions (when conversion data exists) on every plan; top pages and top queries on Growth; appendix when a tracker run exists. A draft that carries a table's numbers only as prose is incomplete, not a style choice — on Foundation, prose carries the traffic distribution qualitatively instead.
 
 **The wall-of-text check — after drafting, count sentences per section against the caps.** Over the cap → cut, do not wrap with `<br>` (that is typesetting, not editing). No character caps — they invite empty padding.
@@ -383,7 +376,7 @@ One line to Matt: the report doc URL, the handoff draft doc URL, the message URL
 
 The mechanic: `files update --content` replaces the **whole body every time** — Basecamp has no partial edit. Drift enters two ways: **regeneration** (an agent rewrites untouched sections, so phrasing drifts) and **stale writes** (publishing a copy fetched before an outside change). The pattern that prevents both:
 
-1. **Canonical file first.** The report's canonical body is the final rendered HTML from the chart-embedding step, saved at `~/Workspaces/safaii-studio/reports/<project-slug>/report-<YYYY-MM>.html` after publish and kept for the cycle. It is not the initial Markdown draft. Every edit patches *that file*, then publishes it. Never publish "a fresh fetch plus a small change" unless the fetch is first verified equal to canonical.
+1. **Canonical file first.** The report's canonical body is the final rendered HTML from the chart-embedding step, saved at `~/Code/safaii-tools/reports/<project-slug>/report-<YYYY-MM>.html` after publish and kept for the cycle. It is not the initial Markdown draft. Every edit patches *that file*, then publishes it. Never publish "a fresh fetch plus a small change" unless the fetch is first verified equal to canonical.
 2. **Patch, never regenerate.** An edit is a targeted string replacement inside the current content. Untouched sections must come out byte-identical — after any edit, diff the published body against canonical: only the intended lines may differ.
 3. **Fresh fetch before every write.** If the live doc differs from canonical (outside edits landed), stop and show Matt the diff — never write over unknown changes.
 4. **Verify on re-read — twice.** Content probes (key sentences, table counts, chart count) after every publish; a failed probe stops the run — never "fix it up" by regenerating. Then audit with Basecamp's own diff: every update lands as a version at `/documents/<doc-id>/changes/<version-id>` with an inline green/red diff — open it and confirm **only the intended lines show green/red**. A diff that touches more than the edit intended is a dirty write: stop, restore from canonical, republish.
@@ -433,7 +426,7 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Whole doc body replaced by the literal string `@filename` | Passed `--content @file` — the CLI has no file-reference shorthand, it published the argument as text and wiped the body | Always pass `--content "$(cat file)"`; on a wipe, restore from the pre-write fetch or canonical, republish, and re-verify section probes |
 | Chart missing or broken in the doc | Embedded a `/tmp` path or an upload `download_url` — neither renders | Attach at create with `--attach`, take the SGID from `content_attachments`, place the `<bc-attachment>` element inline via the all-HTML update (step 4a) |
 | Tables stored as raw markdown after a chart update | Mixed markdown + `<bc-attachment>` HTML in one write — rendering is skipped when any HTML is present | Send the whole body as rendered HTML (step 4a's rendering rule) |
-| An engine missing from the audit output entirely (e.g. crux absent while other engines show) | Docker image predates the engine's source — build-if-missing never rebuilds a stale image | Compare the image's created date to the tribunal repo's last commit; rebuild, then re-run (step 2) |
+| An engine missing from the audit output entirely (e.g. crux absent while other engines show) | The audit ran outside `op run`, so the keyed engines had no credentials | Re-run inside `op run --env-file="$HOME/.config/op/tribunal.env" -- ...` per step 2 |
 | CrUX/field CWV never appears even with the key passed | Engine errored silently or the origin has no field data | Check the audit run's stderr; no field data on a low-traffic origin is normal, not a failure |
 | Goal name from the context doc matches nothing | The `Fathom goals:` line drifted from what `fathom-analytics` wired | Flag it to Matt in the draft — fix the context doc line, never invent the number or guess the event |
 | Re-pulled keyword positions | Ran SERP checks instead of reading the Rank Tracker | Positions come from the newest `## Run —` section; this skill consumes, never re-fetches |

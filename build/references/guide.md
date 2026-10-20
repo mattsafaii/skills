@@ -2,7 +2,7 @@
 
 Start a build cycle. This is the moment the bet is placed — everything needed to go from "card in Up Next" to "build session running in Herdr" happens here, in one command.
 
-**Matt runs `/build` from anywhere inside Herdr** — cwd doesn't matter. The skill looks the project up explicitly and spawns the build agent into the correct Herdr workspace, so it doesn't care where it was launched. It creates the Basecamp project, writes the PRD doc, posts the kickoff, creates the todolist, scaffolds the repo in a new workspace folder, creates (or finds) the project's Herdr workspace, starts an OpenCode agent in it with its first prompt, and moves the card to In Progress. Matt then switches to the project's Herdr workspace where the build session is already working.
+**Matt runs `/build` from anywhere inside Herdr** — cwd doesn't matter. The skill looks the project up explicitly and spawns the build agent into the correct Herdr workspace, so it doesn't care where it was launched. It creates the Basecamp project, writes the PRD doc, posts the kickoff, creates the todolist, scaffolds the repo in a new workspace folder, creates (or finds) the project's Herdr workspace, starts a Pi agent in it with its first prompt, and moves the card to In Progress. Matt then switches to the project's Herdr workspace where the build session is already working.
 
 Never start coding the build from this session — the build session must live in the project directory so its transcript, memory, and resume stay with the project. (Footnote: avoid launching `/build` from the target repo's *actively-building* agent — it works, but it's a session spawning a sibling into its own project. Anywhere else is fine.)
 
@@ -328,7 +328,7 @@ basecamp todo "Data model" --description "<PRD Data Model '[Model]: [key fields]
 
 Keep the returned id for the "Scaffold repo" todo — step 8 needs it. **Existing project:** don't create a "Scaffold repo" todo at all; the repo already exists, so there's nothing for step 3 to have derived it from in the first place.
 
-### 8. Create the workspace and scaffold the repo
+### 8. Create the repo and scaffold it
 
 **Existing project:** the repo already exists — no scaffold, no `basecamp config init`. Instead:
 
@@ -336,7 +336,7 @@ Keep the returned id for the "Scaffold repo" todo — step 8 needs it. **Existin
 2. Repoint the Basecamp config at the new list: `cd <repo> && basecamp config set todolist_id <new_todolist_id>`
 3. Commit those changes, then skip to step 9
 
-Workspace path: `~/Workspaces/safaii-studio/lab/<kebab-name>`. Confirm with Matt if anything other than the default makes sense.
+Repo path: `~/Code/<kebab-name>`. Confirm with Matt if anything other than the default makes sense.
 
 Don't pre-create the directory — `rails new`, `hugo new site`, and `bundle gem` create it themselves, and a pre-existing dir makes `bundle gem` prompt or fail. Only the stacks that `cd` into the dir below (11ty, Go, static) need the `mkdir` first; each command includes it.
 
@@ -344,7 +344,7 @@ Scaffold for the stack, using the absolute path. If the stack isn't one of the r
 
 **Rails:** (creates the dir)
 ```bash
-rails new ~/Workspaces/safaii-studio/lab/<name> --database=sqlite3 --no-skip-test
+rails new ~/Code/<name> --database=sqlite3 --no-skip-test
 ```
 
 `--no-skip-test` is load-bearing, not noise. `~/.railsrc` carries `--skip-test` and Rails merges it into every `rails new`, so leaving the flag off silently scaffolds a project with no test directory — nowhere for the `Test:` lines from step 3 to go. Verified on Rails 8.1.3: with `--no-skip-test` the `test/` tree is created despite the rc file.
@@ -353,30 +353,30 @@ Drop it (and let `--skip-test` win) only for a Rails project that's essentially 
 
 **11ty:** (deploys to Cloudflare Pages)
 ```bash
-mkdir -p ~/Workspaces/safaii-studio/lab/<name> && cd ~/Workspaces/safaii-studio/lab/<name> && git init && pnpm init && pnpm add @11ty/eleventy
+mkdir -p ~/Code/<name> && cd ~/Code/<name> && git init && pnpm init && pnpm add @11ty/eleventy
 ```
 
 **Hugo:** (creates the dir)
 ```bash
-hugo new site ~/Workspaces/safaii-studio/lab/<name> --force && cd ~/Workspaces/safaii-studio/lab/<name> && git init
+hugo new site ~/Code/<name> --force && cd ~/Code/<name> && git init
 ```
 
 **Ruby gem/CLI:** (creates the dir — do not mkdir first)
 ```bash
-cd ~/Workspaces/safaii-studio/lab && bundle gem <name>
+cd ~/Code && bundle gem <name>
 ```
 
 **Go:**
 ```bash
-mkdir -p ~/Workspaces/safaii-studio/lab/<name> && cd ~/Workspaces/safaii-studio/lab/<name> && git init && go mod init <module-path>
+mkdir -p ~/Code/<name> && cd ~/Code/<name> && git init && go mod init <module-path>
 ```
 
 **Static (no framework):**
 ```bash
-mkdir -p ~/Workspaces/safaii-studio/lab/<name> && cd ~/Workspaces/safaii-studio/lab/<name> && git init
+mkdir -p ~/Code/<name> && cd ~/Code/<name> && git init
 ```
 
-Then write the project files into the workspace: `AGENTS.md` and `README.md` (plus the Basecamp config below). There is no per-project process file — Solo is gone and Herdr runs commands in panes, not from a config. The project's run and test commands live in AGENTS.md's **Commands** section instead.
+Then write the project files into the repo: `AGENTS.md` and `README.md` (plus the Basecamp config below). There is no per-project process file — Solo is gone and Herdr runs commands in panes, not from a config. The project's run and test commands live in AGENTS.md's **Commands** section instead.
 
 **`AGENTS.md`** — the briefing the build session wakes up to. It must stand alone; the build session has none of this conversation's context. Write it with the content below. Include:
 
@@ -411,7 +411,7 @@ Then write the project files into the workspace: `AGENTS.md` and `README.md` (pl
 
   ```markdown
   ## Herdr
-  This session runs inside a Herdr workspace. Use the `herdr` skill to spawn and read sibling agents (the review step does this): split a pane with `herdr pane split --current --direction right --no-focus`, start an agent with `herdr agent start <name> --kind opencode --pane <pane-id>`, and wait on it with `herdr agent prompt <name> "..." --wait`.
+  This session runs inside a Herdr workspace. Use the `herdr` skill to spawn and read sibling agents (the review step does this): split a pane with `herdr pane split --current --direction right --no-focus`, start an agent with `herdr agent start <name> --kind pi --pane <pane-id>`, and wait on it with `herdr agent prompt <name> "..." --wait`.
   ```
 
 **`README.md`** — a stub, committed. This guarantees every repo has a README from the first commit; the build session fleshes it out at the end (see the README task in step 3). Generate it from the PRD — don't leave the repo bare:
@@ -431,7 +431,7 @@ Keep the stub short — real usage, install, and examples come at the finalize-R
 **Basecamp repo config** — so the build session can run `basecamp` commands without `-a`/`--in` flags. Run the bundled script rather than retyping the sequence:
 
 ```bash
-@scripts/init-basecamp-config.sh ~/Workspaces/safaii-studio/lab/<name> <project_id> <todolist_id>
+@scripts/init-basecamp-config.sh ~/Code/<name> <project_id> <todolist_id>
 ```
 
 It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `set todolist_id` / `trust`, then appends `.basecamp/` to `.gitignore`. (`trust` is only needed for authority keys, but it's harmless and future-proofs the config.) `.basecamp/` stays out of git — it's local session config holding account and project IDs, not project code. Gitignoring `.basecamp/` before the commit keeps the `git add -A` scaffold commit clean — important since these repos are often open-core-ready or public. The build session pulls the PRD/pitch via `basecamp` commands (config above), so no IDs or URLs need to be written into the committed repo.
@@ -439,7 +439,7 @@ It runs `basecamp config init` / `set account_id 6191443` / `set project_id` / `
 Commit the scaffold and offer to push to GitHub:
 
 ```bash
-cd ~/Workspaces/safaii-studio/lab/<name> && git add -A && git commit -m "Scaffold [stack]"
+cd ~/Code/<name> && git add -A && git commit -m "Scaffold [stack]"
 gh repo create <name> --private --source . --push   # creates under the gh-authed account (mattsafaii)
 ```
 
@@ -456,12 +456,12 @@ Otherwise the build agent hits "Scaffold repo" as its first todo already done an
 
 ### 9. Create or find the project's Herdr workspace
 
-`/build` runs inside Herdr — verify with `test "${HERDR_ENV:-}" = 1` before controlling anything, and never touch a Herdr session from outside a managed pane. The build agent is a separate OpenCode session that lives in the project's Herdr workspace, rooted at the repo.
+`/build` runs inside Herdr — verify with `test "${HERDR_ENV:-}" = 1` before controlling anything, and never touch a Herdr session from outside a managed pane. The build agent is a separate Pi session that lives in the project's Herdr workspace, rooted at the repo.
 
 **New project** — create a workspace for it:
 
 ```bash
-herdr workspace create --label "<Project Name>" --cwd ~/Workspaces/safaii-studio/lab/<name> --no-focus
+herdr workspace create --label "<Project Name>" --cwd ~/Code/<name> --no-focus
 ```
 
 Read the workspace id from `.result.workspace.workspace_id` and the shell pane from `.result.root_pane.pane_id`. The root pane opens at the repo with an interactive shell — that's the pane the agent starts in.
@@ -482,13 +482,13 @@ If the project has no workspace yet, create one as above.
 
 ### 10. Spawn the build agent
 
-Start the OpenCode session in the workspace's shell pane, then brief it:
+Start the Pi session in the workspace's shell pane, then brief it:
 
 ```bash
-herdr agent start build --kind opencode --pane <pane_id>   # Herdr agent names are lowercase
+herdr agent start build --kind pi --pane <pane_id>   # Herdr agent names are lowercase
 ```
 
-A successful start returns once Herdr detects OpenCode in that pane and it's ready for input. Then submit the first prompt — it must stand alone, since the session wakes up with none of this conversation:
+A successful start returns once Herdr detects Pi in that pane and it's ready for input. Then submit the first prompt — it must stand alone, since the session wakes up with none of this conversation:
 
 ```bash
 herdr agent prompt build "Read AGENTS.md, then start on the first todo in the Basecamp Build list. Work through the todos in order, closing each by commenting its commit SHA on the Basecamp todo and completing it with the basecamp CLI — no flags, since the repo's .basecamp/config.json supplies account, project, and list. Each build todo's description ends with a 'Done when:' line — that's the finish line, not your own judgment of done; where a description carries a 'Test:' line, write that test with the code rather than afterwards; each todo is a vertical slice, so when it's done the app runs end to end and its tests pass — never leave it broken between todos. Once every todo is complete, ask Matt whether to move this project's card on the Lab board to Shipped — don't move it yourself without asking. The card lives in account 6191443, project 46824335, card table 9768185094; find it by matching this project's name, and if Matt confirms, move it to the Shipped column (9768185101)." --wait --timeout 120000
@@ -510,7 +510,7 @@ If the move returns `ok: false`, retry once — transient failures happen.
 
 One line: Basecamp project created, PRD doc written, [N] todos created, repo scaffolded, card moved to In Progress. Share the Basecamp project URL. Then the handoff: "Switch to the **<Project Name>** workspace in Herdr — the build session is already running on the first todo."
 
-**If no agent was spawned** (not running inside Herdr, step 10 skipped): don't claim a session is running. Handoff instead: "Open Herdr, start an OpenCode session in the repo (`~/Workspaces/safaii-studio/lab/<name>`), and tell it: *Read AGENTS.md, then start on the first todo in the Basecamp Build list.*"
+**If no agent was spawned** (not running inside Herdr, step 10 skipped): don't claim a session is running. Handoff instead: "Open Herdr, start a Pi session in the repo (`~/Code/<name>`), and tell it: *Read AGENTS.md, then start on the first todo in the Basecamp Build list.*"
 
 **Existing project:** the one-liner is instead: PRD doc written, kickoff posted, [N] todos created on "Build: [Cycle Name]", AGENTS.md updated, cycle agent spawned (or manual-start note if not inside Herdr), card moved to In Progress.
 
@@ -614,7 +614,7 @@ If a step fails partway through the build, stop and report exactly which resourc
 | Todolist doubles in size | Tests and failure cases were made into their own todos | They ride inside existing todos as `Test:` and `Done when:` lines |
 | Build agent stops early or gilds a todo | No `Done when:` line, so "finished" was its own judgment call | Add the line — it's the whole point of the description |
 | Reviewer rewrites the code | Reviewer brief omitted read-only scope | Brief says report gaps, don't fix them; the build agent applies the fixes |
-| Build agent waits on a reviewer forever | Reviewer spawned with the wrong tool and hit a permission prompt, so it never went idle | Spawn both reviewers with OpenCode (unattended) — see the herdr skill |
+| Build agent waits on a reviewer forever | Reviewer spawned with the wrong tool, so it never went idle | Spawn both reviewers as read-only Pi one-shots (`pi --tools read,grep,find,ls --print`) — see the herdr and code-review skills |
 | Matt has to re-derive what "verify X" means for each criterion by hand | QA plan task skipped or written as a restatement of the criteria instead of a walkthrough script | Write concrete steps (URL, click, input) and the observable result per step, ordered so setup isn't redone |
 | Standards reviewer invents conventions the repo doesn't have | No AGENTS.md or stack-specific skill (safaii-css, dhh-rails-style) to point it at | Fall back to a plain code-smell pass (duplication, naming, dead code) instead of guessing at house style |
 

@@ -7,7 +7,7 @@ description: "The map for Matt's SEO skill chain — which skill to run when, in
 
 The map of Matt's SEO skill chain. This skill never produces a deliverable — it routes. It tells you which skill to run next and why; the individual skills carry their own rules, frozen contracts, and confirm gates.
 
-> For the whole studio site pipeline (project-setup → inventory-brief → structure-map → structure-copy, plus where search plugs in), see `SKILL-INDEX-STUDIO.md` at `~/Workspaces/safaii-studio/_config/` — it supersedes this guide for studio order. This guide still owns the SEO-only detail.
+> For the whole studio site pipeline (project-setup → inventory-brief → structure-map → structure-copy, plus where search plugs in), run those skills directly in that order — `project-setup` owns the client record and the phase skills own their own docs. This guide owns the SEO-only detail.
 
 ## The spine
 
@@ -96,10 +96,10 @@ Docs & Files
 | Tool | What it does | How it's reached | Secrets |
 | --- | --- | --- | --- |
 | DataForSEO MCP | real SERP/keyword/backlink/domain data | the `dataforseo` skill's catalog | `DATAFORSEO_BASIC_AUTH` via 1Password → `~/.zshrc` |
-| GSC | first-party search data (clicks, impressions, striking distance) | `~/Workspaces/_tools/scripts/gsc-fetch/gsc-fetch.rb` (one shared script) | service-account JSON via `op read 'op://Secrets/GSC Service Account JSON/notesPlain'` |
-| Basecamp resolution | resolve a client + read its Context / Rank Tracker / Landscape docs in one pass | `~/Workspaces/_tools/scripts/client-report-prep.rb` (client-report step 1) | none |
-| Fathom | analytics | direct API calls (client-report) | token via `op read 'op://Secrets/Fathom API Token/password'` |
-| tribunal | audit engine (technical, passive; incl. field CWV via the crux engine) | Docker image at `~/Workspaces/safaii-studio/lab/tribunal` | CrUX key via `GOOGLE_CrUX_API_KEY` (wired in `~/.zshrc`) |
+| GSC | first-party search data (clicks, impressions, striking distance) | `~/Code/safaii-tools/scripts/gsc-fetch/gsc-fetch`, wrapped by `op run --env-file=$HOME/.config/op/gsc.env` | service-account JSON in `~/.config/op/gsc.env` |
+| Basecamp resolution | resolve a client + read its Context / Rank Tracker / Landscape docs in one pass | `~/Code/safaii-tools/scripts/client-report-prep.rb` (client-report step 1) | none |
+| Fathom | analytics | `~/Code/safaii-tools/scripts/fathom-fetch/fathom-fetch`, wrapped by `op run --env-file=$HOME/.config/op/fathom.env` | token in `~/.config/op/fathom.env` |
+| tribunal | audit engine (technical, passive; incl. field CWV via the crux engine) | `~/.local/bin/tribunal`, engines as PATH subprocesses; run under `op run --env-file=$HOME/.config/op/tribunal.env` | CrUX + Safe Browsing keys in `~/.config/op/tribunal.env` |
 | Browser-control | live Maps detail panel (review text, Q&A, posts) | browser-control skill / MCP | runs in Matt's browser |
 
 **Basecamp:** always `-a 6191443` (Safaii Studio), passed explicitly. Documents are markdown (Basecamp 5 renders GFM tables). `files doc create` takes the body as an argument, or `-` for stdin (CLI v0.10.0+).

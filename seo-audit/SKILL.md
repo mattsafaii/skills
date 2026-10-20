@@ -27,7 +27,7 @@ Load the **dataforseo** skill for the catalog and hard rules. The essentials:
 - Client and project are resolved from Basecamp by exact name. `SEO — Project Context` remains in Internal → SEO; `SEO — Keyword Research` lives in Working on new projects or its legacy Internal → SEO folder. Reports are drafted in the top-level Reports folder on new projects.
 - **Which project?** If the audited domain is an existing client, match it to their project and create the report there. If it's a prospect or unknown, ask Matt which project it belongs to — never guess. (Prospects normally get a `teardown`; if Matt says audit a prospect instead, this skill still runs and the report doc goes wherever Matt directs.)
 - The domain to audit is the one Matt names — if it's a client, confirm it matches the context doc's `Domain:` line.
-- tribunal lives at `~/Workspaces/safaii-studio/lab/tribunal`; it runs via its Docker image (see step 2) or the local binary.
+- tribunal is on PATH (`~/.local/bin/tribunal`), with its engines as subprocesses it finds there — `tribunal doctor` reports real coverage (see step 2).
 - Tone reference for client-facing prose: Basecamp doc `10032725076` ("Marathon Power Website Review (to send)") — read it before drafting, every time.
 - **Basecamp 5 renders markdown** — the report doc is markdown, not HTML. GFM tables render.
 
@@ -41,16 +41,15 @@ Read `SEO — Project Context` if it exists — what the business does decides w
 
 ### 2. Run tribunal: audit
 
-Same mechanics as teardown/client-report — Docker image, history volume mount (so a later `client-report` diff can use this run as its baseline):
+Same shape as teardown/client-report — one binary, engines found on PATH, and the run saves itself to history (so a later `client-report` diff can use it as the baseline):
 
 ```bash
-docker image inspect tribunal >/dev/null 2>&1 || (cd ~/Workspaces/safaii-studio/lab/tribunal && docker build -t tribunal .)
-mkdir -p ~/.local/share/tribunal/history
-docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/credential')" \
-  -e GOOGLE_SAFE_BROWSING_API_KEY="$(op read 'op://Secrets/GOOGLE_SAFE_BROWSING_API_KEY/credential')" \
-  -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
+tribunal doctor   # engines are subprocesses; this names any that are missing and what each needs
+op run --env-file="$HOME/.config/op/tribunal.env" -- \
   tribunal audit <domain> --format json > /tmp/seo-audit-<domain>-run.json
 ```
+
+`op run` supplies the CrUX and Safe Browsing keys from 1Password; without it those two engines quietly report `unavailable`, and a fresh machine can get them with the block `tribunal setup` prints.
 
 Pass the domain verbatim. Passive engines only — never `--authorized`.
 

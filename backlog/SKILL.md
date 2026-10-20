@@ -68,6 +68,6 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Card scoped as if clear-cut, then the approach shifts mid-build | The change was genuinely uncertain about approach, but scoping skipped straight to cards | Run `grilling` (or `codebase-design`/`prototype`) first, then scope from the answer |
 | Cards accumulate fake dependencies | Invented a "Blocked by" note for ordering preference, not a real gate | Only note a real blocker; most small changes have none |
 | Reviewer rewrites the code | Reviewer brief omitted read-only scope | Brief says report gaps, don't fix them; apply the fixes yourself after |
-| Build agent (or you) waits on a reviewer forever | Reviewer spawned with the wrong tool and hit a permission prompt, so it never went idle | Spawn both reviewers with OpenCode (unattended) — see the herdr skill |
+| Build agent (or you) waits on a reviewer forever | Reviewer spawned with the wrong tool, so it never went idle | Spawn both reviewers as read-only Pi one-shots (`pi --tools read,grep,find,ls --print`) — see the herdr and code-review skills |
 | Standards reviewer invents conventions the repo doesn't have | No AGENTS.md or stack-specific skill to point it at | Fall back to a plain code-smell pass instead of guessing at house style |
 | Card completed with no SHA comment | Marked done directly instead of commenting first | Comment the SHA now; comment before complete from here on |

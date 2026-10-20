@@ -23,7 +23,7 @@ Do not ask Matt for these — they are fixed for this skill:
 - Full Teardown template doc: `9994887966` ("Teardown — Full (Template)")
 - Pipeline card table: `9782662056`
 
-tribunal lives at `~/Workspaces/safaii-studio/lab/tribunal` (module `github.com/mattsafaii/tribunal`).
+tribunal lives at `~/Code/tribunal` (module `github.com/mattsafaii/tribunal`).
 
 This skill has its own bundled dependency: `scripts/capture-homepage.mjs` (Playwright, headless — no visible browser tab). If `node_modules` isn't present in this skill's directory, run `pnpm install` here once; if `~/Library/Caches/ms-playwright` has no chromium build, run `pnpm exec playwright install chromium` once.
 
@@ -40,7 +40,7 @@ Need a **brand/prospect name** and a **URL**. Ask for whichever is missing — d
 Sections 1–5 need an actual read of the page, not just tribunal's technical facts — the hero's four jobs, the objection stack, copy quality, and visual hierarchy are all judgment calls about what a visitor sees and feels.
 
 ```bash
-cd ~/Workspaces/_tools/skills/teardown
+cd ~/Code/skills/teardown
 mkdir -p ~/.local/share/teardown/<slug>
 node scripts/capture-homepage.mjs <url> \
   ~/.local/share/teardown/<slug>/<timestamp>-desktop.png \
@@ -87,27 +87,19 @@ Requires tldraw Desktop running (the `tldraw-offline` skill's local API — see 
 
 If the capture script failed (see the fallback above) or no finding in Section 5 has a concrete on-page target, skip this sub-step entirely and say so in the report-back — don't force an annotation pass onto a page you never actually screenshotted.
 
-### 3. Run tribunal — via the Docker image, not the bare binary
+### 3. Run tribunal
 
-Most of tribunal's engines (axe, Lighthouse, pa11y, retire, whatweb, nuclei) only ship inside the bundled Docker image — a bare `go build` binary only picks up the API-based engines (SSL Labs, Observatory) plus whatever happens to already be on PATH, silently degrading to a fraction of the coverage. Always run it through Docker:
+One static binary; its engines are subprocesses it finds on PATH. That means coverage is a property of the machine, not the tool — check it rather than assuming it:
 
 ```bash
-# Rebuild when the image is older than the newest tribunal commit — build-if-missing
-# never catches a stale image, and a stale image silently drops engines (verified:
-# crux was missing for a month this way).
-IMAGE_CREATED=$(docker image inspect tribunal --format '{{.Created}}' 2>/dev/null)
-SOURCE_UPDATED=$(git -C ~/Workspaces/safaii-studio/lab/tribunal log -1 --format=%cI)
-if [ -z "$IMAGE_CREATED" ] || [[ "$SOURCE_UPDATED" > "$IMAGE_CREATED" ]]; then
-  (cd ~/Workspaces/safaii-studio/lab/tribunal && docker build -t tribunal .)
-fi
-mkdir -p ~/.local/share/tribunal/history
-docker run --rm -e GOOGLE_CrUX_API_KEY="$(op read 'op://Secrets/GOOGLE_CrUX_API_KEY/credential')" \
-  -e GOOGLE_SAFE_BROWSING_API_KEY="$(op read 'op://Secrets/GOOGLE_SAFE_BROWSING_API_KEY/credential')" \
-  -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
+tribunal doctor   # every engine, whether it's installed, and what each missing one needs
+op run --env-file="$HOME/.config/op/tribunal.env" -- \
   tribunal audit <url> --format json > /tmp/teardown-<brand-slug>.json
 ```
 
-The first build takes a few minutes (installs Chromium + Lighthouse/axe/pa11y/retire); after that it's cached and fast. Restricted engines (squirrelscan, WPScan) are never bundled by design — they'll still show `unavailable`/`skipped`, and that's correct, not a bug.
+`op run` supplies the CrUX and Safe Browsing keys from 1Password. Run the binary bare and those two engines quietly report `unavailable` — the run still succeeds, just with less coverage, so check `doctor` rather than reading a thin report as a clean site.
+
+Missing engines install from one block: `tribunal setup` prints it (`brew install --cask google-chrome`, `npm install -g lighthouse pa11y retire`). Lighthouse and pa11y need a Chrome binary; set `PUPPETEER_EXECUTABLE_PATH` if Chrome lives somewhere non-standard. Restricted engines (squirrelscan, WPScan) are deliberately not installed by tribunal — they show `unavailable`/`skipped`, which is correct, not a bug. Coverage gaps are named in the report, so say what wasn't checked rather than implying it passed.
 
 The `-v` flag is a volume mount — it points the container's history path at the same real directory on Matt's Mac (`~/.local/share/tribunal/history`), so tribunal's own built-in history feature (every run auto-saves to `<root>/<target-slug>/<timestamp>.json`, which is what backs `tribunal diff`) actually lands on disk. Without it, `--rm` deletes the container — and the run it just saved — the instant the command finishes, silently. The `/tmp` JSON above is just this session's scratch copy for drafting from; the durable copy is the one tribunal itself writes into history.
 
@@ -120,8 +112,7 @@ If tribunal errors or an engine comes back `unavailable`/`failed`, that's fine �
 After the audit, run `tribunal diff` — it compares the two most recent runs in history, so the audit you just ran is the "to" side and the prior teardown's run is the baseline:
 
 ```bash
-docker run --rm -v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history \
-  tribunal diff <url> --format json > /tmp/teardown-<brand-slug>-diff.json
+tribunal diff <url> --format json > /tmp/teardown-<brand-slug>-diff.json
 ```
 
 Pass the **same URL you gave `audit`** — tribunal slugs it identically to find the right history folder (its slug comes from the target URL, not the brand name, so don't substitute the brand slug here).
@@ -231,12 +222,12 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Annotation circle lands on the wrong element or off to the side | Coordinates guessed from eyeballing the screenshot instead of measured | Always scan pixel colors with ImageMagick to find the real edge (step 2b) — don't estimate by eye |
 | Exported annotated image still shows toolbar/menu/minimap | `mode: 'canvas'` doesn't always exclude app chrome, especially with a shape still selected | Call `editor.selectNone()` before capturing; if chrome still appears, crop it out with ImageMagick against the known shape bounds |
 | tldraw annotation step fails outright (no server.json, connection refused) | tldraw Desktop isn't running | Skip step 2b, note it in the report-back, don't block the rest of the teardown on it |
-| `capture-homepage.mjs` fails with a missing module / browser error | `pnpm install` or the chromium download was never run in this skill's directory | `cd ~/Workspaces/_tools/skills/teardown && pnpm install && pnpm exec playwright install chromium` |
-| Most engines come back `unavailable`, only ~4 of 13 ran | Ran the bare `tribunal` binary instead of the Docker image | Always run via `docker run --rm tribunal audit ...` per step 3 — the bare binary only has the API-based engines |
-| An engine missing from the output entirely (e.g. crux absent while other engines show) | Docker image predates the engine's source — build-if-missing never rebuilds a stale image | Compare the image's created date to the tribunal repo's last commit; rebuild, then re-run (step 3) |
+| `capture-homepage.mjs` fails with a missing module / browser error | `pnpm install` or the chromium download was never run in this skill's directory | `cd ~/Code/skills/teardown && pnpm install && pnpm exec playwright install chromium` |
+| Most engines come back `unavailable`, only the API engines ran | `tribunal` can't find the engine binaries on PATH (or `op run` was skipped, which drops crux and Safe Browsing) | Run `tribunal doctor` — it names each missing engine and its install; `tribunal setup` prints the whole block |
+| An engine missing from the output entirely (e.g. crux absent while other engines show) | The audit ran without `op run`, so the keyed engines had no credentials | Re-run inside `op run --env-file="$HOME/.config/op/tribunal.env" -- ...` per step 3 |
 | Performance/accessibility score looks alarmingly low | Lighthouse/axe are lab (synthetic) data — can read much harsher than real-user field data | Frame it as lab vs. field (tribunal's own distinction), not a contradiction of anything Matt already knows about the site — see Section 6 guidance |
-| Run never shows up in `~/.local/share/tribunal/history/` | Ran `docker run --rm tribunal` without the `-v` volume mount — the save happened, then `--rm` deleted the container (and the file) with it | Always include the `-v ~/.local/share/tribunal/history:/home/node/.local/share/tribunal/history` mount from step 3 |
-| tribunal build fails | Go toolchain mismatch or stale `go.sum` | Run `go build` from `~/Workspaces/safaii-studio/lab/tribunal` directly and surface the real error to Matt rather than guessing a fix |
+| Run never shows up in `~/.local/share/tribunal/history/` | `--no-save` was passed, or `TRIBUNAL_HISTORY_DIR` / `--history-dir` points somewhere else | Check the run's own history path output; a diff with no baseline is almost always this |
+| tribunal reports an engine as `failed` rather than `unavailable` | The binary is installed but the subprocess errored (Chrome missing, npm shim broken, version drift) | `tribunal doctor` for that engine's diagnosis; surface the real error to Matt rather than guessing a fix |
 | `diff` errors "need two saved runs … found 1" | First teardown of this prospect | Not a failure — skip the diff (step 3b) and draft Section 6 from this run alone |
 | `diff` errors "found 0" even though this prospect was torn down before | Prior run was made without the `-v` history mount (so it never persisted), or a different URL form was passed than last time (slug mismatch) | Check `ls ~/.local/share/tribunal/history/` for the actual slug folders; pass the same URL form the prior audit used |
 | Report-back presents a "resolved" finding as a fix the prospect made | Its category lost engine coverage between runs — unchecked, not fixed | Cross-check resolved findings against the diff's `coverage_changes` before reporting them |

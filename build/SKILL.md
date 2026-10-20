@@ -11,7 +11,7 @@ triggers:
 
 # Build Skill
 
-Place the bet. Reads the PRD, derives and confirms a todolist, creates the Basecamp project + todos, scaffolds the workspace, creates or finds the project's Herdr workspace, starts the build agent with its first prompt, and moves the card to In Progress. If the card is a cycle on an existing project, the existing Basecamp project, repo, and Herdr workspace are reused — only the cycle's PRD doc, kickoff, and todolist are created.
+Place the bet. Reads the PRD, derives and confirms a todolist, creates the Basecamp project + todos, scaffolds the repo, creates or finds the project's Herdr workspace, starts the build agent with its first prompt, and moves the card to In Progress. If the card is a cycle on an existing project, the existing Basecamp project, repo, and Herdr workspace are reused — only the cycle's PRD doc, kickoff, and todolist are created.
 
 Run this from anywhere inside Herdr — cwd is irrelevant, since it spawns the build agent into the project looked up explicitly. The actual build happens in the spawned agent's session inside the project directory — never code the build here. (Footnote: avoid running it from the target repo's actively-building agent — that works but is a session spawning a sibling into its own project.)
 

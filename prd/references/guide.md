@@ -43,7 +43,7 @@ basecamp cards show <card_id> --in 46824335 -a 6191443 --md
 
 Read the full shaped pitch before asking anything. Don't re-ask what's already answered.
 
-If this is a cycle on an existing project, also read the repo (`~/Workspaces/safaii-studio/lab/<name>`) before asking questions — don't re-ask what the code already answers, and verify the pitch's assumptions against what's actually built.
+If this is a cycle on an existing project, also read the repo (`~/Code/<name>`) before asking questions — don't re-ask what the code already answers, and verify the pitch's assumptions against what's actually built.
 
 ### 2. Work through PRD sections conversationally
 

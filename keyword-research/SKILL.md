@@ -21,7 +21,7 @@ Load the **dataforseo** skill for the full catalog and hard rules. The essential
 
 - Basecamp account: always `-a 6191443` (Safaii Studio), passed explicitly — never rely on the CLI default. This skill only ever runs against the Safaii account.
 - Client and project are resolved from Basecamp, never a local file: match the project by name via `basecamp -a 6191443 projects list --json`, then read the client's `SEO — Project Context` doc (Internal > SEO) for the domain, positioning, competitors, and key pages. The domain comes from the context doc's `Domain:` line — never guessed.
-- GSC data is fetched with the shared script: `~/Workspaces/_tools/scripts/gsc-fetch/gsc-fetch.rb` (canonical copy, shared with client-report — no per-skill copies; Ruby stdlib only, no deps). The property comes from the context doc's Search Console section; the service-account JSON is resolved from 1Password (`op://Secrets/GSC Service Account JSON/notesPlain`) — never a file on disk.
+- GSC data is pulled with the shared `gsc-fetch` binary at `~/Code/safaii-tools/scripts/gsc-fetch/gsc-fetch` (canonical copy, shared with client-report — no per-skill copies; one Go binary, no runtime deps). The property comes from the context doc's Search Console section; the service-account JSON is injected from 1Password (`~/.config/op/gsc.env`) — never a file on disk.
 - The doc lives in **Working on new projects**, or its existing legacy Internal → SEO folder, team-only, titled **`SEO — Keyword Research`** — a stable contract, never recreated.
 - **Basecamp 5 renders markdown** — write docs in markdown, GFM tables included.
 
@@ -44,9 +44,8 @@ GSC only shows terms the site *already has impressions for* — it points at whe
 **Established site with GSC history → GSC first.** Striking-distance terms are the highest-ROI keywords you'll find, and it's free, so it sharpens what you spend DataForSEO money on. Fetch the property from the context doc:
 
 ```bash
-cd ~/Workspaces/_tools/scripts/gsc-fetch
-GSC_SERVICE_ACCOUNT_JSON="$(op read 'op://Secrets/GSC Service Account JSON/notesPlain')" \
-ruby gsc-fetch.rb \
+op run --env-file="$HOME/.config/op/gsc.env" -- \
+  ~/Code/safaii-tools/scripts/gsc-fetch/gsc-fetch \
   --property "<GSC_PROPERTY from context doc>" \
   --start <3-months-ago> --end <today> \
   --query-page

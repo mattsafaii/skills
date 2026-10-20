@@ -27,20 +27,23 @@ DHH (craft/opinion) · levelsio (build-in-public) · thdxr (edge). Blend registe
 ## Consumed by
 `references/voice.md` — how posts sound. `references/x-algorithm.md` — how the feed ranks. `references/reply-shortlist.md` — accounts to reply under. `references/posting-calendar.md` — the Phase 1 calendar (due-dated). This file — the plan itself.
 
-## Automated weekly content-ideas (launchd)
-- **Job:** `com.mattsafaii.content-ideas-weekly` (LaunchAgent, loaded). Fires **Fri 14:00** each week.
-- **Script:** `~/.config/opencode/scripts/content-ideas-weekly.sh` — runs `opencode run` headless (deepseek-v4-flash) invoking `/content-ideas` over the past 7 days, voice-drafting client-work (transferable only) + business-growth + build-in-public insights into Distribution Triage as clay, setting due dates, never posting, never drafting essay prose.
-- **Logs:** `~/.config/opencode/logs/content-ideas-weekly.log` (script), `launchd-content-ideas.{out,err}`.
-- **Why launchd:** it fires on schedule regardless of whether any agent session is open, and survives restarts — the honest schedule mechanism.
-- **Note:** the earlier recurring-check-in idea was dropped — check-in create endpoint is broken in CLI v0.8.1, and check-ins were the wrong tool for a solo reminder anyway (they collect team answers).
+## Automated weekly content-ideas — not running
+
+**Status (2026-10-20): dead.** The LaunchAgent `com.mattsafaii.content-ideas-weekly` is not in `~/Library/LaunchAgents`, and its script (`~/.config/opencode/scripts/content-ideas-weekly.sh`) doesn't exist — opencode isn't installed either. Nothing fires on a schedule. Until it's rebuilt, run `/content-ideas` by hand each week.
+
+What it was meant to do, so a rebuild doesn't re-litigate it: fire **Fri 14:00**, run `/content-ideas` headless over the past 7 days, and voice-draft client-work (transferable only) + business-growth + build-in-public insights into Distribution Triage as clay, with due dates set, never posting, never drafting essay prose. launchd was the choice because it fires whether or not an agent session is open and survives restarts.
+
+**Note:** the earlier recurring-check-in idea was dropped — the check-in create endpoint is broken in CLI v0.8.1, and check-ins were the wrong tool for a solo reminder anyway (they collect team answers).
 
 **Pivot anchor post (one-off, outside the calendar):** "been quietly shipping for a while and need to start sharing" + GitHub contributions graph — posted 2026-08-20, url https://x.com/mattsafaii/status/2090905571084124439. Pinned (recommended). Establishes the account's craft pivot to the handful of existing followers. Not tracked in Done (calendar measures the queue); metrics can be folded into the monthly report if wanted.
 
-## Automated monthly metrics (launchd)
-- **Job:** `com.mattsafaii.metrics-monthly` (LaunchAgent, loaded). Fires **day 1, 7:00** each month.
-- **Script:** `~/.config/opencode/scripts/metrics-monthly.sh` — runs `opencode run` headless (deepseek-v4-flash) that reads the Distribution **Done** column, aggregates the month (posts/impressions/likes/replies/top post/cluster), and posts a **Document** to Content's **Docs & Files** titled "Content metrics — <Month Year>". Never posts to X, never creates cards.
-- **Logs:** `~/.config/opencode/logs/metrics-monthly.log`, `launchd-metrics.{out,err}`.
-- **Division of labor:** Matt posts + drops the direct status URL onto the card (only manual bit). The Friday `/content-ideas` fetches live impressions/likes/replies onto Done cards via the X API. The monthly job reads Done (URLs + gathered metrics) and posts the Doc. A Done card without a URL yields no metrics — see posting-calendar.md "Daily close".
+## Automated monthly metrics — not running
+
+**Status (2026-10-20): dead**, same as the weekly job. `com.mattsafaii.metrics-monthly` and `~/.config/opencode/scripts/metrics-monthly.sh` are both gone. Run the aggregation by hand at month end, or rebuild the job.
+
+What it was meant to do: fire **day 1, 7:00**, read the Distribution **Done** column, aggregate the month (posts / impressions / likes / replies / top post / cluster), and post a **Document** to Content's **Docs & Files** titled "Content metrics — <Month Year>". Never posts to X, never creates cards.
+
+**Division of labor (still true when run by hand):** Matt posts + drops the direct status URL onto the card (the only manual bit). The weekly `/content-ideas` fetches live impressions/likes/replies onto Done cards via the X API. The monthly pass reads Done (URLs + gathered metrics) and posts the Doc. A Done card without a URL yields no metrics — see posting-calendar.md "Daily close".
 
 ## Ongoing feed loop (keeps the queue full)
 Every `/content-ideas` run must also capture, alongside build-in-public: **client-work lessons (transferable, never client-specific)** + **business-growth angles** (what Matt tried to grow the studio/Zonebrite, what happened) + **engagement questions**. Those are on-theme and among his highest-leverage material — the queue must not become pure-dev. Feed them as `[💡 Insight]` / `[🔎 Question]` clay, voice-drafted.
