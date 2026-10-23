@@ -27,12 +27,13 @@ Gather these fields from the conversation. Ask only for what's missing — don't
 - **Concept** (required) — 1–3 sentences describing what the idea actually is.
 - **Details** (optional) — features, effects, dimensions, examples to explore. Bullet list.
 - **Open questions** (optional) — things to figure out. Bullet list.
+- **Worth my attention?** (required, one line) — the attention check: "Is this worth my attention at all?" This is Shape Up's original meaning of appetite — not a time estimate, just whether the problem deserves Matt's focus. Ask it once, only if Matt hasn't already said why it matters; record his answer in a few words (e.g. "Yes — I hit this every week", "Maybe — only if X"). If the answer is no, say so and ask whether to file it anyway — don't argue.
 
 If Matt gave you a URL as inspiration, fetch it first (WebFetch) so the card body can summarize *why* that source was relevant — not just link to it.
 
 ### 2. Draft the card body as HTML
 
-Basecamp card bodies accept HTML. Use this structure, omitting any section Matt didn't supply:
+Basecamp card bodies accept HTML. Use this structure, omitting any optional section Matt didn't supply:
 
 ```html
 <div>
@@ -51,6 +52,8 @@ Basecamp card bodies accept HTML. Use this structure, omitting any section Matt 
 <li>Question one</li>
 <li>Question two</li>
 </ul>
+
+<p><strong>Worth my attention?</strong> Matt's one-line answer.</p>
 </div>
 ```
 
@@ -89,4 +92,5 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 | Shell escaping breaks HTML body | Quoting the body as a single-line string | Use a heredoc: `"$(cat <<'EOF' ... EOF)"` |
 | Wrong account / 404 | Missing `-a 6191443` — CLI falls back to global default | Always pass `-a 6191443` explicitly |
 | Card body shows raw `<div>` tags | Basecamp decoded content vs. source HTML confusion | HTML is correct; Basecamp renders it. Don't switch to Markdown. |
+| Attention check turns into a debate | Treated it as a gate | One question, one recorded answer — Matt decides whether to file it |
 | Idea is actually code work | Ideas card table is for concepts, not tickets | Redirect Matt to To-dos on the relevant project per his Basecamp workflow |

@@ -10,13 +10,14 @@ Shape Up was written for small teams doing human-speed implementation. AI change
 
 | Shape Up original | Solo dev + AI adaptation |
 |---|---|
-| Small batch (1–2 weeks, team) | Small batch (2–3 focused days) |
-| Big batch (6 weeks, team) | Big batch (1–2 weeks) |
+| Appetite (small batch 1–2 weeks / big batch 6 weeks, team) | Review budget: one sitting — v1 must be reviewable by Matt in one go |
 | Betting table (leadership meeting) | Solo decision: does this earn a cycle? |
 | Cooldown (2 weeks) | 1 day: review, cleanup, deploy |
 | PRD (planning doc) | Agent brief: surfaces, no-gos, acceptance criteria |
 
-**What doesn't change:** appetite as a forcing function, no permanent backlog, rough/solved/bounded, fixed time/variable scope, shaping as the hardest and most important part.
+**What doesn't change:** a fixed budget as the forcing function (now review attention, not calendar time), no permanent backlog, rough/solved/bounded, fixed budget/variable scope, shaping as the hardest and most important part.
+
+**Why review budget instead of appetite:** AI build time is cheap — the agent builds a feature in minutes or hours, so budgeting days or weeks no longer constrains anything. What stays scarce is Matt's review attention: every diff and preview has to pass through him, one at a time. That's the serial constraint, so that's what the shape budgets.
 
 **What AI changes about shaping:** bad shaping used to produce slow wrong results. With AI it produces fast wrong results. The quality of the shape directly determines the quality of what the build agent builds. Shaping is more critical, not less.
 
@@ -30,7 +31,7 @@ Three properties from Shape Up — all three required:
 
 - **Rough** — solution elements are clear but details are left for the builder. No wireframes, no task lists, no pixel specs. Space for creative judgment. The build agent fills in the details; the shape sets the direction.
 - **Solved** — the main elements connect. The critical unknowns are resolved. Not just a problem statement — there's a real solution at macro level.
-- **Bounded** — clear what's NOT included. Fixed appetite, explicit no-gos. Scope shrinks to fit time; time never expands to fit scope.
+- **Bounded** — clear what's NOT included. Review budget of one sitting, explicit no-gos. Scope shrinks to fit the budget; the budget never expands to fit scope.
 
 A pitch that isn't all three isn't shaped yet.
 
@@ -84,6 +85,23 @@ basecamp cards show <card_id> --in 46824335 -a 6191443 --md
 
 Go through each element conversationally. Use the card's existing content as a starting point — don't ask about things already answered.
 
+**Ask in rounds** (adapted from the `grilling` skill, batched to keep shaping fast):
+
+- **Look up facts yourself first.** Anything the card, the repo (`~/Code/<name>` if one exists), docs, or the web can answer — read it instead of asking Matt.
+- **Ask in numbered rounds.** Each round asks every open question whose prerequisites are already settled — nothing that depends on an answer still pending. Questions that hinge on this round's answers wait for the next round.
+- **Give a recommended answer with each question,** worded so "yes" accepts it. Matt can reply "yes to all", "yes except 3: …", or answer by number.
+- **Decisions stay Matt's.** Recommend, don't decide. Don't fold a recommendation into the pitch until he's accepted it.
+- **Keep rounds going until every element below is settled,** then move to step 3. Usually two or three rounds.
+
+Example round:
+
+> **Round 1**
+> 1. Problem: owners can't see which reviews came from real visits. Recommend narrowing to that case — yes?
+> 2. Stack: Rails + SQLite + Kamal, since there are user accounts. Yes?
+> 3. Map provider: Mapbox (styleable). Yes?
+
+The elements to settle:
+
 **Problem**
 
 Shape Up says: the problem should be a specific story or scenario showing why the current situation falls short — not a category of pain. Push for the concrete case.
@@ -92,19 +110,17 @@ Shape Up says: the problem should be a specific story or scenario showing why th
 - Who experiences it?
 - Why haven't they been able to solve it already?
 
+If the card's **Worth my attention?** line (from `add-idea`) is a maybe or a no, raise it in round 1 before shaping further.
+
 If the problem is fuzzy or too broad, narrow it to a specific pain point before proceeding. Vague problems produce vague pitches which produce wrong builds.
 
-**Appetite**
+**Review budget**
 
-Appetite is a time budget, not an estimate. The number comes first; the scope adjusts to fit.
+**Review budget: one sitting.** v1 must be reviewable by Matt in one sitting — one PR / preview he can review in one go. Anything bigger gets cut or split.
 
-**Appetite measures human attention, not agent speed.** The agent is always ready. The real constraint is Matt's review time and judgment — how much of his focus does this problem deserve?
+The budget comes first; the scope adjusts to fit. It isn't an estimate of build time — AI build time is cheap. It caps the scarce thing: Matt's review attention, which is serial.
 
-Two sizes for solo dev + AI:
-- **Small batch** — 2–3 focused days. Simple, well-understood problem.
-- **Big batch** — 1–2 weeks. Meaningful product with multiple surfaces.
-
-Ask: "Is this a small batch or big batch?" Help decide based on solution complexity. A two-sided platform with auth is never a small batch. If scope can't fit the appetite, cut scope — never extend time.
+Confirm: "Fits one sitting?" If v1 wouldn't, cut scope to the core use case, or split it into stages — each stage its own shape and its own one-sitting review. Never stretch the sitting to fit the scope. Name what got cut or deferred (it becomes a no-go or a later stage).
 
 **Solution**
 
@@ -121,7 +137,7 @@ Stop before it becomes a spec. If you're describing button labels or exact field
 
 **Rabbit holes**
 
-Specific technical or design risks that could blow up the appetite. The shaper's job is to resolve these before handing off.
+Specific technical or design risks that could blow the review budget. The shaper's job is to resolve these before handing off.
 
 For AI-assisted builds, pay special attention to:
 - Third-party dependencies that need a decision now (maps, auth, storage, payments)
@@ -130,9 +146,11 @@ For AI-assisted builds, pay special attention to:
 
 For each rabbit hole: either resolve it in the pitch (make the call) or cut it to a no-go.
 
+**Kill criteria belong here.** If the idea only works under a real-world condition you can't confirm yet (e.g. real-world data collection, a supply of users), name the threshold where you'd abandon it — and write it as a rabbit hole with its kill point.
+
 **No-gos**
 
-Named features or capabilities explicitly out of scope for this appetite. Not "we'll keep it simple" — specific things that won't be built.
+Named features or capabilities explicitly out of scope for this review budget. Not "we'll keep it simple" — specific things that won't be built.
 
 With AI, no-gos serve double duty: they prevent scope creep during planning AND prevent the build agent from adding features during building. Be more explicit than feels necessary.
 
@@ -151,7 +169,7 @@ Before presenting the pitch:
 
 - **Rough?** — No wireframes, no task lists, no pixel specs. If the solution reads like a design doc, strip it back.
 - **Solved?** — The core use case works end to end. No "we'll figure it out" holes in the main flow.
-- **Bounded?** — Appetite named. No-gos explicit. Scope can be cut if needed.
+- **Bounded?** — v1 fits the one-sitting review budget (or is split into stages that each do). No-gos explicit. Scope can be cut if needed.
 
 If any fail, keep shaping.
 
@@ -165,7 +183,7 @@ The pitch should be readable by someone (or something) that wasn't in the conver
 
 **Problem:** [Specific scenario showing why the current situation falls short. 2–3 sentences.]
 
-**Appetite:** [Small batch (2–3 days) or Big batch (1–2 weeks). One sentence on why.]
+**Review budget:** [One sitting. One sentence on why v1 fits it — and what was cut or split to make it fit.]
 
 **Solution:**
 [Tech stack. Core surfaces and how they connect. Walk the main use case at breadboard level. Not a spec — a map.]
@@ -207,8 +225,8 @@ Use this HTML structure:
 <h2>Problem</h2>
 <p>[specific scenario]</p>
 
-<h2>Appetite</h2>
-<p>[small or big batch + reasoning]</p>
+<h2>Review budget</h2>
+<p>[One sitting + why v1 fits / what was cut or split]</p>
 
 <h2>Solution</h2>
 <p>[stack + overview sentence]</p>
@@ -237,7 +255,7 @@ basecamp cards move <card_id> --to 9768185098 --card-table 9768185094 --in 46824
 
 Only when shaping surfaced a real **validation unknown** — demand uncertainty ("would anyone want this?"), an unfamiliar community whose pain you're guessing at, or a problem you can't confirm from your own experience — or when Matt explicitly wants to do user research / get a foot in a community. **Don't force it.** A well-understood itch you're scratching for yourself needs no research.
 
-The job: questions to post on X/Reddit that (a) test the bet and (b) get you known in the community — *before* a build exists. What you learn loops back into the shape (problem, appetite, no-gos).
+The job: questions to post on X/Reddit that (a) test the bet and (b) get you known in the community — *before* a build exists. What you learn loops back into the shape (problem, review budget, no-gos).
 
 **First, name the community — and check you're a genuine member (Minimalist Entrepreneur).** Start with the community, not the idea. The strongest pre-build research happens where Matt is *already embedded* — knows the language, already contributes, has heard this exact problem complained about repeatedly. Before drafting questions, run the test:
 - **Genuine member?** Contributing, not lurking. If he'd be parachuting in cold, *that is the finding* — either it's the wrong community, or he needs to become a real member first (over weeks, by being useful), not extract research from strangers. Don't fake membership; communities smell it.
@@ -271,11 +289,11 @@ One line: card updated and moved to Shaped (and note any `[🔬 Research]` cards
 ## Shaping heuristics
 
 - **Stack defaults:** Rails + SQLite + Kamal for anything with auth, user accounts, or dynamic data. 11ty + Cloudflare Pages for purely read-only/static sites.
-- **Two-sided platforms** (owners + users) always need Rails and are always big batch.
+- **Two-sided platforms** (owners + users) always need Rails and never fit one sitting whole — split them into stages (e.g. one side first), each its own one-sitting review.
 - **Map views** need a provider decision up front: Mapbox (styleable, default for custom-designed products), Leaflet+OSM (free, more setup), or Google (hard to style).
 - **Don't let a private admin tool scope the public site.** If only Matt uses it locally, it doesn't need to be a web app.
-- **Kill criteria belong in appetite.** If the project only works with real-world data collection, name the threshold where you'd abandon it.
-- **Appetite measures human attention, not agent speed.** "Lean MVP" isn't an appetite. Small batch or big batch is.
+- **Kill criteria belong in rabbit holes.** If the project only works with real-world data collection, name the threshold where you'd abandon it.
+- **Budget review attention, not build time.** "Lean MVP" isn't a budget. "Reviewable in one sitting" is.
 - **No-gos need to be explicit for AI.** The build agent will add features that seem reasonable. Name what's out of scope so it can't.
 
 ---
@@ -285,7 +303,7 @@ One line: card updated and moved to Shaped (and note any `[🔬 Research]` cards
 | # | Check | Pass | If fail |
 |---|-------|------|---------|
 | 1 | Problem is a specific scenario | Names a concrete situation, not a pain category | Ask for the specific case |
-| 2 | Appetite is a named batch size | "Small batch (2–3 days)" or "Big batch (1–2 weeks)" | Push for a number |
+| 2 | Review budget holds | v1 is reviewable in one sitting (one PR / preview); anything bigger is cut or split into stages | Cut or split until it fits |
 | 3 | Solution is rough | No wireframe-level detail, no task lists | Strip back |
 | 4 | Solution is solved | Core use case works end to end | Keep shaping |
 | 5 | Rabbit holes are concrete and resolved | Specific risk + a decision made | Resolve or cut to no-go |
@@ -304,7 +322,9 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 |---------|-------|-----|
 | Shaping session never ends | Too many open questions unresolved | Push for a decision; unresolved = rabbit hole or no-go |
 | Solution reads like a spec | Gone past rough into wireframe territory | Strip back to surfaces and flows |
-| Appetite stays vague | Felt awkward to push | Always get a batch size — appetite is human attention, not agent speed |
+| v1 too big to review in one sitting | Felt awkward to cut | Cut or split into stages — the budget is Matt's review attention, not build time |
+| Matt asked about a fact the card, repo, or docs already answered | Asked instead of looking it up | Look up facts first; only decisions go to Matt |
+| Questions dribble out one at a time | Didn't batch settled questions | Ask every question whose prerequisites are settled in one numbered round, each with a recommended answer |
 | Problem is a category, not a scenario | Accepted the first framing | Ask "what specifically happens when this fails?" |
 | AI builds adjacent features during build | No-gos weren't explicit enough | Add more no-gos; be more specific |
 | Card body posts as raw HTML | Shell escaping issue | Use heredoc for body content |
@@ -320,4 +340,4 @@ If a command fails in a way this table does not cover, show Matt the raw error a
 
 ## Exemplars
 
-- **Hookah Maps** — shaped May 2026. Big batch (1–2 weeks). Two-sided platform (owners + reviewers). Evolved from static 11ty guide to Rails app mid-session when user accounts entered scope. Mapbox for map. See card 9768317431 in Lab project.
+- **Hookah Maps** — shaped May 2026, before the review budget replaced appetite; it was sized as a big batch (1–2 weeks). Under today's rules it would be split into stages. Two-sided platform (owners + reviewers). Evolved from static 11ty guide to Rails app mid-session when user accounts entered scope. Mapbox for map. See card 9768317431 in Lab project.

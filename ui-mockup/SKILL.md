@@ -1,11 +1,6 @@
 ---
 name: ui-mockup
-description: Mock up one UI feature as several genuinely different variations in a single self-contained HTML file, opened in the browser, so Matt can compare them and pick a winner before it's built for real. Use when Matt wants to explore how a feature should look or behave, compare UI options, says "mock this up", "show me variations", "mock this up a few ways", or "/ui-mockup".
-triggers:
-  - mock this up
-  - show me variations
-  - design a few options
-  - /ui-mockup
+description: Mock up one UI feature as several genuinely different variations in a single self-contained HTML file, opened in the browser, so Matt can compare them and pick a winner before it's built for real. Use when Matt wants to explore how a feature should look or behave, compare UI options, says "mock this up", "show me variations", "mock this up a few ways", or "/ui-mockup". Also "design a few options".
 ---
 
 # UI mockup

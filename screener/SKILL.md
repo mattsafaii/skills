@@ -1,13 +1,6 @@
 ---
 name: screener
-description: Work HEY's Screener queue with Matt — lists who's waiting, classifies each first-time sender against what's already known (Master Client List, existing contacts, screening history), recommends approve or deny per sender, and acts only on Matt's word. Never denies anything that could be a customer lead. Use when Matt says "/screener", "check my screener", "screen senders", "screener queue", or asks who's waiting to be screened.
-triggers:
-  - /screener
-  - check my screener
-  - screener queue
-  - screen senders
-  - work the screener
-  - whos waiting in the screener
+description: Work HEY's Screener queue with Matt — lists who's waiting, classifies each first-time sender against what's already known (Master Client List, existing contacts, screening history), recommends approve or deny per sender, and acts only on Matt's word. Never denies anything that could be a customer lead. Use when Matt says "/screener", "check my screener", "screen senders", "screener queue", or asks who's waiting to be screened. Also "work the screener".
 ---
 
 # Screener

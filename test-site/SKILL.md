@@ -1,11 +1,6 @@
 ---
 name: test-site
-description: Run the Test phase for a Safaii Studio client site — prove the paths from the brief against staging (desktop + phone, form to the real inbox, search, redirects, links), run a visual-resilience pass over the templates with the client's real content, and produce the punch list (fix / defer / out of scope) plus a go/no-go for Release. Use when Matt says "test [client]", "/test-site", "run the test phase", "punch list for [client]", or after a build reaches staging.
-triggers:
-  - test the site for
-  - run the test phase
-  - punch list for
-  - test-site
+description: Run the Test phase for a Safaii Studio client site — prove the paths from the brief against staging (desktop + phone, form to the real inbox, search, redirects, links), run a visual-resilience pass over the templates with the client's real content, and produce the punch list (fix / defer / out of scope) plus a go/no-go for Release. Use when Matt says "test [client]", "/test-site", "run the test phase", "punch list for [client]", or after a build reaches staging. Also "punch list for [client]".
 ---
 
 # Test the site — prove the paths

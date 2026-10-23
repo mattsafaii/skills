@@ -1,12 +1,6 @@
 ---
 name: code-review
-description: Review the changes since a fixed point (commit, branch, tag, merge-base, or PR) along three axes — Standards (does the code follow the repo's conventions?), Spec (does it match the originating PRD?), and Interface (what did a UI change break or leave incomplete?). Standards and Spec always run; Interface runs when the diff touches user-facing code. Spawns the reviews in parallel in sibling Herdr panes and reports them side by side. Use when Matt says "review since X", wants a branch or PR or work-in-progress reviewed, or when /build or /backlog reaches its review step.
-triggers:
-  - review since
-  - code review
-  - review this branch
-  - review the diff
-  - review the pr
+description: Review the changes since a fixed point (commit, branch, tag, merge-base, or PR) along three axes — Standards (does the code follow the repo's conventions?), Spec (does it match the originating PRD?), and Interface (what did a UI change break or leave incomplete?). Standards and Spec always run; Interface runs when the diff touches user-facing code. Spawns the reviews in parallel in sibling Herdr panes and reports them side by side. Use when Matt says "review since X", wants a branch or PR or work-in-progress reviewed, or when /build or /backlog reaches its review step. Also "code review", "review this branch", "review the diff", or "review the PR".
 ---
 
 # Code review

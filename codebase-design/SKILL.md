@@ -1,13 +1,6 @@
 ---
 name: codebase-design
-description: Design deep modules and improve a codebase's architecture. Use when designing or improving a module's interface, finding deepening opportunities, deciding where a seam goes, making code more testable or AI-navigable, or when another skill needs the deep-module vocabulary.
-triggers:
-  - deep module
-  - deepen
-  - module interface
-  - where should the seam
-  - improve the architecture
-  - architecture review
+description: Design deep modules and improve a codebase's architecture. Use when designing or improving a module's interface, finding deepening opportunities, deciding where a seam goes, making code more testable or AI-navigable, or when another skill needs the deep-module vocabulary. Also when Matt says "deepen this module", "where should the seam go", or "architecture review".
 ---
 
 # Codebase design

@@ -1,11 +1,6 @@
 ---
 name: tdd
-description: Test-driven development — the red → green loop. Use when writing tests, building a feature test-first, fixing a bug test-first, or when /build asks for a slice's `Test:` line. Covers what makes a test worth keeping, where tests attach (seams), and the anti-patterns.
-triggers:
-  - test-first
-  - red-green-refactor
-  - write a test for
-  - tdd this
+description: Test-driven development — the red → green loop. Use when writing tests, building a feature test-first, fixing a bug test-first, or when /build asks for a slice's `Test:` line. Covers what makes a test worth keeping, where tests attach (seams), and the anti-patterns. Also "tdd this", "test-first", or "red-green-refactor".
 ---
 
 # Test-driven development

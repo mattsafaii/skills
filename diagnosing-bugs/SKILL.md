@@ -1,12 +1,6 @@
 ---
 name: diagnosing-bugs
-description: Diagnosis loop for hard bugs and performance regressions. Use when Matt says "diagnose"/"debug this", or reports something broken, throwing, failing, or slow.
-triggers:
-  - diagnose this
-  - debug this
-  - why is this broken
-  - track this down
-  - it's slow
+description: Diagnosis loop for hard bugs and performance regressions. Use when Matt says "diagnose"/"debug this", or reports something broken, throwing, failing, or slow. Also "why is this broken", "track this down", or "it's slow".
 ---
 
 # Diagnosing bugs

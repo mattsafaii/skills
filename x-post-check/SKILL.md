@@ -1,13 +1,6 @@
 ---
 name: x-post-check
-description: Sanity-check a tweet, thread, or reply Matt wrote himself against the X "For You" algorithm — returns findings only (slop tells, topic legibility, link-drop-while-small, dead reply patterns, bait that triggers negatives), never rewrites his words. An authenticity/mistake checker, NOT an engagement optimizer. Use when Matt says "check this tweet", "x-post-check", "does this read like slop", "vet my X post", "is this reply good", or pastes a draft tweet and asks if it's ready to post.
-triggers:
-  - check this tweet
-  - x-post-check
-  - does this read like slop
-  - vet my tweet
-  - is this reply good
-  - check my X post
+description: Sanity-check a tweet, thread, or reply Matt wrote himself against the X "For You" algorithm — returns findings only (slop tells, topic legibility, link-drop-while-small, dead reply patterns, bait that triggers negatives), never rewrites his words. An authenticity/mistake checker, NOT an engagement optimizer. Use when Matt says "check this tweet", "x-post-check", "does this read like slop", "vet my X post", "is this reply good", or pastes a draft tweet and asks if it's ready to post. Also "vet my tweet" or "check my X post".
 ---
 
 # X Post Check Skill

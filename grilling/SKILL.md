@@ -1,12 +1,6 @@
 ---
 name: grilling
-description: Grill Matt relentlessly about a plan, decision, or idea until you reach a shared understanding. Use when he wants to stress-test his thinking, or says "grill me"/"grill this". Also the default working mode for codebase-design's deepening conversations.
-triggers:
-  - grill me
-  - grill this
-  - stress-test this
-  - pressure-test
-  - poke holes in
+description: Grill Matt relentlessly about a plan, decision, or idea until you reach a shared understanding. Use when he wants to stress-test his thinking, or says "grill me"/"grill this". Also the default working mode for codebase-design's deepening conversations. Also "stress-test this", "pressure-test", or "poke holes in".
 ---
 
 Interview me relentlessly about every aspect of this until we reach a shared understanding. Walk down each branch of the decision tree, resolving dependencies between decisions one by one. For each question, give your recommended answer.

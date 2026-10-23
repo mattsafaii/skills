@@ -1,11 +1,6 @@
 ---
 name: prototype
-description: Build a throwaway prototype to answer a design question. Use when Matt wants to sanity-check whether a state model, data shape, or API feels right. For "what should this look like?", use variant (real page) or ui-mockup (standalone HTML) instead.
-triggers:
-  - prototype this
-  - throwaway prototype
-  - does this state model
-  - feel out the API
+description: Build a throwaway prototype to answer a design question. Use when Matt wants to sanity-check whether a state model, data shape, or API feels right. For "what should this look like?", use variant (real page) or ui-mockup (standalone HTML) instead. Also "prototype this", "throwaway prototype", or "feel out the API".
 ---
 
 # Prototype

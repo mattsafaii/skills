@@ -1,12 +1,6 @@
 ---
 name: prd
-description: Turn a shaped idea into a build-ready PRD. Appends the PRD to the idea's card on the Lab board and moves the card to the PRD column. No project, workspace, or todolist — that happens at /build. Use when Matt says "write the PRD", "create a PRD", "PRD this", "let's PRD", or "/prd".
-triggers:
-  - write the PRD
-  - create a PRD
-  - PRD this
-  - let's PRD
-  - write a PRD for
+description: Turn a shaped idea into a build-ready PRD. Appends the PRD to the idea's card on the Lab board and moves the card to the PRD column. No project, workspace, or todolist — that happens at /build. Use when Matt says "write the PRD", "create a PRD", "PRD this", "let's PRD", or "/prd". Also "write a PRD for".
 ---
 
 # PRD Skill

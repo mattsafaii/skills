@@ -1,12 +1,6 @@
 ---
 name: domain-modeling
-description: Build and sharpen a project's domain model — the CONTEXT.md glossary and the docs/adr/ decision record. Use when pinning down terminology or a ubiquitous language, recording an architectural decision, or when another skill (codebase-design, tdd, diagnosing-bugs) needs the model maintained.
-triggers:
-  - domain model
-  - ubiquitous language
-  - glossary
-  - record a decision
-  - ADR
+description: Build and sharpen a project's domain model — the CONTEXT.md glossary and the docs/adr/ decision record. Use when pinning down terminology or a ubiquitous language, recording an architectural decision, or when another skill (codebase-design, tdd, diagnosing-bugs) needs the model maintained. Also "glossary", "ubiquitous language", "record a decision", or "ADR".
 ---
 
 # Domain modeling

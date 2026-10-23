@@ -1,11 +1,6 @@
 ---
 name: handoff
-description: Compact the current conversation into a handoff document for a fresh agent or session to pick up. Use before ending a session another will continue, or when context is getting long.
-triggers:
-  - handoff
-  - hand this off
-  - write a handoff
-  - continue in a new session
+description: Compact the current conversation into a handoff document for a fresh agent or session to pick up. Use before ending a session another will continue, or when context is getting long. Also "hand this off", "write a handoff", or "continue in a new session".
 disable-model-invocation: true
 ---
 

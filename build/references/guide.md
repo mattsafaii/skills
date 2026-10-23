@@ -241,7 +241,7 @@ basecamp docs update <doc_id> --title "PRD" --content "$(cat <<'EOF'
 ## Overview
 
 **Problem:** [from pitch]
-**Appetite:** [from pitch]
+**Review budget:** [from pitch — older pitches call this "Appetite"]
 **Stack:** [confirmed stack]
 
 ## Surfaces
@@ -287,7 +287,7 @@ EOF
 Use this structure:
 
 ```markdown
-**Appetite:** [small batch (2–3 days) or big batch (1–2 weeks)]
+**Review budget:** [one sitting — from the pitch]
 
 **What we're building:** [2–3 sentence summary from the pitch problem + solution]
 
@@ -529,7 +529,7 @@ One line: Basecamp project created, PRD doc written, [N] todos created, repo sca
 - **Wide mechanical changes go expand → migrate → contract (cycles).** They aren't slices; forcing them into the per-slice shape produces a todolist that can't land green.
 - **Verification tasks are user-facing.** "Verify: user can submit a URL and see a result" — testable by using the app.
 - **Setup tasks are real tasks.** Scaffold, deploy config, and env setup take real time.
-- **Keep the list short.** 8–15 tasks for small batch. 15–25 for big batch. More means tasks are too granular. Test lines and `Done when:` lines ride inside existing todos, so they don't push the count up.
+- **Keep the list short.** 8–15 tasks fits a one-sitting review budget. Past ~20 means tasks are too granular — or v1 doesn't fit one sitting and should go back to `shape` to be cut or split. Test lines and `Done when:` lines ride inside existing todos, so they don't push the count up.
 - **If no data model in PRD, skip data model task.** Don't invent a schema for a CLI tool.
 - **Tests follow the PRD, not the code.** Every `Test:` line traces back to a mechanical acceptance criterion. If a test has no criterion behind it, either the PRD missed something — go add it — or the test isn't worth writing.
 - **Don't manufacture tests for a screen.** A page that renders a list is checked by looking at it. Forcing a test there costs a session and proves nothing.

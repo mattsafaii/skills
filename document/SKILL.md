@@ -1,12 +1,6 @@
 ---
 name: document
 description: Document an app, CLI, or library codebase so a reader can learn it deeply — what each part does, how the parts relate, and WHY it's built that way (the decisions behind the code) — published into that project's own Basecamp project Docs with inline diagrams. Writes narrative learning docs (architecture, decisions, complete module guide, key flows) and delegates symbol-level signature lookup to the language's own doc generator. Reads the actual source (AI-built or human-built); never fabricates rationale. Skips static/marketing/landing sites. Runs inside the repo (the build agent's finalize step, or standalone anytime). Use when Matt says "document the codebase", "document this project", "write the architecture docs", "generate docs", "explain this codebase", or "/document".
-triggers:
-  - document the codebase
-  - document this project
-  - write the architecture docs
-  - generate docs
-  - explain this codebase
 ---
 
 # Document Skill

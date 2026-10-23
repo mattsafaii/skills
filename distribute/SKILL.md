@@ -1,14 +1,6 @@
 ---
 name: distribute
-description: Generate distribution content for a project Matt built — drafts the right cards ([🌱 Establish] / [🔬 Research] / [🔎 Question] / [👋 Teaser] / [🧵 Thread] / [💬 Reddit] / [📊 Poll] / [💡 Insight]) into the Safaii Studio Distribution posting queue, sized to the project's stage. Use when Matt says "distribute [project]", "make content for [project]", "draft tweets/reddit posts for [project]", "let's share [project]", "/distribute", or wants to promote/launch something he built.
-triggers:
-  - distribute
-  - make content for
-  - draft tweets for
-  - draft posts for
-  - let's share
-  - content to share my project
-  - promote my project
+description: Generate distribution content for a project Matt built — drafts the right cards ([🌱 Establish] / [🔬 Research] / [🔎 Question] / [👋 Teaser] / [🧵 Thread] / [💬 Reddit] / [📊 Poll] / [💡 Insight]) into the Safaii Studio Distribution posting queue, sized to the project's stage. Use when Matt says "distribute [project]", "make content for [project]", "draft tweets/reddit posts for [project]", "let's share [project]", "/distribute", or wants to promote/launch something he built. Also "promote my project".
 ---
 
 # Distribute Skill

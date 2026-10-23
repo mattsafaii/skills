@@ -1,13 +1,7 @@
 ---
 name: explain-interface
-description: Answers "how was this built?" about an interface. Give it a URL and name the thing you're curious about, and it reads the layers that produce the effect. Reads the whole frontend instead when you don't name a thing. From a screenshot it reconstructs rather than reads and says so.
+description: Answers "how was this built?" about an interface. Give it a URL and name the thing you're curious about, and it reads the layers that produce the effect. Reads the whole frontend instead when you don't name a thing. From a screenshot it reconstructs rather than reads and says so. Use when Matt asks "how was this built", "how did they build", "explain this interface", or "reverse engineer this site".
 disable-model-invocation: true
-triggers:
-  - how was this built
-  - how is this built
-  - explain this interface
-  - how did they build
-  - reverse engineer this site
 ---
 
 # Interface explanation

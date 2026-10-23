@@ -1,11 +1,6 @@
 ---
 name: content-ideas
-description: Sweep everything Matt worked on over a time window (past week / 2 weeks / month / since a date) across personal repos, scrapped ideas, Basecamp dev logs, messages, cards, and Latest Activity — including client work — distill the insights, learnings, techniques, patterns, and approaches, and create content idea cards (drafts or seeds) with source attribution. Use when Matt says "what did I learn this week/month", "look back over the past [period]", "mine my work for content", or wants content ideas pulled from a period of work.
-triggers:
-  - what did I learn
-  - look back over the past
-  - mine my work for content
-  - content from the past
+description: Sweep everything Matt worked on over a time window (past week / 2 weeks / month / since a date) across personal repos, scrapped ideas, Basecamp dev logs, messages, cards, and Latest Activity — including client work — distill the insights, learnings, techniques, patterns, and approaches, and create content idea cards (drafts or seeds) with source attribution. Use when Matt says "what did I learn this week/month", "look back over the past [period]", "mine my work for content", or wants content ideas pulled from a period of work. Also "content from the past [period]".
 ---
 
 # Content Ideas Skill
